@@ -62,3 +62,5 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 
 ### 数据库日志
+2025-10-26 18:14
+1.完成学生、老师的信息表和账号表
