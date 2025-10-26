@@ -3,7 +3,7 @@
     <el-card class="login-card">
       <div slot="header" class="login-header">
         <h2>系统登录</h2>
-        <p>请输入账号密码登录</p>
+      <!--  <p>请输入账号密码登录</p> -->
       </div>
 
       <el-form
@@ -12,17 +12,21 @@
           :rules="loginRules"
           class="login-form"
           label-width="80px"
+		  
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item label="账号" prop="username" class="hide-lable" label-width="40px" >
           <el-input
               v-model="loginForm.username"
-              placeholder="请输入用户名"
+              placeholder="请输入账号"
               prefix-icon="User"
               clearable
+			  @input="loginForm.username = loginForm.username.replace(/[^\d]/g, '')"  
+			
           />
+		  <!--loginForm.username.replace(/[^\d]/g, '')" 正则表达式匹配数字  -->
         </el-form-item>
 
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码" prop="password" class="hide-lable" label-width="40px">
           <el-input
               v-model="loginForm.password"
               type="password"
@@ -38,20 +42,20 @@
           <el-checkbox v-model="loginForm.remember" class="remember-checkbox">
             记住密码
           </el-checkbox>
-          <el-link type="primary" class="forgot-link" @click="handleForgotPassword">
+          <el-link type="primary" class="forgot-link" @click="handleForgotPassword" underline="never">
             忘记密码?
           </el-link>
         </el-form-item>
 
-        <el-form-item>
-          <el-button
-              type="primary"
-              class="login-btn"
-              @click="handleLogin"
-              :loading="loginLoading"
-          >
-            登录
-          </el-button>
+        <el-form-item class="form-actions">
+         <el-button
+             type="primary"
+             class="login-btn"
+             @click="handleLogin"
+             :loading="loginLoading"
+         >
+           登录
+         </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -65,7 +69,7 @@ import {ElMessage, ElMessageBox} from 'element-plus'
 const loginFormRef = ref(null)
 
 const loginLoading = ref(false)
-const showPassword = ref(false)
+const showPassword = ref(true)
 
 const loginForm = reactive({
   username: '',
@@ -94,7 +98,7 @@ const handleLogin = async () => {
     await new Promise(resolve => setTimeout(resolve, 1500))
 
     // 模拟登录成功
-    if (loginForm.username === 'admin' && loginForm.password === '123456') {
+    if (loginForm.username === '24306010535' && loginForm.password === '123456') {
       // 记住密码逻辑
       if (loginForm.remember) {
         localStorage.setItem('username', loginForm.username)
@@ -140,6 +144,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.hide-lable ::v-deep .el-form-item__label::before {
+  display: none;
+}
+
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -163,7 +171,7 @@ onMounted(() => {
 
 .login-header h2 {
   margin: 0 0 10px 0;
-  color: #1f2329;
+  color: #7d807d;
 }
 
 .login-header p {
@@ -173,14 +181,16 @@ onMounted(() => {
 }
 
 .login-form {
-  padding: 0 30px 30px;
+  padding: 0 30px ;
+  
 }
 
-.form-actions {
+.el-form-item.form-actions :deep(.el-form-item__content) {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  justify-content: center; 
+  align-items: center;    
+  margin-left: 0 !important; 
+  width: 100%;
 }
 
 .remember-checkbox {
@@ -189,6 +199,7 @@ onMounted(() => {
 
 .forgot-link {
   font-size: 14px;
+  margin-left: 55%;
 }
 
 .login-btn {
