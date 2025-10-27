@@ -95,15 +95,15 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 ##### 请求参数
 
-- `code`：`String` 类型，验证码
-- `codeURl`：`String` 类型，密码
+- `correct_verification_code`：`String` 类型，验证码
+- `verification_code_ip`：`String` 类型，密码
 
 ##### **请求参数示例**
 
 ```json
 {
-  "code": "3T6Y",
-  "codeURl":"http://172.16.46.77/static/img/36.png"
+  "correct_verification_code": "3T6Y",
+  "verification_code_ip":"http://172.16.46.77/static/img/36.png"
 }
 ```
 
