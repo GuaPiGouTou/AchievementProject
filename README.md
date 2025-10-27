@@ -66,9 +66,12 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 
 ### 数据库日志
-MySQL8.0 字符集：utf8mb4 -- UTF-8 Unicode 整理：utf8mb4_0900_ai_ci
+MySQL7.0 字符集：utf8mb4 -- UTF-8 Unicode 整理：utf8mb4_0900_ai_ci
 
 2025-10-26 18:14
 
 1.完成学生、老师的信息表和账号表
+
+2025-10-27 21:17
+2.完成输入导入和角色表
 	
