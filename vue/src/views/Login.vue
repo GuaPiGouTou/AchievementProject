@@ -1,166 +1,173 @@
 <template>
-  <div class="login-container">
-    <el-card class="login-card">
-      <div slot="header" class="login-header">
-        <h2>系统登录</h2>
-      <!--  <p>请输入账号密码登录</p> -->
-      </div>
+  <el-row class="login-page">
+    <el-col :span="8" :offset="8">
+      <el-card class="login-card">
+        <div slot="header" class="login-header">
+          <h2>用户登录</h2>
+        </div>
 
-      <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          class="login-form"
-          label-width="80px"
-		  
-      >
-        <el-form-item label="账号" prop="username" class="hide-lable" label-width="40px" >
-          <el-input
-              v-model="loginForm.username"
-              placeholder="请输入账号"
-              prefix-icon="User"
-              clearable
-			  @input="loginForm.username = loginForm.username.replace(/[^\d]/g, '')"  
-			
-          />
-		  <!--loginForm.username.replace(/[^\d]/g, '')" 正则表达式匹配数字  -->
-        </el-form-item>
+        <!-- 错误提示 -->
+        <el-alert
+            v-if="errorMessage"
+            :message="errorMessage"
+            type="error"
+            show-icon
+            :closable="false"
+            class="error-alert"
+        />
 
-        <el-form-item label="密码" prop="password" class="hide-lable" label-width="40px">
-          <el-input
-              v-model="loginForm.password"
-              type="password"
-              placeholder="请输入密码"
-              prefix-icon="Lock"
-              :show-password="showPassword"
-              @click:suffix="showPassword = !showPassword"
-              clearable
-          />
-        </el-form-item>
+        <el-form ref="loginForm" :model="form" class="login-form">
+          <!-- 用户名输入 -->
+          <el-form-item>
+            <el-input
+                v-model="form.username"
+                placeholder="请输入用户名"
+                prefix-icon="User"
+                :disabled="loading"
+                @input="clearError"
+            />
+          </el-form-item>
 
-        <el-form-item class="form-actions">
-          <el-checkbox v-model="loginForm.remember" class="remember-checkbox">
-            记住密码
-          </el-checkbox>
-          <el-link type="primary" class="forgot-link" @click="handleForgotPassword" underline="never">
-            忘记密码?
-          </el-link>
-        </el-form-item>
+          <!-- 密码输入 -->
+          <el-form-item>
+            <el-input
+                v-model="form.password"
+                type="password"
+                placeholder="请输入密码"
+                prefix-icon="Lock"
+                :disabled="loading"
+                @input="clearError"
+            />
+          </el-form-item>
 
-        <el-form-item class="form-actions">
-         <el-button
-             type="primary"
-             class="login-btn"
-             @click="handleLogin"
-             :loading="loginLoading"
-         >
-           登录
-         </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-  </div>
+          <!-- 记住密码选项 -->
+          <el-form-item class="remember-item">
+            <el-checkbox v-model="form.remember" :disabled="loading">
+              记住密码
+            </el-checkbox>
+          </el-form-item>
+
+          <!-- 登录按钮 -->
+          <el-form-item>
+            <el-button
+                type="primary"
+                class="login-btn"
+                @click="submit"
+                :loading="loading"
+                :disabled="loading"
+            >
+              登录
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </el-col>
+  </el-row>
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 
-const loginFormRef = ref(null)
+const router = useRouter()
 
-const loginLoading = ref(false)
-const showPassword = ref(true)
-
-const loginForm = reactive({
+// 表单数据
+const form = ref({
   username: '',
   password: '',
-  remember: false
+  remember: false  // 记住密码开关
 })
 
-const loginRules = {
-  username: [
-    {required: true, message: '请输入用户名', trigger: 'blur'},
-    {min: 3, max: 12, message: '用户名长度在 3-12 个字符之间', trigger: 'blur'}
-  ],
-  password: [
-    {required: true, message: '请输入密码', trigger: 'blur'},
-    {min: 6, max: 20, message: '密码长度在 6-20 个字符之间', trigger: 'blur'}
-  ]
+// 状态管理
+const errorMessage = ref('')
+const loading = ref(false)
+
+// 页面加载时读取本地存储的账号密码
+onMounted(() => {
+  const savedUser = localStorage.getItem('savedUser')
+  if (savedUser) {
+    try {
+      const userInfo = JSON.parse(savedUser)
+      form.value.username = userInfo.username
+      form.value.password = userInfo.password
+      form.value.remember = true
+    } catch (e) {
+      console.error('读取保存的用户信息失败:', e)
+      localStorage.removeItem('savedUser')
+    }
+  }
+})
+
+// 清除错误信息
+const clearError = () => {
+  errorMessage.value = ''
 }
 
-const handleLogin = async () => {
-  const valid = await loginFormRef.value.validate()
-  if (!valid) return
+// 登录提交
+const submit = async () => {
+  // 清除之前的错误
+  clearError()
 
-  loginLoading.value = true
+  // 表单验证
+  if (!form.value.username.trim()) {
+    errorMessage.value = '请输入用户名'
+    return
+  }
+  if (!form.value.password.trim()) {
+    errorMessage.value = '请输入密码'
+    return
+  }
 
+  // 开始登录流程
+  loading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    const response = await axios.post('http://172.16.46.77:9095/api/login', {
+      username: form.value.username.trim(),
+      password: form.value.password.trim()
+    })
 
-    // 模拟登录成功
-    if (loginForm.username === '24306010535' && loginForm.password === '123456') {
-      // 记住密码逻辑
-      if (loginForm.remember) {
-        localStorage.setItem('username', loginForm.username)
-        localStorage.setItem('password', loginForm.password)
+    if (response.data.success) {
+      // 处理记住密码
+      if (form.value.remember) {
+        // 保存到本地存储
+        localStorage.setItem('savedUser', JSON.stringify({
+          username: form.value.username.trim(),
+          password: form.value.password.trim()
+        }))
       } else {
-        localStorage.removeItem('username')
-        localStorage.removeItem('password')
+        // 不记住密码则清除本地存储
+        localStorage.removeItem('savedUser')
       }
 
-      ElMessage.success('登录成功！')
-      // 登录成功后跳转（实际项目中替换为路由跳转）
-      setTimeout(() => {
-        window.location.href = '/'
-      }, 1000)
+      // 保存token
+      localStorage.setItem('token', response.data.token)
+
+      // 提示并跳转
+      ElMessage.success('登录成功，即将跳转首页')
+      // router.push('/home')
     } else {
-      ElMessage.error('用户名或密码错误')
+      errorMessage.value = response.data.message || '登录失败，请检查账号密码'
     }
-  } catch (error) {
-    ElMessage.error('登录失败，请重试')
+  } catch (err) {
+    errorMessage.value = '网络异常，请稍后重试'
+    console.error('登录请求失败：', err)
   } finally {
-    loginLoading.value = false
+    loading.value = false
   }
 }
-
-const handleForgotPassword = () => {
-  ElMessageBox.alert(
-      '请联系管理员重置密码',
-      '忘记密码',
-      {confirmButtonText: '确定'}
-  )
-}
-
-
-onMounted(() => {
-  const savedUser = localStorage.getItem('username')
-  const savedPwd = localStorage.getItem('password')
-  if (savedUser && savedPwd) {
-    loginForm.username = savedUser
-    loginForm.password = savedPwd
-    loginForm.remember = true
-  }
-})
 </script>
 
 <style scoped>
-.hide-lable ::v-deep .el-form-item__label::before {
-  display: none;
-}
-
-.login-container {
+.login-page {
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #f5f7fa;
-  padding: 20px;
+  background-color: #f5f7fa;
+  padding: 50px 0;
 }
 
 .login-card {
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
@@ -170,41 +177,29 @@ onMounted(() => {
 }
 
 .login-header h2 {
-  margin: 0 0 10px 0;
-  color: #7d807d;
-}
-
-.login-header p {
   margin: 0;
-  color: #6b7280;
-  font-size: 14px;
+  color: #303133;
+  font-size: 24px;
 }
 
 .login-form {
-  padding: 0 30px ;
-  
+  padding: 0 30px 30px;
 }
 
-.el-form-item.form-actions :deep(.el-form-item__content) {
+.remember-item {
   display: flex;
-  justify-content: center; 
-  align-items: center;    
-  margin-left: 0 !important; 
-  width: 100%;
-}
-
-.remember-checkbox {
-  font-size: 14px;
-}
-
-.forgot-link {
-  font-size: 14px;
-  margin-left: 55%;
+  justify-content: flex-start;
+  margin-bottom: 10px;
 }
 
 .login-btn {
   width: 100%;
   padding: 12px 0;
   font-size: 16px;
+}
+
+.error-alert {
+  margin: 0 30px 15px;
+  background-color: #fff1f0;
 }
 </style>
