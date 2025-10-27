@@ -4,7 +4,7 @@ Source Host: localhost
 Source Database:  achievementproject
 Target Host: localhost
 Target Database:  achievementproject
-Date: 2025/10/27 21:11:39
+Date: 2025/10/27 21:45:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -16,7 +16,7 @@ CREATE TABLE `account_roles` (
   `account_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `role_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色代码(默认:1001学生权限,1002学生管理,2001老师权限,2002老师管理,3000超级管理员)',
   PRIMARY KEY (`account_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='权限表';
 
 -- ----------------------------
 -- Table structure for student_account
@@ -100,6 +100,17 @@ CREATE TABLE `teacher_info` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`teacher_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='教师信息表';
+
+-- ----------------------------
+-- Table structure for verification_code
+-- ----------------------------
+DROP TABLE IF EXISTS `verification_code`;
+CREATE TABLE `verification_code` (
+  `code_id` int NOT NULL AUTO_INCREMENT,
+  `correct_verification_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '正确验证码',
+  `verification_code_ip` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '验证码路径',
+  PRIMARY KEY (`code_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='验证码表';
 
 -- ----------------------------
 -- Records 
