@@ -16,8 +16,7 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   config => {
-    // 在发送请求之前做些什么
-    
+  
     // 1. 添加认证 token
     if (getToken()) {
       config.headers['Authorization'] = `Bearer ${getToken()}`
