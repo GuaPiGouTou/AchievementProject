@@ -70,6 +70,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
 
 const router = useRouter()
 
@@ -119,7 +120,9 @@ const submit = async () => {
     errorMessage.value = '请输入密码'
     return
   }
-
+  //开始加密密码
+   const encryptedPassword = rsaEncrypt(this.form.value.password, PUBLIC_KEY)
+  
   // 开始登录流程
   loading.value = true
   try {

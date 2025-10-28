@@ -190,12 +190,16 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 修改用户密码
 
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
 ##### 请求参数
 
 - `student_no`：`String` 类型，学号
 - `password`：`String` 类型，旧密码
 - `newpassword`：`String` 类型，新密码
-- `token`:`String`类型，Token
 
 ##### 请求参数示例
 
@@ -203,8 +207,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 {
   "student_no": '24306010535',
   "password":"123456",
-  "newpassword":"password123456",
-  "token":"xxasdasgrfdh"
+  "newpassword":"password123456"
 }
 ```
 
