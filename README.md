@@ -245,6 +245,110 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 ..........其他错误
 
+#### `GET/api/getUserInfo`
+
+获取用户信息
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `username`：`String` 类型，账号
+- `isTeacherIdentity`:`Boolean`类型，默认学生身份，选择为老师身份
+
+##### 请求参数示例
+
+```json
+{
+  "username": 'L15525',
+  "isTeacherIdentity":true
+}
+```
+
+##### 响应结果
+
+- `code`：`number`类型,错误码
+- `data`：`Json`类型，用户信息
+- `msg`:`String`类型，提示信息
+
+##### 响应结果示例
+
+请求成功结果：学生
+
+```json
+{
+  "code": 200,
+  "data": {
+"student_no": "2023001001",
+"name": "张三",
+"gender": "男",
+"grade": "2023级",
+"department": "计算机学院",
+"major": "软件工程",
+"phone": "13800138000",
+"email": "zhangsan@example.com",
+"id_card": "110101200001011234",
+"avatar": "/example/avatars/student1.jpg",
+"birth_date": "2000-01-01",
+"enrollment_date": "2023-09-01",
+"address": "北京市海淀区中关村大街1号",
+"student_status": "在读",
+"semester": 3,
+"class": "软件工程2301班",
+"created_at": "2023-09-01T08:00:00Z",
+"updated_at": "2024-06-15T14:30:00Z"
+},
+   "msg": "获取成功"
+}
+```
+
+请求成功结果：学生
+
+```json
+{
+  "code": 200,
+  "data": {
+"teacher_no": "T2023001",
+"name": "张老师",
+"gender": "男",
+"title": "副教授",
+"department": "计算机科学与技术学院",
+"research_direction": "人工智能、机器学习、数据挖掘",
+"phone": "010-12345678",
+"mobile": "13800138000",
+"email": "zhang@university.edu.cn",
+"office_location": "计算机学院楼301室",
+"id_card": "110101198001011234",
+"avatar": "/uploads/avatars/teacher_001.jpg",
+"birth_date": "1980-01-01",
+"hire_date": "2010-08-15",
+"education_background": "2009-2013 中国科学院 计算机软件与理论 博士",
+"work_experience": "2013-至今 某大学计算机学院 副教授",
+"academic_achievements": "发表SCI/EI论文20余篇",
+"created_at": "2010-08-15T09:00:00Z",
+"updated_at": "2024-06-15T14:30:00Z"
+},
+   "msg": "获取成功"
+}
+```
+
+
+
+请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": null,
+   "msg": " 获取失败用户名不存在"
+}
+```
+
+..........其他错误
+
 
 
 ### 需求分析日志
