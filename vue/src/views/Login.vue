@@ -40,6 +40,34 @@
             />
           </el-form-item>
 
+			  <!-- 验证码输入 -->
+			          <el-form-item class="captcha-item">
+			            <div class="captcha-container">
+			              <el-input
+			                  v-model="form.captcha"
+			                  placeholder="请输入验证码"
+			                  prefix-icon="Key"
+			                  :disabled="loading"
+			                  @input="clearError"
+			                  class="captcha-input"
+			                  maxlength="4"
+			              />
+			              <div class="captcha-image-container">
+			                <img 
+			                  :src="captchaImageUrl" 
+			                  alt="验证码" 
+			                  class="captcha-image"
+			                  @click="refreshCaptcha"
+			                  title="点击刷新验证码"
+			                />
+			                <div class="captcha-refresh" @click="refreshCaptcha">
+			                  <el-icon><Refresh /></el-icon>
+			                </div>
+			              </div>
+			            </div>
+			          </el-form-item>
+
+			
           <!-- 记住密码选项 -->
           <el-form-item class="remember-item">
             <el-checkbox v-model="form.remember" :disabled="loading">
@@ -78,6 +106,7 @@ import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
 import {login} from '@/utils/api'
+import {setToken} from '@/utils/auth'
 const router = useRouter()
 
 // 表单数据
@@ -91,6 +120,11 @@ const form = ref({
 // 状态管理
 const errorMessage = ref('')
 const loading = ref(false)
+
+//验证码数据
+const captchaImageUrl= ref("https://pic.616pic.com/ys_bnew_img/00/42/61/V3N7MK0v8e.jpg")
+const captcha = ref('')
+
 
 // 页面加载时读取本地存储的账号密码
 onMounted(() => {
@@ -113,6 +147,19 @@ const clearError = () => {
   errorMessage.value = ''
 }
 
+//验证码刷新
+const refreshCaptcha=()=>{
+	try {
+		const res =await getCodeUrl();
+		captchaImageUrl = res.data
+	} catch (error) {
+		//TODO handle the exception
+		errorMessage.value = "验证码刷新失败"
+	}
+	
+	
+}
+
 // 登录提交
 const submit = async () => {
   // 清除之前的错误
@@ -127,6 +174,8 @@ const submit = async () => {
     errorMessage.value = '请输入密码'
     return
   }
+   setToken("sadasdasdsa")
+   router.push({name:"home"})
   //开始加密密码
    const temppass =form.value.password
    const encryptedPassword = rsaEncrypt(temppass, PUBLIC_KEY)
@@ -137,10 +186,10 @@ const submit = async () => {
   // 创建新用户
 	try {
 		
-		console.log(form)
-		console.log()
 		if(encryptedPassword!=false){
-			login(form,encryptedPassword)
+			const res =await login(form,encryptedPassword)
+			setToken(res.data)
+			console.log(res)
 		}else{
 			loading.value = true
 			errorMessage.value = '密码加密失败'
@@ -149,7 +198,8 @@ const submit = async () => {
 	} catch (error) {
 		//TODO handle the exception
 		//结束登录
-		loading.value = true
+		loading.value = false
+		
 	}
 	
   
@@ -201,5 +251,55 @@ const submit = async () => {
 .error-alert {
   margin: 0 30px 15px;
   background-color: #fff1f0;
+}
+
+.captcha-item {
+  margin-bottom: 20px;
+}
+
+.captcha-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+.captcha-image-container {
+  position: relative;
+  width: 100px;
+  height: 40px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.captcha-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.captcha-refresh {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.captcha-image-container:hover .captcha-refresh {
+  opacity: 1;
 }
 </style>

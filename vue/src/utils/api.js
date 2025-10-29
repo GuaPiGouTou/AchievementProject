@@ -25,9 +25,16 @@ export function updatePassword(formData) {
  * @returns {Promise}
  */
 export function login(formData,encryptedPassword) {
-  return request.post('/api/auth/login', {
+  return request.post('/api/login', {
     username: formData.student_no,
     password: encryptedPassword,
     identity: formData.isTeacherIdentity
   })
+}
+/**
+ * 获取验证码URL
+ * @returns {Promise} 包含验证码URL的Promise
+ */
+export function getCodeUrl() {
+  return request.get('/api/getCodeUrl')
 }

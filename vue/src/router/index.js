@@ -10,6 +10,7 @@ const router = createRouter({
       meta: { requiresAuth: true }, // 需要认证的页面
       children: [
         { 
+		  name:'home',
           path: 'home', 
           component: () => import('../views/Home.vue'),
           meta: { title: '首页' } 
