@@ -77,7 +77,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
-import api from '@/utils/api'
+import {login} from '@/utils/api'
 const router = useRouter()
 
 // 表单数据
@@ -128,15 +128,21 @@ const submit = async () => {
     return
   }
   //开始加密密码
-   const encryptedPassword = rsaEncrypt(this.form.value.password, PUBLIC_KEY)
+  const temppass =form.value.password
+   const encryptedPassword = rsaEncrypt(temppass, PUBLIC_KEY)
   
   // 开始登录流程
   loading.value = true
   // 创建新用户
 	try {
-		http.post(api.)
+		
+		console.log(form)
+		console.log(encryptedPassword)
+		api.login(form,encryptedPassword)
 	} catch (error) {
 		//TODO handle the exception
+		//结束登录
+		loading.value = true
 	}
 	
   
