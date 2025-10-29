@@ -2,7 +2,7 @@
   <div>
     <!-- 头部区域 -->
     <div style="height: 60px; display: flex">
-      <div style="width: 12%; display: flex; align-items: center; padding-left: 20px; background-color: #2c82ff">
+      <div style="width: 15%; display: flex; align-items: center; padding-left: 20px; background-color: #2c82ff">
         <img style="width: 90%; height: 60%" src="@/assets/imgs/logo.png" alt="" />
       </div>
       <div style="flex: 1; display: flex; align-items: center; padding-left: 20px; border-bottom: 1px solid #ddd">
@@ -28,7 +28,7 @@
     <!-- 下方区域开始 -->
     <div style="display: flex">
       <!-- 菜单区域开始 -->
-      <div style="width: 12%">
+      <div style="width: 15%">
         <!-- 关键改进：添加 unique-opened 确保只有一个子菜单展开，优化视觉效果 -->
         <el-menu
             router

@@ -151,7 +151,7 @@ const clearError = () => {
 const refreshCaptcha=async ()=>{
 	try {
 		const resCode =await getCodeUrl();
-		captchaImageUrl = res.data
+		captchaImageUrl.value = res.data
 	} catch (error) {
 		//TODO handle the exception
 		errorMessage.value = "验证码刷新失败"

@@ -3,7 +3,7 @@ import JSEncrypt from 'jsencrypt'
 // 从后端获取公钥的 API
 export async function fetchPublicKey() {
   try {
-    const response = await fetch('/api/public_key')
+    const response = await fetch('/api/publickey')
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

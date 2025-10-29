@@ -161,7 +161,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 ##### 响应结果
 
 - `code`：`number`类型, 错误码
-- `data`：`String`;类型，token
+- `data`：`Json`;类型，token,initial(初始账号标识)
 - `msg`   :  `String`类型，提示信息
 
 ##### 响应结果示例
@@ -171,7 +171,10 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 ```json
 {
   "code": 200,
-  "data": "asdasdafdvdf69df*5612313",
+  "data": {
+      token:"asdasdafdvdf69df*5612313",
+      initial:true
+  },
    "msg": "登录成功"
 }
 ```
@@ -349,7 +352,51 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 ..........其他错误
 
+#### `GET /api/publickey`
 
+获取RSA公钥
+
+##### 请求参数
+
+无
+
+##### 响应结果
+
+- `code`：`number`类型，错误码
+- `data`：`String`类型，公钥
+- `msg`  :   `String`类型，提示信息
+
+##### 响应结果示例
+
+请求成功结果
+
+```json
+{
+  "code": 200,
+  "data": "-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1yxvpIsbuwKBoYRze0R7
+iCKZSAq87Qt/sGN81CerFBvyfWvnvV+fu/Ugm0VzXY+7yTsQxG3ijQdoizw7CLJI
+SXw+BCUCrM7ret94xgARXr65l68TxnVw1yzJbez/k5Vl04t0Baj56iSlnQGKPzBX
+L+9+lAMkIzW5SYl5uKNaCVkqsw00l4wM6op+7uaneLVhInBVrjn+f57HVmJK3jHx
+BPisM9MDn1QbUYeABbVmS4zXCTTyN6SJgmqw0gTiKobTgiKKjZM5enPTmgJQit4f
+WKm6FxcKYUj2QGR68JQegG4Y1XZCPWanhXury9FvRO72/NwNrjQaoIsOTPsWmV0D
+jwIDAQAB
+-----END PUBLIC KEY-----",
+  "msg":"获取成功"    
+}
+```
+
+请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"公钥获取失败"    
+}
+```
+
+........其他错误
 
 ### 需求分析日志
 
