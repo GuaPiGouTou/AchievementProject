@@ -5,7 +5,7 @@ import router from '@/router'
 
 // 创建 Axios 实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_API, // 从环境变量获取基础URL
+  baseURL: import.meta.env.VITE_APP_BASE_API, // 从环境变量获取服务器地址
   timeout: 15000, // 超时时间
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
@@ -15,7 +15,35 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   config => {
-  
+  // 打印完整的请求信息
+      console.log('=== 请求开始 ===')
+      console.log('请求URL:', config.url)
+      console.log('请求方法:', config.method?.toUpperCase())
+      console.log('完整URL:', config.baseURL + config.url)
+      console.log('请求头:', JSON.stringify(config.headers, null, 2))
+      
+      // 打印请求参数（根据请求方法不同）
+      if (config.method?.toLowerCase() === 'get' && config.params) {
+        console.log('GET请求参数:', JSON.stringify(config.params, null, 2))
+      }
+      
+      if (['post', 'put', 'patch'].includes(config.method?.toLowerCase()) && config.data) {
+        console.log('请求体数据:', JSON.stringify(config.data, null, 2))
+        
+        // 如果是FormData，特殊处理
+        if (config.data instanceof FormData) {
+          console.log('请求体类型: FormData')
+          const formDataObj = {}
+          for (const pair of config.data.entries()) {
+            formDataObj[pair[0]] = pair[1]
+          }
+          console.log('FormData内容:', JSON.stringify(formDataObj, null, 2))
+        } else {
+          console.log('请求体类型: JSON')
+        }
+      }
+      
+      console.log('=== 请求结束 ===')
     // 1. 添加认证 token
     if (getToken()) {
       config.headers['Authorization'] = `Bearer ${getToken()}`
@@ -140,6 +168,7 @@ service.interceptors.response.use(
           break
         case 404:
           error.message = `请求地址出错: ${error.response.config.url}`
+          // error.message = `api出错请联系管理员`
           break
         case 408:
           error.message = '请求超时'

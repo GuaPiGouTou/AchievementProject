@@ -14,10 +14,8 @@ export async function fetchPublicKey() {
   }
 }
 
-// RSA加密方法 - 增强错误处理
+// RSA加密方法
 export function rsaEncrypt(data, publicKey) {
-  console.log('开始加密过程...')
-  
   // 验证输入数据
   if (typeof data !== 'string') {
     console.error('加密数据必须是字符串，当前类型:', typeof data)
@@ -41,21 +39,11 @@ export function rsaEncrypt(data, publicKey) {
   }
   
   try {
-    console.log('创建 JSEncrypt 实例...')
     const encryptor = new JSEncrypt()
-    
-    console.log('设置公钥...')
     encryptor.setPublicKey(publicKey)
-    
-    console.log('开始加密数据...')
     const result = encryptor.encrypt(data)
-    
     if (result === false) {
       console.error('JSEncrypt 加密返回 false')
-      console.error('可能的原因:')
-      console.error('1. 公钥格式不正确')
-      console.error('2. 数据过长（RSA 有长度限制）')
-      console.error('3. JSEncrypt 库存在问题')
       return false
     }
     
@@ -81,11 +69,46 @@ export function testEncryption() {
   return result !== false
 }
 
-// 默认公钥
+// 默认公钥 PKCS#8标准 2048位 
 const DEFAULT_PUBLIC_KEY =`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1SU1LfVLPHCozMxH2Mo
-4lgOEePzNm0tRgeLezV6ffAt0gunVTLw7onLRnrq0/IzW7yWR7QkrmG7J3Rw0xRP
-8JcpqFGqFeyYqL3hQb+1CQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1yxvpIsbuwKBoYRze0R7
+iCKZSAq87Qt/sGN81CerFBvyfWvnvV+fu/Ugm0VzXY+7yTsQxG3ijQdoizw7CLJI
+SXw+BCUCrM7ret94xgARXr65l68TxnVw1yzJbez/k5Vl04t0Baj56iSlnQGKPzBX
+L+9+lAMkIzW5SYl5uKNaCVkqsw00l4wM6op+7uaneLVhInBVrjn+f57HVmJK3jHx
+BPisM9MDn1QbUYeABbVmS4zXCTTyN6SJgmqw0gTiKobTgiKKjZM5enPTmgJQit4f
+WKm6FxcKYUj2QGR68JQegG4Y1XZCPWanhXury9FvRO72/NwNrjQaoIsOTPsWmV0D
+jwIDAQAB
 -----END PUBLIC KEY-----`
-
+/*
+私钥
+-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDXLG+kixu7AoGh
+hHN7RHuIIplICrztC3+wY3zUJ6sUG/J9a+e9X5+79SCbRXNdj7vJOxDEbeKNB2iL
+PDsIskhJfD4EJQKszut633jGABFevrmXrxPGdXDXLMlt7P+TlWXTi3QFqPnqJKWd
+AYo/MFcv736UAyQjNblJiXm4o1oJWSqzDTSXjAzqin7u5qd4tWEicFWuOf5/nsdW
+YkreMfEE+Kwz0wOfVBtRh4AFtWZLjNcJNPI3pImCarDSBOIqhtOCIoqNkzl6c9Oa
+AlCK3h9YqboXFwphSPZAZHrwlB6AbhjVdkI9ZqeFe6vL0W9E7vb83A2uNBqgiw5M
++xaZXQOPAgMBAAECggEAAr3TMlJ/aPOQOUGZwxFNTZ+7OjrAy3hhCRtLZNyYhmoQ
+vd5ZFoWYYGmwH6pT3PZO2zKAdTA9ObTFdTiwO90hpKYLmDvse80rHOaqAEPR9NYT
+QUZ+xwGKDYPJkTf6zaOSp45YTRYpEP2kioqRe1qfUcIIZ9ReaoBtuu0geuTB6eqN
+7V1/0rBZfcbfpptRZA75GObpHo3h5QCx1RQ0aaSo9hgLmvSNkvAUaBkEk8tf/CPK
+BpB1IcM+FAE90xyD0sJxMfXyqCx5t4otrvrHdulORkA/II7lsGX/cihpwB8FGiWj
+rf9FdBMUnlq5NlsmoAMeNW6S/VoUqDqsZlywwDFWAQKBgQD6nsS5XE4er33bx4Ok
+bw9c6DVQmeXEfpT0HHDpfjgVXf1/zBIOZ2Gznj6hMqXAIweXmdjFnW2nEpyI3ia9
+R1Oz+Qe5bgyhpMkyNVsT1udfmyNQgLKxc5z/8jynGe6ebdYbmpksJ9bu1C+P5ZtU
+zFNeSsna1ORA6Qiezi9F4Zy/AQKBgQDbyuDMHNY/vnaV0sdEOavLPZm/pfUMDR8H
+uNvEwXLGREIWVLJi034aYtQpE3WA50lporfv1Khe1cz7Y6r20LkdkpCp175s6GZ/
+7T/H/QCAuCdBLYgkaVJ8iucqcFEe1VsIEmjAcMK1fkyMZGnsIGO63V3L2744DPIl
+mNQO/aBSjwKBgGlFF0zkwMuS20Ld4yXGoKVdxEc+3YxTvy1qZOMu6U/QUxLDHTJ/
+qkJQTe5X39d830uGi881+UEcSDQVXCBVPYtzJxN0bknXdctpLgB/XGCEQakm5egz
+r9ayYVevRNO3PyAJKB2r/lQDPJcs0rojuUD6GR+aHOZG/B/4a1LnGXgBAoGBAMxb
+0y4VNePo7IubgmleEeyT5wt5e+FrpclhSP2lPFk6iBQJRh97M4nHECrtC9kBs5GD
+mPBmUvJyaffnkMOSCDyF1PoGPek3IG6boi0JgVktYFpKwoXQY8Cmyg78hYBcshpM
+O5eKgI+N0hDLIG1LJE9PmfF87F1jNBZfBfS2P0XjAoGALi8xQ0HfxHcIu1qpV1ue
+m5esWHBchIQDlTNRR9HuSbj2qnd2CVnHuTm4T8cxVZoMHU5HdCvRWn5Ph83RB/Ix
+snPp78FbMzuVQ4RdyZBJSaNluXdOGX5EudUAXSMXjSBpib0beDTyHhvWOLIPOGgy
+6Jg8wPLgwJbfHZxVmwHFg4U=
+-----END PRIVATE KEY-----
+*/
 export const PUBLIC_KEY = DEFAULT_PUBLIC_KEY
+

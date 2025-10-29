@@ -9,7 +9,7 @@
         <!-- 错误提示 -->
         <el-alert
             v-if="errorMessage"
-            :message="errorMessage"
+            :title="errorMessage"
             type="error"
             show-icon
             :closable="false"
@@ -119,17 +119,18 @@ const submit = async () => {
   clearError()
 
   // 表单验证
-  if (!form.value.username.trim()) {
+  if (!form.value.username ||!form.value.username.trim()==='') {
     errorMessage.value = '请输入用户名'
     return
   }
-  if (!form.value.password.trim()) {
+  if (!form.value.password || !form.value.password.trim()==='') {
     errorMessage.value = '请输入密码'
     return
   }
   //开始加密密码
-  const temppass =form.value.password
+   const temppass =form.value.password
    const encryptedPassword = rsaEncrypt(temppass, PUBLIC_KEY)
+
   
   // 开始登录流程
   loading.value = true
@@ -137,8 +138,14 @@ const submit = async () => {
 	try {
 		
 		console.log(form)
-		console.log(encryptedPassword)
-		api.login(form,encryptedPassword)
+		console.log()
+		if(encryptedPassword!=false){
+			login(form,encryptedPassword)
+		}else{
+			loading.value = true
+			errorMessage.value = '密码加密失败'
+		}
+		
 	} catch (error) {
 		//TODO handle the exception
 		//结束登录
