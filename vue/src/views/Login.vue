@@ -105,7 +105,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
-import {login} from '@/utils/api'
+import {login,getCodeUrl} from '@/utils/api'
 import {setToken} from '@/utils/auth'
 const router = useRouter()
 
@@ -148,9 +148,9 @@ const clearError = () => {
 }
 
 //验证码刷新
-const refreshCaptcha=()=>{
+const refreshCaptcha=async ()=>{
 	try {
-		const res =await getCodeUrl();
+		const resCode =await getCodeUrl();
 		captchaImageUrl = res.data
 	} catch (error) {
 		//TODO handle the exception
