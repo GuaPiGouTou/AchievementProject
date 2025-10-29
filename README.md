@@ -146,13 +146,15 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 - `student_no`：`String` 类型，学号
 - `password`：`String` 类型，密码
+- `isTeacherIdentity`:`Boolean`类型，默认学生身份，选择为老师身份
 
 ##### 请求参数示例
 
 ```json
 {
   "student_no": '24306010535',
-  "password":"123456"
+  "password":"123456",
+  "isTeacherIdentity":false
 }
 ```
 
@@ -200,6 +202,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 - `student_no`：`String` 类型，学号
 - `password`：`String` 类型，旧密码
 - `newpassword`：`String` 类型，新密码
+- `isTeacherIdentity`:`Boolean`类型，默认学生身份，选择为老师身份
 
 ##### 请求参数示例
 
@@ -207,7 +210,8 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 {
   "student_no": '24306010535',
   "password":"123456",
-  "newpassword":"password123456"
+  "newpassword":"password123456",
+  "isTeacherIdentity":false
 }
 ```
 

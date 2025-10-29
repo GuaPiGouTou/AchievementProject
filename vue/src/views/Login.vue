@@ -21,7 +21,7 @@
           <el-form-item>
             <el-input
                 v-model="form.username"
-                placeholder="请输入用户名"
+                placeholder="请输入学号|工号"
                 prefix-icon="User"
                 :disabled="loading"
                 @input="clearError"
@@ -45,7 +45,13 @@
             <el-checkbox v-model="form.remember" :disabled="loading">
               记住密码
             </el-checkbox>
-          </el-form-item>
+			<!-- 身份选项 -->
+			<el-checkbox v-model="form.isTeacherIdentity"  >
+			  老师登录
+			</el-checkbox>
+          </el-form-item> 
+		  
+          
 
           <!-- 登录按钮 -->
           <el-form-item>
@@ -71,14 +77,15 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
-
+import api from '@/utils/api'
 const router = useRouter()
 
 // 表单数据
 const form = ref({
   username: '',
   password: '',
-  remember: false  // 记住密码开关
+  remember: false  ,// 记住密码开关
+  isTeacherIdentity:false //默认学生身份，选择为老师身份
 })
 
 // 状态管理
@@ -125,40 +132,16 @@ const submit = async () => {
   
   // 开始登录流程
   loading.value = true
-  try {
-    const response = await axios.post('http://172.16.46.77:9095/api/login', {
-      username: form.value.username.trim(),
-      password: form.value.password.trim()
-    })
-
-    if (response.data.success) {
-      // 处理记住密码
-      if (form.value.remember) {
-        // 保存到本地存储
-        localStorage.setItem('savedUser', JSON.stringify({
-          username: form.value.username.trim(),
-          password: form.value.password.trim()
-        }))
-      } else {
-        // 不记住密码则清除本地存储
-        localStorage.removeItem('savedUser')
-      }
-
-      // 保存token
-      localStorage.setItem('token', response.data.token)
-
-      // 提示并跳转
-      ElMessage.success('登录成功，即将跳转首页')
-      // router.push('/home')
-    } else {
-      errorMessage.value = response.data.message || '登录失败，请检查账号密码'
-    }
-  } catch (err) {
-    errorMessage.value = '网络异常，请稍后重试'
-    console.error('登录请求失败：', err)
-  } finally {
-    loading.value = false
-  }
+  // 创建新用户
+	try {
+		http.post(api.)
+	} catch (error) {
+		//TODO handle the exception
+	}
+	
+  
+  
+  
 }
 </script>
 
@@ -170,6 +153,7 @@ const submit = async () => {
 }
 
 .login-card {
+  margin-top: 100px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }

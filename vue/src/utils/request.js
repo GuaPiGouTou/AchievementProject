@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { getToken, removeToken } from '@/utils/auth'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import store from '@/store'
 import router from '@/router'
 
 // 创建 Axios 实例
@@ -72,9 +71,9 @@ service.interceptors.response.use(
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          store.dispatch('user/resetToken').then(() => {
-            location.reload()
-          })
+          // 移除 token 并刷新页面
+          removeToken()
+          location.reload()
         })
         return Promise.reject(new Error(res.message || 'Error'))
       }
