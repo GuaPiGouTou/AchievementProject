@@ -17,8 +17,8 @@
           </div>
           <template #dropdown>
             <el-dropdown-item>个人信息</el-dropdown-item>
-            <el-dropdown-item>修改密码</el-dropdown-item>
-            <el-dropdown-item>退出登录</el-dropdown-item>
+            <el-dropdown-item @click="goToPasswordChange">修改密码</el-dropdown-item>
+            <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
           </template>
         </el-dropdown>
       </div>
@@ -72,6 +72,22 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { removeToken } from '@/utils/auth'
+import { House, Location, User } from '@element-plus/icons-vue'
+
+const router = useRouter()
+
+const  goToPasswordChange = () => {
+  router.push('/passwordchange')
+}
+
+const handleLogout = () => {
+  removeToken()
+  router.push('/login')
+  ElMessage.success('已成功退出登录')
+}
 
 </script>
 

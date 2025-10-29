@@ -31,6 +31,13 @@ const router = createRouter({
       path: '/login', 
       component: () => import('../views/Login.vue'),
       meta: { title: '用户登录' } 
+    },{
+      path: '/passwordchange',
+      component: () => import('../views/PasswordChange.vue'),
+      meta: { title: '修改密码' ,
+        requiresAuth: true //必须的登录才可以访问
+      }
+
     },
     { 
       path: '/notFound', 
