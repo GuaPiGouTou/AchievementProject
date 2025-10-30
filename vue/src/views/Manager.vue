@@ -13,7 +13,7 @@
         <el-dropdown>
           <div style="display: flex; align-items: center">
             <img style="width: 40px; height: 40px; border-radius: 50%" src="@/assets/imgs/njp9mnwLp9.png" alt="" />
-            <span style="margin-left: 5px">admin</span>
+            <span style="margin-left: 5px">{{account}}</span>
           </div>
           <template #dropdown>
             <el-dropdown-item>个人信息</el-dropdown-item>
@@ -72,15 +72,21 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue' 
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { removeToken } from '@/utils/auth'
 import { House, Location, User } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const account = ref("无用户")
+
+onMounted(() => {
+account.value = localStorage.getItem('username')
+})
 
 const  goToPasswordChange = () => {
-  router.push('/passwordchange')
+  router.push('passwordchange')
 }
 
 const handleLogout = () => {

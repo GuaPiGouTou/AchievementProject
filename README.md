@@ -97,7 +97,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 ##### 请求参数
 
 - `correct_verification_code`：`String` 类型，验证码
-- `verification_code_ip`：`String` 类型，密码
+- `verification_code_ip`：`String` 类型，URL
 
 ##### **请求参数示例**
 
@@ -152,7 +152,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 ```json
 {
-  "student_no": '24306010535',
+  "uaername": '24306010535',
   "password":"123456",
   "isTeacherIdentity":false
 }
@@ -173,7 +173,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
   "code": 200,
   "data": {
       token:"asdasdafdvdf69df*5612313",
-      initial:true
+      initial:1//是否第一次登录1/0
   },
    "msg": "登录成功"
 }
@@ -211,7 +211,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 ```json
 {
-  "student_no": '24306010535',
+  "username": '24306010535',
   "password":"123456",
   "newpassword":"password123456",
   "isTeacherIdentity":false
@@ -398,6 +398,137 @@ jwIDAQAB
 
 ........其他错误
 
+#### `POST /api/updateUserInfo`
+
+统一修改用户信息，支持学生和老师两种身份
+
+##### 请求头
+
+- `Authorization`: `Bearer token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `username`: `String`类型，用户名（用于验证身份）
+- `isTeacherIdentity`: `Boolean`类型，身份标识
+- `updateData`: `Object`类型，更新数据（根据身份动态验证）
+
+##### 更新数据字段（updateData）
+
+**通用字段**
+
+- `name`: `String`类型，姓名
+- `phone`: `String`类型，手机号
+- `email`: `String`类型，邮箱
+- `avatar`: `String`类型，头像URL
+- `address`: `String`类型，地址（老师对应`office_location`）
+
+**学生特有字段**
+
+- `grade`: `String`类型，年级
+- `department`: `String`类型，学院
+- `major`: `String`类型，专业
+- `class`: `String`类型，班级
+- `student_status`: `String`类型，学籍状态
+
+**老师特有字段**
+
+- `title`: `String`类型，职称
+- `department`: `String`类型，学院
+- `research_direction`: `String`类型，研究方向
+- `office_location`: `String`类型，办公室位置
+- `mobile`: `String`类型，手机号
+
+##### 请求参数示例
+
+学生示例
+
+```json
+{
+  "username": "2023001001",
+  "isTeacherIdentity": false,
+  "updateData": {
+    "name": "张三",
+    "phone": "13800138000",
+    "email": "zhangsan@example.com",
+    "grade": "2023级",
+    "class": "软件工程2301班"
+  }
+}
+```
+
+老师示例
+
+```json
+{
+  "username": "T2023001",
+  "isTeacherIdentity": true,
+  "updateData": {
+    "name": "张老师",
+    "email": "zhang@university.edu.cn",
+    "title": "副教授",
+    "research_direction": "人工智能、机器学习"
+  }
+}
+```
+
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的用户信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+学生结果
+
+```json
+{
+  "code": 200,
+  "data": {
+    "student_no": "2023001001",
+    "name": "张三",
+    "phone": "13800138000",
+    "email": "zhangsan@example.com",
+    "grade": "2023级",
+    "class": "软件工程2301班",
+    "updated_at": "2024-06-15T15:30:00Z"
+  },
+  "msg": "学生信息更新成功"
+}
+```
+
+老师结果
+
+```json
+{
+  "code": 200,
+  "data": {
+    "teacher_no": "T2023001",
+    "name": "张老师",
+    "email": "zhang@university.edu.cn",
+    "title": "副教授",
+    "research_direction": "人工智能、机器学习",
+    "updated_at": "2024-06-15T15:30:00Z"
+  },
+  "msg": "教师信息更新成功"
+}	
+```
+
+请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"用户信息更新失败"    
+}
+```
+
+........其他错误
+
 ### 需求分析日志
 
 
@@ -537,4 +668,5 @@ MySQL7.0 字符集：utf8mb4 -- UTF-8 Unicode 整理：utf8mb4_0900_ai_ci
 ---
 
 *本表格仅供参考，具体问题需要结合实际情况分析。*
->>>>>>> bb68089995bf0af4944f7c73913972472a3cfedf
+
+>>>>>>> 

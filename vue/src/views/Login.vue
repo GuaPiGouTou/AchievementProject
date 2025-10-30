@@ -7,14 +7,15 @@
         </div>
 
         <!-- 错误提示 -->
-        <el-alert
+      <!--  <el-alert
             v-if="errorMessage"
             :title="errorMessage"
             type="error"
             show-icon
             :closable="false"
             class="error-alert"
-        />
+			:duration="5000"
+        /> -->
 
         <el-form ref="loginForm" :model="form" class="login-form">
           <!-- 用户名输入 -->
@@ -44,7 +45,7 @@
 			          <el-form-item class="captcha-item">
 			            <div class="captcha-container">
 			              <el-input
-			                  v-model="form.captcha"
+			                  v-model="captcha"
 			                  placeholder="请输入验证码"
 			                  prefix-icon="Key"
 			                  :disabled="loading"
@@ -105,7 +106,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt,PUBLIC_KEY } from '@/utils/encrypt'
-import {login,getCodeUrl} from '@/utils/api'
+import {login,getCodeUrl,verifyCodeUrl} from '@/utils/api'
 import {setToken} from '@/utils/auth'
 const router = useRouter()
 
@@ -122,9 +123,16 @@ const errorMessage = ref('')
 const loading = ref(false)
 
 //验证码数据
-const captchaImageUrl= ref("https://pic.616pic.com/ys_bnew_img/00/42/61/V3N7MK0v8e.jpg")
+const captchaImageUrl= ref("")
 const captcha = ref('')
 
+//错误显示方法
+const showErrorMsg =(msg)=>{
+	ElMessage.error({
+	  message: msg,
+	  duration: 3000,
+	})
+}
 
 // 页面加载时读取本地存储的账号密码
 onMounted(() => {
@@ -152,9 +160,10 @@ const refreshCaptcha=async ()=>{
 	try {
 		const resCode =await getCodeUrl();
 		captchaImageUrl.value = res.data
+		console.log(res.data)
 	} catch (error) {
 		//TODO handle the exception
-		errorMessage.value = "验证码刷新失败"
+		showErrorMsg("验证码刷新失败")
 	}
 	
 	
@@ -167,19 +176,42 @@ const submit = async () => {
 
   // 表单验证
   if (!form.value.username ||!form.value.username.trim()==='') {
-    errorMessage.value = '请输入用户名'
+	  
+    showErrorMsg('请输入用户名')
     return
   }
   if (!form.value.password || !form.value.password.trim()==='') {
-    errorMessage.value = '请输入密码'
+    showErrorMsg('请输入密码')
     return
   }
-   setToken("sadasdasdsa")
-   router.push({name:"home"})
+ /*
+  if(!captcha.value||!captcha.value.trim()==='')
+  {
+	  showErrorMsg('请输入验证码')
+	  return
+  }
+  if(!captchaImageUrl.value||!captchaImageUrl.value.trim()==='')
+  {
+  	  showErrorMsg('请获取验证码')
+  	  return
+  }
+  if(captcha.value.length<4)
+  {
+	  showErrorMsg('验证码长度不够')
+	  return
+  }
+
+	//开始验证验证码
+	const ifcode =await verifyCodeUrl(captcha.value,captchaImageUrl.value)
+	if(!ifcode)
+	{
+		showErrorMsg('验证码错误')
+		return
+	}
   //开始加密密码
    const temppass =form.value.password
    const encryptedPassword = rsaEncrypt(temppass, PUBLIC_KEY)
-
+*/
   
   // 开始登录流程
   loading.value = true
@@ -187,12 +219,16 @@ const submit = async () => {
 	try {
 		
 		if(encryptedPassword!=false){
-			const res =await login(form,encryptedPassword)
-			setToken(res.data)
-			console.log(res)
+			// const res =await login(form,encryptedPassword)
+			const res =await login(form.value,form.value.password)
+			setToken(res.token)
+			localStorage.setItem('initial',res.initial)
+			localStorage.setItem('username',form.value.username)
+			router.push({ name: 'home'})
+			console.log(res.token)
 		}else{
 			loading.value = true
-			errorMessage.value = '密码加密失败'
+			showErrorMsg('密码加密失败')
 		}
 		
 	} catch (error) {
@@ -249,6 +285,7 @@ const submit = async () => {
 }
 
 .error-alert {
+  width: 88%;
   margin: 0 30px 15px;
   background-color: #fff1f0;
 }
