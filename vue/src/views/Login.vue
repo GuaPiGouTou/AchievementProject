@@ -172,11 +172,10 @@ const refreshCaptcha=async ()=>{
 // 登录提交
 const submit = async () => {
   // 清除之前的错误
-  clearError()
+  //clearError()
 
   // 表单验证
   if (!form.value.username ||!form.value.username.trim()==='') {
-	  
     showErrorMsg('请输入用户名')
     return
   }

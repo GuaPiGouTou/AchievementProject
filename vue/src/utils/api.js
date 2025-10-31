@@ -52,3 +52,18 @@ export function verifyCodeUrl(code,url) {
     verification_code_ip: url
   })
 }
+
+/**
+ * 获取用户信息
+ * @param {Object} params - 请求参数
+ * @param {String} params.username - 账号
+ * @param {Boolean} params.isTeacherIdentity - 是否为教师身份（默认false）
+ * @returns {Promise}
+ */
+export function getUserInfo(params) {
+  return request({
+    url: '/api/getUserInfo',
+    method: 'GET',
+    params // GET请求参数会自动拼接到URL
+  })
+}

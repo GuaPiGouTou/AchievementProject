@@ -88,13 +88,23 @@ const passwordForm = ref(null)
 
 // 状态管理
 const loading = ref(false)
-const rules = ref({
+const formRules = ref({  // 变量名改为 formRules，与模板对应
   newpassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度需在6-20位之间', trigger: 'blur' },
+    { min: 8, max: 20, message: '密码长度需在8-20位之间', trigger: 'blur' },
     {
       pattern: /^(?=.*[a-zA-Z])(?=.*\d).+$/,
       message: '密码需包含字母和数字',
+      trigger: 'blur'
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (value && value.trim() === '') {
+          callback(new Error('密码不能为纯空格'))
+        } else {
+          callback()
+        }
+      },
       trigger: 'blur'
     }
   ],
@@ -166,7 +176,7 @@ const handleSubmit = async () => {
       headers: {
         'Authorization': `Bearer ${token}`, // 规范的Bearer Token格式
         'Content-Type': 'application/json'
-      }
+      },
     }) */
 	const res = await updatePassword(form.value)
 

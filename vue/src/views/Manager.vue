@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 头部区域 -->
-    <div style="height: 60px; display: flex">
+    <div style="height: 60px; display: flex; position: fixed; top: 0; left: 0; right: 0; z-index: 1002; background-color: white;">
       <div style="width: 15%; display: flex; align-items: center; padding-left: 20px; background-color: #2c82ff">
         <img style="width: 90%; height: 60%" src="@/assets/imgs/logo.png" alt="" />
       </div>
@@ -26,15 +26,14 @@
     <!-- 头部区域结束 -->
 
     <!-- 下方区域开始 -->
-    <div style="display: flex">
-      <!-- 菜单区域开始 -->
-      <div style="width: 15%">
-        <!-- 关键改进：添加 unique-opened 确保只有一个子菜单展开，优化视觉效果 -->
+    <div style="display: flex; margin-top: 60px;">
+      <!-- 菜单区域开始：固定定位确保滚动时完整覆盖 -->
+      <div style="position: fixed; top: 60px; left: 0; bottom: 0; width: 15%; background-color: #2c82ff; z-index: 1001;">
         <el-menu
             router
             :default-openeds="['1']"
             default-active="/manager/home"
-            style="min-height: calc(100vh - 60px)"
+            style="height: 100%; border: none;"
             unique-opened
         >
           <el-menu-item index="/manager/home">
@@ -48,31 +47,28 @@
               <span>数据管理</span>
             </template>
             <el-menu-item index="/manager/about">二级菜单</el-menu-item>
-
           </el-sub-menu>
 
-          <el-menu-item index="/manager/user">
+          <el-menu-item index="/manager/studentuser">
             <template #title>
-            <el-icon><User /></el-icon>
-            <span>个人中心</span>
+              <el-icon><User /></el-icon>
+              <span>个人中心</span>
             </template>
-
           </el-menu-item>
         </el-menu>
       </div>
       <!-- 菜单区域结束 -->
 
-      <!-- 数据渲染区域开始 -->
-      <div style="flex: 1; width: 0; padding: 10px; background-color: #e4edf1">
+      <!-- 数据渲染区域开始：添加左边距避免被菜单遮挡 -->
+      <div style="flex: 1; width: 0; padding: 10px; background-color: #e4edf1; margin-left: 15%; min-height: calc(100vh - 80px);">
         <RouterView />
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue' 
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { removeToken } from '@/utils/auth'
@@ -82,7 +78,7 @@ const router = useRouter()
 const account = ref("无用户")
 
 onMounted(() => {
-account.value = localStorage.getItem('username')
+  account.value = localStorage.getItem('username')
 })
 
 const  goToPasswordChange = () => {
@@ -94,22 +90,18 @@ const handleLogout = () => {
   router.push('/login')
   ElMessage.success('已成功退出登录')
 }
-
 </script>
 
 <style>
 .el-menu {
-  background-color: #2c82ff;
-  border: none;
+  background-color: transparent; /* 继承容器背景色 */
 }
-
 
 .el-sub-menu__title,
 .el-menu-item {
   color: #ddd;
   padding-left: 20px !important;
 }
-
 
 .el-sub-menu .el-menu {
   padding-left: 0 !important;
@@ -120,7 +112,7 @@ const handleLogout = () => {
 }
 
 .el-menu .is-active {
-  background-color: #1a66d5 !important; /* 稍微加深激活状态的背景色，增强区分度 */
+  background-color: #1a66d5 !important;
   color: #fff;
 }
 

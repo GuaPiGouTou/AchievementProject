@@ -23,11 +23,23 @@ const router = createRouter({
           meta: { title: '关于我们' } 
         },
         { 
-		  name:'user',
-          path: 'user', 
-          component: () => import('../views/User.vue'),
-          meta: { title: '用户管理' } 
-        },{
+		  name:'studentuser',
+          path: 'studentuser',
+          component: () => import('../views/User/StudentUser.vue'),
+          meta: {
+            title: '学生个人中心',
+            requiredIdentity: 'student'
+          }
+        },
+        { name:'teacheruser',
+          path: 'teacheruser',
+          component: () => import('../views/User/TeacherUser.vue'),
+          meta: {
+            title: '教师个人中心',
+            requiredIdentity: 'teacher'
+          }
+        },
+        {
 		  name:'passwordchange',	
 		  path: 'passwordchange',
 		  component: () => import('../views/PasswordChange.vue'),
@@ -60,34 +72,34 @@ router.beforeEach((to, from, next) => {
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 系统名称` : '系统名称'
   
-  // 检查路由是否需要认证
-  if (to.meta.requiresAuth) {
-    // 检查用户是否已经登录
-    const token = localStorage.getItem('token')
-    if (!token) {
-      // 如果没有token，重定向到登录页面
-      next('/login')
-      return
-    }
-  }
-  
-  // 如果已经登录且访问的是登录页，重定向到首页
-    if (to.path === '/login') {
-      const token = localStorage.getItem('token')
-      if (token) {
-        next({ path: '/manager/home' })
-        return
-      }
-    }
-
-	console.log(to.params.initial)
-  // 如果初次登录重定向到修改密码界面
-    const initial =  localStorage.getItem('initial')
-   if (getToken()!=null&&initial === 'true'&&to.name!="passwordchange") {
-	 ElMessage.warning("初次登录，请修改密码后重新登录")
-	 next({ name: 'passwordchange' }) 
-	 return
-   }
+  // // 检查路由是否需要认证
+  // if (to.meta.requiresAuth) {
+  //   // 检查用户是否已经登录
+  //   const token = localStorage.getItem('token')
+  //   if (!token) {
+  //     // 如果没有token，重定向到登录页面
+  //     next('/login')
+  //     return
+  //   }
+  // }
+  //
+  // // 如果已经登录且访问的是登录页，重定向到首页
+  //   if (to.path === '/login') {
+  //     const token = localStorage.getItem('token')
+  //     if (token) {
+  //       next({ path: '/manager/home' })
+  //       return
+  //     }
+  //   }
+  //
+	// console.log(to.params.initial)
+  // // 如果初次登录重定向到修改密码界面
+  //   const initial =  localStorage.getItem('initial')
+  //  if (getToken()!=null&&initial === 'true'&&to.name!="passwordchange") {
+	//  ElMessage.warning("初次登录，请修改密码后重新登录")
+	//  next({ name: 'passwordchange' })
+	//  return
+  //  }
   
   next()
 })
