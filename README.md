@@ -572,6 +572,7 @@ jwIDAQAB
 
 3.Token登录发送前端,以及比对Token和用户,Token具有有效时间.
 
+4.验证码的第一个字的边界Bug已修改
 
 ### 数据库日志
 MySQL7.0 字符集：utf8mb4 -- UTF-8 Unicode 整理：utf8mb4_0900_ai_ci
