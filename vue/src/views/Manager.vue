@@ -2,7 +2,7 @@
   <div>
     <!-- 头部区域 -->
     <div style="height: 60px; display: flex">
-      <div style="width: 12%; display: flex; align-items: center; padding-left: 20px; background-color: #2c82ff">
+      <div style="width: 15%; display: flex; align-items: center; padding-left: 20px; background-color: #2c82ff">
         <img style="width: 90%; height: 60%" src="@/assets/imgs/logo.png" alt="" />
       </div>
       <div style="flex: 1; display: flex; align-items: center; padding-left: 20px; border-bottom: 1px solid #ddd">
@@ -13,12 +13,12 @@
         <el-dropdown>
           <div style="display: flex; align-items: center">
             <img style="width: 40px; height: 40px; border-radius: 50%" src="@/assets/imgs/njp9mnwLp9.png" alt="" />
-            <span style="margin-left: 5px">admin</span>
+            <span style="margin-left: 5px">{{account}}</span>
           </div>
           <template #dropdown>
             <el-dropdown-item>个人信息</el-dropdown-item>
-            <el-dropdown-item>修改密码</el-dropdown-item>
-            <el-dropdown-item>退出登录</el-dropdown-item>
+            <el-dropdown-item @click="goToPasswordChange">修改密码</el-dropdown-item>
+            <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
           </template>
         </el-dropdown>
       </div>
@@ -28,7 +28,7 @@
     <!-- 下方区域开始 -->
     <div style="display: flex">
       <!-- 菜单区域开始 -->
-      <div style="width: 12%">
+      <div style="width: 15%">
         <!-- 关键改进：添加 unique-opened 确保只有一个子菜单展开，优化视觉效果 -->
         <el-menu
             router
@@ -72,6 +72,28 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue' 
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { removeToken } from '@/utils/auth'
+import { House, Location, User } from '@element-plus/icons-vue'
+
+const router = useRouter()
+const account = ref("无用户")
+
+onMounted(() => {
+account.value = localStorage.getItem('username')
+})
+
+const  goToPasswordChange = () => {
+  router.push('passwordchange')
+}
+
+const handleLogout = () => {
+  removeToken()
+  router.push('/login')
+  ElMessage.success('已成功退出登录')
+}
 
 </script>
 
