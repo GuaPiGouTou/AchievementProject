@@ -2,6 +2,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { createRouter, createWebHistory } from 'vue-router'
 import {getToken} from '@/utils/auth'
 const router = createRouter({
+  // history: createWebHistory(import.meta.env.BASE_URL),
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: '/manager/home' },
@@ -59,7 +60,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 系统名称` : '系统名称'
-  
+ /* 
   // 检查路由是否需要认证
   if (to.meta.requiresAuth) {
     // 检查用户是否已经登录
@@ -88,7 +89,7 @@ router.beforeEach((to, from, next) => {
 	 next({ name: 'passwordchange' }) 
 	 return
    }
-  
+  */
   next()
 })
 

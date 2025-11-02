@@ -160,14 +160,14 @@ const handleSubmit = async () => {
     }
 
     // 调用修改密码接口
-   /* const response = await updatePassword({
+   const response = await updatePassword({
       newPassword: encryptedNewPassword // 仅传递加密后的新密码
     }, {
       headers: {
         'Authorization': `Bearer ${token}`, // 规范的Bearer Token格式
         'Content-Type': 'application/json'
       }
-    }) */
+    })
 	const res = await updatePassword(form.value)
 
     // 4. 处理成功响应

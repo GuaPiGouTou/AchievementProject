@@ -184,7 +184,7 @@ const submit = async () => {
     showErrorMsg('请输入密码')
     return
   }
- /*
+ 
   if(!captcha.value||!captcha.value.trim()==='')
   {
 	  showErrorMsg('请输入验证码')
@@ -211,7 +211,7 @@ const submit = async () => {
   //开始加密密码
    const temppass =form.value.password
    const encryptedPassword = rsaEncrypt(temppass, PUBLIC_KEY)
-*/
+
   
   // 开始登录流程
   loading.value = true
@@ -227,7 +227,7 @@ const submit = async () => {
 			router.push({ name: 'home'})
 			console.log(res.token)
 		}else{
-			loading.value = true
+			loading.value = false
 			showErrorMsg('密码加密失败')
 		}
 		
