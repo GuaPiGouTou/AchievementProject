@@ -68,7 +68,6 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { rsaEncrypt, PUBLIC_KEY } from '@/utils/encrypt'
@@ -77,18 +76,20 @@ import { getToken, removeToken } from '@/utils/auth'
 
 const router = useRouter()
 
-// 表单数据（仅保留新密码相关字段）
+// 表单数据
 const form = reactive({
   newpassword: '',
-  confirmPassword: '' // 新增确认密码字段，增强安全性
+  confirmPassword: ''
 })
 
-// 表单引用（用于验证）
+// 表单引用
 const passwordForm = ref(null)
 
 // 状态管理
 const loading = ref(false)
-const formRules = ref({  // 变量名改为 formRules，与模板对应
+
+// 表单验证规则
+const formRules = ref({
   newpassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 8, max: 20, message: '密码长度需在8-20位之间', trigger: 'blur' },
@@ -137,22 +138,24 @@ const handleSubmit = async () => {
   try {
     await passwordForm.value.validate()
   } catch (error) {
-    return ElMessage.warning('请完善表单信息后重试')
+    ElMessage.warning('请完善表单信息后重试')
+    return
   }
 
-  // 2. 二次确认（防止误操作）
+  // 2. 二次确认
   try {
     await ElMessageBox.confirm(
-        '确定要修改密码吗？修改后需要重新登录',
-        '确认修改',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
+      '确定要修改密码吗？修改后需要重新登录',
+      '确认修改',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
     )
   } catch (error) {
-    return ElMessage.info('已取消修改')
+    ElMessage.info('已取消修改')
+    return
   }
 
   // 3. 处理密码加密与请求
@@ -170,27 +173,22 @@ const handleSubmit = async () => {
     }
 
     // 调用修改密码接口
-   const response = await updatePassword({
-      newPassword: encryptedNewPassword // 仅传递加密后的新密码
+    const response = await updatePassword({
+      newPassword: encryptedNewPassword
     }, {
       headers: {
-        'Authorization': `Bearer ${token}`, // 规范的Bearer Token格式
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-
       }
     })
 
-      },
-    }) */
-	const res = await updatePassword(form.value)
-
     // 4. 处理成功响应
-    if (response.data.success) {
+    if (response.data && response.data.success) {
       ElMessage.success('密码修改成功，请重新登录')
-      removeToken() // 清除登录状态（使用工具函数）
-      router.push('/login') // 跳转到登录页
+      removeToken()
+      router.push('/login')
     } else {
-      ElMessage.error(response.data.message || '修改失败，请检查信息')
+      ElMessage.error(response.data?.message || '修改失败，请检查信息')
     }
   } catch (error) {
     console.error('修改密码失败:', error)
@@ -208,13 +206,15 @@ const handleSubmit = async () => {
       ElMessage.error(errorMsg || '网络异常，请稍后重试')
     }
   } finally {
-    loading.value = false // 确保加载状态关闭
+    loading.value = false
   }
 }
 
 // 重置表单
 const resetForm = () => {
-  passwordForm.value.resetFields()
+  if (passwordForm.value) {
+    passwordForm.value.resetFields()
+  }
 }
 </script>
 
@@ -238,6 +238,13 @@ const resetForm = () => {
 .card-header {
   text-align: center;
   padding: 24px 0;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #303133;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .sub-title {
