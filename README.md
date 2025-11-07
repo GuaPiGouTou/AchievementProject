@@ -629,6 +629,650 @@ jwIDAQAB
 
 ........其他错误	
 
+成果模块
+
+#### `POST /api/achievements`
+
+创建成果
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievementsId`: `String` 类型，成果ID
+- `userId`: `String` 类型，用户ID
+- `achievementsName`: `String` 类型，成果名称
+- `achievementsType`: `String` 类型，成果类型
+- `createdBy`: `String` 类型，创建人
+- `createdAt`: `String` 类型，创建时间
+
+##### 请求参数示例
+
+```json
+{
+    "achievementsId": "1001",
+    "userId": "1001",
+    "achievementsName": "深度学习在自然语言处理中的应用",
+    "achievementsType": "核心期刊",
+    "createdBy": "admin",
+    "createdAt": "2025-11-04T14:20:00",
+}
+```
+
+##### 响应结果示例
+
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "上传成功",
+  "data": {
+    "achievementsId": 1001,
+    "userId": 1001,
+    "achievementsName": "深度学习在自然语言处理中的应用",
+    "achievementsType": "核心期刊",
+    "createdAt": "2025-11-04T14:20:00",
+  }
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 502,
+  "msg": "上传失败",
+  "data": false
+}
+```
+更新成果信息
+
+#### `POST /api/achievements/update`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievementsId`: `String` 类型，成果ID
+- `userId`: `String` 类型，用户ID
+- `achievementsName`: `String` 类型，成果名称
+- `achievementsType`: `String` 类型，成果类型
+- `updatedBy`: `String` 类型，更新人
+- `updatedAt`: `String` 类型，更新时间
+
+##### 请求参数示例
+
+```json
+{
+    "achievementsId": "1001",
+    "userId": "1001",
+    "achievementsName": "深度学习在自然语言处理中的最新应用",
+    "achievementsType": "核心期刊",
+    "updatedBy": "admin",
+    "updatedAt": "2025-11-04T14:20:00"
+}
+```
+
+##### 响应结果示例
+
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "成果更新成功",
+  "data": {
+    "achievementsId": 1001,
+    "userId": 1001,
+    "achievementsName": "深度学习在自然语言处理中的最新应用",
+    "achievementsType": "核心期刊",
+    "updateBy":"admin",
+    "updatedAt": "2025-11-04T14:20:00"
+  }
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 501,
+  "msg": "成果不存在",
+  "data": false
+}
+``` 
+
+删除成果
+
+#### `POST /api/achievements/delete`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievementsId`: `String` 类型，成果ID
+
+##### 请求参数示例
+
+```json
+{
+    "achievementsId": "1001"
+}
+```
+
+##### 响应结果示例
+
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "成果删除成功",
+  "data": true
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 501,
+  "msg": "成果不存在",
+  "data": false
+}
+```
+
+
+更新成果审核状态
+
+#### `POST /api/achievements/status`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `audit_status`: `String` 类型，审核状态
+- `achievements_name`：`String` 类型，成果名称
+- `submit_time`: `String` 类型，提交时间
+-  `audit_time`: `String` 类型，审核时间
+-  `audit_user_id`: `String` 类型，审核人ID
+-  `audit_opinion`: `String` 类型，审核意见
+
+##### 请求参数示例
+
+```json
+{
+  "audit_status": "审核通过",
+  "achievements_name": "深度学习在自然语言处理中的最新应用"
+  "submit_time": "2025-11-04T14:20:00",
+  "audit_time": "2025-11-04T14:25:00",
+  "audit_user_id": "1001",
+  "audit_opinion": "审核通过"
+}
+```
+
+##### 响应结果示例
+
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "成果更新成功",
+  "data": {
+    "achievementsId": 1001,
+    "audit_status": "审核通过",
+    "update_time": "2025-11-04T14:25:00"
+  }
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 501,
+  "msg": "成果不存在",
+  "data": false
+}
+```
+
+查询成果详情
+
+#### `GET /api/achievements/query`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievementsId`: `String` 类型，成果ID
+
+##### 请求参数示例
+
+```json
+{
+    "achievementsId": 1001
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，成果详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "msg": "查询成功",
+  "data": {
+    "achievementsId": "1001",
+    "userId": "1001",
+    "achievementsName": "深度学习在自然语言处理中的应用",
+    "achievementsType": "核心期刊",
+    "achievementsStatus": "审核通过",
+    "audit_time": "2025-11-04T14:25:00",,
+    "audit_user_id": "1001",
+    "audit_opinion": "审核通过",
+    "createdBy": "admin",
+    "createdAt": "2025-11-04T14:20:00",
+    "updatedBy": "admin",
+    "updatedAt": "2025-11-04T14:20:00"
+  }
+}
+```
+
+请求失败结果
+```json
+{
+  "code": 501,
+  "msg": "成果不存在",
+  "data": false
+}
+```
+论文模块
+
+#### `POST /api/achievements/papers`
+
+创建论文
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `paperId`: `String` 类型，论文ID
+- `userId`: `String` 类型，用户ID
+- `paperTitle`: `String` 类型，论文标题
+- `paperCategory`: `String` 类型，论文类别
+- `researchDirection`: `String` 类型，研究方向
+- `authorInformation`: `String` 类型，作者信息
+- `journal`: `String` 类型，期刊名称
+- `publishDate`: `String` 类型，出版日期
+- `volume`: `String` 类型，卷号
+- `issue`: `String` 类型，期号
+- `pageRange`: `String` 类型，页码范围
+- `doi`: `String` 类型，DOI号
+- `createdAt`: `String` 类型，创建时间
+
+
+
+##### 请求参数示例
+
+```json
+{
+    "paperId": "2001",
+    "userId": "1001",
+    "paperTitle": "深度学习在自然语言处理中的应用",
+    "paperCategory": "核心期刊",
+    "researchDirection": "人工智能-自然语言处理",
+    "authorInformation":"第一作者,第二作者",
+    "journal": "计算机学报",
+    "publishDate": "2025-09-15",
+    "volume": "第12卷",
+    "issue": "第5期",
+    "pageRange": "150-165",
+    "doi": "10.1234/CSJ.2025.5.150",
+    "createdAt": "2025-11-04T14:20:00",
+
+}
+```
+
+
+
+##### 响应结果示例
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "上传成功",
+  "data": {
+    "paperId": 2001,                 // 生成的论文ID
+    "paperTitle": "深度学习在自然语言处理中的应用",
+    "createAt": "2025-11-04T14:20:00"
+  }
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 502,
+  "msg": "创建失败",
+  "data": false
+}
+```
+
+..........其他错误
+
+
+更新论文审核状态
+
+#### `POST /api/achievements/papers/status`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+- `paperId`:`String`类型，论文id
+- `audit_status`: `String` 类型，审核状态
+- `paper_title`：`String` 类型，论文标题
+
+##### 请求参数示例
+
+```json
+{
+  "paperId":"1001",
+  "audit_status": "审核通过",
+  "paper_title": "深度学习在自然语言处理中的最新应用"
+}
+```
+
+##### 响应结果示例
+
+响应成功示例
+```json
+{
+  "code": 200,
+  "msg": "论文状态更新成功",
+  "data": {
+    "paperId": 1001,
+    "audit_status": "审核通过",
+    "update_time": "2025-11-04T14:25:00"
+  }
+}
+```
+
+响应失败示例
+```json
+{
+  "code": 501,
+  "msg": "论文不存在",
+  "data": false
+}
+```
+查询论文详情
+
+#### `GET /api/achievements/papers/query`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `paperId`: `String` 类型，论文ID
+
+##### 请求参数示例
+
+```json
+{
+    "paperId": 2001
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "查询成功",
+  "data": {
+    "paperId": "2001",
+    "userId": "1001",
+    "paperTitle": "深度学习在自然语言处理中的应用",
+    "paperCategory": "核心期刊",
+    "researchDirection": "人工智能-自然语言处理",
+    "journal": "计算机学报",
+    "publishDate": "2025-09-15",
+    "volume": "第12卷",
+    "issue": "第5期",
+    "pageRange": "150-165",
+    "doi": "10.1234/CSJ.2025.5.150",
+    "auditStatus": "审核通过",
+    "createdAt": "2025-11-04T14:20:00",
+    "updatedAt": "2025-11-04T14:20:00",
+    "paper_file_path": "/upload/papers/20251104/1001_2001.pdf",
+    "file_size": 2097152,
+    "file_type": "application/pdf",
+  }
+}
+```
+
+请求失败结果
+```json
+{
+    "code": 501,
+  "message": "论文不存在",
+  "data": ""
+}
+```
+
+..........其他错误
+上传文件
+
+#### `POST /api/achievements/papers/upload`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `multipart/form-data`
+
+##### 请求参数
+
+- `file`: `Beas64` 类型，论文文件
+- `paperId`: `String` 类型，论文ID
+- `attachment_id`: `String` 类型，附件ID
+- `user_id`: `String` 类型，用户ID
+- `file_category`: `String` 类型，文件类别
+- `description`: `String` 类型，文件描述
+- `upload_user_id`: `String` 类型，上传人ID
+- `create_by`: `String` 类型，创建人
+- `update_by`: `String` 类型，更新人
+
+
+
+##### 请求参数示例
+
+```json
+{
+  "file": "data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMTAgMCBvYmoKPDwKL0ZpbHRlci9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9MZW5ndGgxIDAgUiAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyMDA2L0xlbmd0aDEgMCBSIC9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9MZW5ndGgxIDAgUiAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyMDA2L0xlbmd0aDEgMCBSIC9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9MZW5ndG",
+  "attachment_id":"2001",
+  "user_id":"1111",
+  "file_category":"pdf",
+  "description":"论文描述",
+  "upload_user_id":"1001",
+  "create_by":"admin",
+  "update_by":"admin",
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "文件上传成功",
+  "data": {
+    "attachment_id": 2001,
+    "file_path": "/upload/papers/20251104/1001_2001.pdf",
+    "file_size": 2097152,
+    "file_type": "application/pdf",
+    "create_by": "admin",
+    "create_at": "2025-11-04T14:20:00",
+    "update_by": "admin",
+    "update_at": "2025-11-04T14:20:00"
+  }
+}
+```
+
+请求失败结果
+```json
+{
+    "code": 502,
+  "message": "文件上传失败",
+  "data": false
+}
+```
+
+..........其他错误
+删除文件
+
+#### `POST /api/achievements/papers/delete`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `paper_id`: `String` 类型，论文ID
+
+##### 请求参数示例
+
+```json
+{
+  "attachment_id":2001,
+  "paperId": 2001
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "文件删除成功",
+  "data": true
+  
+}
+```
+
+请求失败结果
+```json
+{
+    "code": 501,
+  "message": "论文不存在",
+  "data": false
+}
+```
+
+..........其他错误
+检测指定目录下的文件是否和数据库中附件表一致
+
+#### `POST /api/achievements/papers/check`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievements_id`: `String` 类型，成果ID
+
+##### 请求参数示例
+
+```json
+{
+  "achievements_id": 1001
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "文件检测成功",
+  "data": {
+    "achievements_id": 1001,
+    "paperTitle": "深度学习在自然语言处理中的应用",
+    "paper_file_path": "/upload/papers/20251104/1001_2001.pdf",
+    "file_size": 2097152,
+    "file_type": "application/pdf",
+    "create_by": "admin",
+    "createAt": "2025-11-04T14:20:00"
+  }
+}
+```
+
+请求失败结果
+```json
+{
+    "code": 501,
+  "message": "文件不存在",
+  "data": false
+}
+```
+
+..........其他错误
+
 # 常见错误代码参考表
 
 ## 网络连接错误
