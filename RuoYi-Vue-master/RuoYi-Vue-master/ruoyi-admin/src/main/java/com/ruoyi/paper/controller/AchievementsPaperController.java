@@ -78,7 +78,9 @@ public class AchievementsPaperController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPaper achievementsPaper)
     {
-        return toAjax(achievementsPaperService.insertAchievementsPaper(achievementsPaper));
+        int rows =achievementsPaperService.insertAchievementsPaper(achievementsPaper);
+        return toAjax(rows).put("paperId",achievementsPaper.getPaperId());
+
     }
 
     /**

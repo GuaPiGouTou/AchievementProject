@@ -5,7 +5,7 @@
       :action="uploadFileUrl"
       :before-upload="handleBeforeUpload"
       :file-list="fileList"
-      :data="data"
+      :data="uploadData"
       :limit="limit"
       :on-error="handleUploadError"
       :on-exceed="handleExceed"
@@ -56,6 +56,10 @@ export default {
       type: String,
       default: "/common/upload"
     },
+    actionbase64: {
+      type: String,
+      default: "/attupload/upload"
+    },
     // 上传携带的参数
     data: {
       type: Object
@@ -100,7 +104,10 @@ export default {
       headers: {
         Authorization: "Bearer " + getToken(),
       },
-      fileList: []
+      fileList: [],
+      uploadData: {
+            paperId: '' // 初始化 paper 参数
+          }
     }
   },
   mounted() {
@@ -149,13 +156,19 @@ export default {
     },
   },
   methods: {
+
      // 修改后的submitUpload方法
-     submitUpload() {
+     submitUpload(paperId) {
+      console.log("submitUpload"+paperId)
+
+      this.uploadData.paperId = paperId
       this.$refs.fileUpload.submit();
 
      },
     // 上传前校检格式和大小
     handleBeforeUpload(file) {
+
+
       // 校检文件类型
       if (this.fileType) {
         const fileName = file.name.split('.')
@@ -194,6 +207,7 @@ export default {
     },
     // 上传成功回调
     handleUploadSuccess(res, file) {
+      console.log(res)
       if (res.code === 200) {
         this.uploadList.push({ name: res.fileName, url: res.fileName })
         this.uploadedSuccessfully()
@@ -237,7 +251,9 @@ export default {
         strs += list[i].url + separator
       }
       return strs != '' ? strs.substr(0, strs.length - 1) : ''
-    }
+    },
+
+    /***/
   }
 }
 </script>

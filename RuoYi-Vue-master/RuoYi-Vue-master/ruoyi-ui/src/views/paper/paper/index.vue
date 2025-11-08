@@ -163,6 +163,17 @@
           <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="附件列表" align="center" prop="updatedAt" width="180">
+        <template slot-scope="scope">
+        <el-button
+          size="mini"
+          type="text"
+          icon="el-icon-edit"
+          @click="att()"
+          v-hasPermi="['paper:paper:edit']"
+        >附件</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -190,7 +201,83 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
+    <!-- 附件管理弹窗 -->
+        <el-dialog
+          :title="atttitle"
+          :visible.sync="attopen"
+          width="500px"
+          append-to-body
+          :destroy-on-close="true"
+          @open="handleAttachmentOpen"
+          @close="handleAttachmentClose">
 
+          <div v-if="fileList && fileList.length > 0">
+            <transition-group
+              ref="uploadFileList"
+              class="upload-file-list el-upload-list el-upload-list--text"
+              name="el-fade-in-linear"
+              tag="ul"
+              style="padding: 0;"
+            >
+              <li
+                :key="file.url"
+                class="el-upload-list__item ele-upload-list__item-content"
+                v-for="(file, index) in fileList"
+              >
+                <el-link
+                  :href="getFileUrl(file.url)"
+                  :underline="false"
+                  target="_blank"
+                  style="display: flex; align-items: center;"
+                >
+                  <i class="el-icon-document" style="margin-right: 8px;"></i>
+                  <span>{{ getFileName(file.name) }}</span>
+                </el-link>
+                <div class="ele-upload-list__item-content-action">
+                  <el-button
+                    type="text"
+                    size="mini"
+                    @click="handlePreview(file)"
+                    icon="el-icon-view"
+                  >预览</el-button>
+                  <el-button
+                    type="text"
+                    size="mini"
+                    @click="handleDownload(file)"
+                    icon="el-icon-download"
+                  >下载</el-button>
+                  <el-button
+                    type="text"
+                    size="mini"
+                    @click="handleDelete(index)"
+                    style="color: #F56C6C;"
+                    icon="el-icon-delete"
+                    v-if="!disabled"
+                  >删除</el-button>
+                </div>
+              </li>
+            </transition-group>
+          </div>
+
+          <!-- 无数据时的提示 -->
+          <div v-else class="empty-attachment">
+            <i class="el-icon-document" style="font-size: 48px; color: #C0C4CC; margin-bottom: 16px;"></i>
+            <p style="color: #909399; margin: 0;">暂无附件</p>
+          </div>
+
+          <div slot="footer" class="dialog-footer">
+            <el-upload
+              action=""
+              :show-file-list="false"
+              :before-upload="beforeUpload"
+              :http-request="handleUpload"
+              style="display: inline-block; margin-right: 10px;"
+            >
+              <el-button type="primary" size="small" icon="el-icon-upload">上传附件</el-button>
+            </el-upload>
+            <el-button @click="attopen = false">关 闭</el-button>
+          </div>
+        </el-dialog>
     <!-- 添加或修改论文成果对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -302,6 +389,8 @@ export default {
     label: 'D',
   }
 ],
+      atttitle:"",
+      attopen:false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -430,6 +519,38 @@ export default {
       this.open = true
       this.title = "添加论文成果"
     },
+    /** 附件操作 */
+      /** 打开附件弹窗 */
+        handleAttachment(row) {
+          this.currentPaperId = row.paperId
+          this.atttitle = `附件管理 - ${row.paperTitle || '论文'}`
+          this.attopen = true
+        },
+
+        /** 弹窗打开时触发 */
+        handleAttachmentOpen() {
+          // 确保DOM渲染完成后再获取数据[5](@ref)
+          this.$nextTick(() => {
+            this.getFileList()
+          })
+        },
+
+        /** 弹窗关闭时触发 */
+        handleAttachmentClose() {
+          this.fileList = []
+          this.currentPaperId = null
+        },
+    att() {
+      this.attopen = true
+      this.atttitle = "附件"
+      // const paperId = row.paperId || this.ids
+      // getPaper(paperId).then(response => {
+      //   this.form = response.data
+      //   this.open = true
+      //   this.title = "修改论文成果"
+      // })
+      // this.getusername()
+    },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
@@ -449,14 +570,21 @@ export default {
           if (this.form.paperId != null) {
             updatePaper(this.form).then(response => {
               this.$modal.msgSuccess("修改成功")
-              this.$refs.file.submitUpload();
               this.open = false
               this.getList()
             })
           } else {
             addPaper(this.form).then(response => {
+              console.log("新增成功+response")
+              if(response.paperId!=null)
+              {
+                console.log(response.paperId)
+                 this.$refs.file.submitUpload(response.paperId);
+              }else{
+                  this.$modal.msgSuccess("上传文件失败")
+              }
+
               this.$modal.msgSuccess("新增成功")
-              this.$refs.file.submitUpload();
               this.open = false
               this.getList()
             })

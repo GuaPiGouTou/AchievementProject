@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.attachment.mapper.AchievementsAttachmentMapper">
+    
+    <resultMap type="AchievementsAttachment" id="AchievementsAttachmentResult">
+        <result property="attachmentId"    column="attachment_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="attachmentType"    column="attachment_type"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="fileSize"    column="file_size"    />
+        <result property="fileExtension"    column="file_extension"    />
+        <result property="fileCategory"    column="file_category"    />
+        <result property="description"    column="description"    />
+        <result property="uploadTime"    column="upload_time"    />
+        <result property="uploadUserId"    column="upload_user_id"    />
+        <result property="downloadCount"    column="download_count"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectAchievementsAttachmentVo">
+        select attachment_id, user_id, attachment_type, file_name, file_path, file_size, file_extension, file_category, description, upload_time, upload_user_id, download_count, create_by, create_time, update_by, update_time from achievements_attachment
+    </sql>
+
+    <select id="selectAchievementsAttachmentList" parameterType="AchievementsAttachment" resultMap="AchievementsAttachmentResult">
+        <include refid="selectAchievementsAttachmentVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="attachmentType != null  and attachmentType != ''"> and attachment_type = #{attachmentType}</if>
+            <if test="fileName != null  and fileName != ''"> and file_name like concat('%', #{fileName}, '%')</if>
+            <if test="filePath != null  and filePath != ''"> and file_path = #{filePath}</if>
+            <if test="fileSize != null "> and file_size = #{fileSize}</if>
+            <if test="fileExtension != null  and fileExtension != ''"> and file_extension = #{fileExtension}</if>
+            <if test="fileCategory != null  and fileCategory != ''"> and file_category = #{fileCategory}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="uploadTime != null "> and upload_time = #{uploadTime}</if>
+            <if test="uploadUserId != null  and uploadUserId != ''"> and upload_user_id = #{uploadUserId}</if>
+            <if test="downloadCount != null "> and download_count = #{downloadCount}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsAttachmentByAttachmentId" parameterType="Long" resultMap="AchievementsAttachmentResult">
+        <include refid="selectAchievementsAttachmentVo"/>
+        where attachment_id = #{attachmentId}
+    </select>
+
+    <insert id="insertAchievementsAttachment" parameterType="AchievementsAttachment" useGeneratedKeys="true" keyProperty="attachmentId">
+        insert into achievements_attachment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="attachmentType != null and attachmentType != ''">attachment_type,</if>
+            <if test="fileName != null and fileName != ''">file_name,</if>
+            <if test="filePath != null and filePath != ''">file_path,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="fileExtension != null and fileExtension != ''">file_extension,</if>
+            <if test="fileCategory != null and fileCategory != ''">file_category,</if>
+            <if test="description != null">description,</if>
+            <if test="uploadTime != null">upload_time,</if>
+            <if test="uploadUserId != null and uploadUserId != ''">upload_user_id,</if>
+            <if test="downloadCount != null">download_count,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="attachmentType != null and attachmentType != ''">#{attachmentType},</if>
+            <if test="fileName != null and fileName != ''">#{fileName},</if>
+            <if test="filePath != null and filePath != ''">#{filePath},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="fileExtension != null and fileExtension != ''">#{fileExtension},</if>
+            <if test="fileCategory != null and fileCategory != ''">#{fileCategory},</if>
+            <if test="description != null">#{description},</if>
+            <if test="uploadTime != null">#{uploadTime},</if>
+            <if test="uploadUserId != null and uploadUserId != ''">#{uploadUserId},</if>
+            <if test="downloadCount != null">#{downloadCount},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsAttachment" parameterType="AchievementsAttachment">
+        update achievements_attachment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="attachmentType != null and attachmentType != ''">attachment_type = #{attachmentType},</if>
+            <if test="fileName != null and fileName != ''">file_name = #{fileName},</if>
+            <if test="filePath != null and filePath != ''">file_path = #{filePath},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="fileExtension != null and fileExtension != ''">file_extension = #{fileExtension},</if>
+            <if test="fileCategory != null and fileCategory != ''">file_category = #{fileCategory},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="uploadTime != null">upload_time = #{uploadTime},</if>
+            <if test="uploadUserId != null and uploadUserId != ''">upload_user_id = #{uploadUserId},</if>
+            <if test="downloadCount != null">download_count = #{downloadCount},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where attachment_id = #{attachmentId}
+    </update>
+
+    <delete id="deleteAchievementsAttachmentByAttachmentId" parameterType="Long">
+        delete from achievements_attachment where attachment_id = #{attachmentId}
+    </delete>
+
+    <delete id="deleteAchievementsAttachmentByAttachmentIds" parameterType="String">
+        delete from achievements_attachment where attachment_id in 
+        <foreach item="attachmentId" collection="array" open="(" separator="," close=")">
+            #{attachmentId}
+        </foreach>
+    </delete>
+    <!-- 通过用户ID和附件类型查询附件列表 -->
+    <select id="selectAttachmentListByUserIdAndType" parameterType="map" resultMap="AchievementsAttachmentResult">
+        <include refid="selectAchievementsAttachmentVo"/>
+        <where>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="attachmentType != null and attachmentType != ''">
+                and attachment_type = #{attachmentType}
+            </if>
+        </where>
+        order by upload_time desc
+    </select>
+</mapper>
