@@ -1272,6 +1272,72 @@ jwIDAQAB
 ```
 
 ..........其他错误
+获取附件列表
+
+#### `GET /api/achievements/papers/list`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `achievements_id`: `String` 类型，成果ID
+
+##### 请求参数示例
+
+```json
+{
+  "user_id":"1001",
+  "attachment_type":"paper"
+}
+```
+
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文列表
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "获取成功",
+  "data": [
+    {
+      "attachment_id": 2001,
+      "file_path": "/upload/papers/20251104/1001_2001.pdf",
+      "file_size": 2097152,
+      "file_type": "application/pdf",
+      "file_extension":"pdf",
+      "file_category":"论文",
+      "description":"",
+      "upload_user_id":"1001",
+      "download count":"1",
+      "create_by": "admin",
+      "create_time": "2025-11-04T14:20:00",
+      "update_by": "admin",
+      "update_time": "2025-11-04T14:20:00"
+    }
+  ]
+} 
+
+```
+
+请求失败结果
+```json
+{
+    "code": 501,
+  "message": "获取失败",
+  "data": false
+}
+```
+
+..........其他错误
 
 # 常见错误代码参考表
 
