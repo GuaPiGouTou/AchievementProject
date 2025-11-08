@@ -1095,7 +1095,7 @@ jwIDAQAB
 ..........其他错误
 上传文件
 
-#### `POST /api/achievements/papers/upload`
+#### `POST /api/achievements/upload`
 
 ##### 请求头
 
@@ -1165,7 +1165,7 @@ jwIDAQAB
 ..........其他错误
 更新文件
 
-#### `POST /api/achievements/papers/update`
+#### `POST /api/achievements/upload/update`
 
 ##### 请求头
 
