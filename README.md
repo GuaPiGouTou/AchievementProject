@@ -88,7 +88,7 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 6.登录密码实现RSA公钥加密
 
-#### 2025-10-29 22：18
+#### 2025-10-29 22:18
 
 1.完成修改密码界面
 
@@ -111,6 +111,14 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 2.新增论文模块添加删除上传附件组件
 
 3.新增各部门，信息工程专业，年级
+
+#### 2025-11-09-15:00
+
+1.完成附件模块的上传，下载，删除api
+
+2.完成附件与论文模块的逻辑关联
+
+3.完成附件与论文模块后端调用与处理
 
 ### 后端日志
 #### 2025-11-1 16:52
@@ -744,7 +752,7 @@ jwIDAQAB
   "msg": "成果不存在",
   "data": false
 }
-``` 
+```
 
 删除成果
 
