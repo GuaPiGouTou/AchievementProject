@@ -629,6 +629,7 @@ jwIDAQAB
 
 ........其他错误	
 
+
 成果模块
 
 #### `POST /api/achievements`
@@ -1094,7 +1095,7 @@ jwIDAQAB
 ..........其他错误
 上传文件
 
-#### `POST /api/achievements/papers/upload`
+#### `POST /api/achievements/upload`
 
 ##### 请求头
 
@@ -1126,7 +1127,6 @@ jwIDAQAB
   "description":"论文描述",
   "upload_user_id":"1001",
   "create_by":"admin",
-  "update_by":"admin",
 }
 ```
 
@@ -1149,9 +1149,6 @@ jwIDAQAB
     "file_size": 2097152,
     "file_type": "application/pdf",
     "create_by": "admin",
-    "create_at": "2025-11-04T14:20:00",
-    "update_by": "admin",
-    "update_at": "2025-11-04T14:20:00"
   }
 }
 ```
@@ -1166,6 +1163,83 @@ jwIDAQAB
 ```
 
 ..........其他错误
+更新文件
+
+#### `POST /api/achievements/upload/update`
+
+##### 请求头
+
+- `Authorization`:` token`
+- `Content-Type`: `multipart/form-data`
+
+##### 请求参数
+
+- `file`: `Beas64` 类型，论文文件
+- `paperId`: `String` 类型，论文ID
+- `attachment_id`: `String` 类型，附件ID
+- `user_id`: `String` 类型，用户ID
+- `file_category`: `String` 类型，文件类别
+- `description`: `String` 类型，文件描述
+- `upload_user_id`: `String` 类型，上传人ID
+- `create_by`: `String` 类型，创建人
+- `update_by`: `String` 类型，更新人
+
+
+
+##### 请求参数示例
+
+```json
+{
+  "file": "data:application/pdf;base64,JVBERi0xLjQKJeLjz9MKMTAgMCBvYmoKPDwKL0ZpbHRlci9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9MZW5ndGgxIDAgUiAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyMDA2L0xlbmd0aDEgMCBSIC9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9MZW5ndGgxIDAgUiAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyMDA2L0xlbmd0aDEgMCBSIC9GbGF0ZURlY29kZS9MZW5ndGggMjAwNi9
+  MZW5ndG",
+  "user_id":"1111",
+  "file_category":"pdf",
+  "description":"论文描述",
+  "upload_user_id":"1001",
+  "update_by":"admin",
+}
+```
+##### 响应结果
+
+- `code`：`String`类型,错误码
+- `msg`: `String`类型，提示信息
+- `data`：`Object`类型，论文详情
+
+##### 响应结果示例
+
+请求成功结果    
+```json
+{
+  "code": 200,
+  "message": "文件更新成功",
+  "data": {
+    "attachment_id": 2001,
+    "file_path": "/upload/papers/20251104/1001_2001.pdf",
+    "file_size": 2097152,
+    "file_type": "application/pdf",
+    "create_by": "admin",
+    "create_at": "2025-11-04T14:20:00",
+    "update_by": "admin",
+    "update_at": "2025-11-04T14:20:00"
+  }
+}
+
+```
+
+请求失败结果
+```json
+{
+    "code": 502,
+  "message": "文件更新失败",
+  "data": false
+}
+```
+
+..........其他错误
+
+
+
+
 删除文件
 
 #### `POST /api/achievements/papers/delete`
@@ -1274,7 +1348,7 @@ jwIDAQAB
 ..........其他错误
 获取附件列表
 
-#### `GET /api/achievements/papers/list`
+#### `GET /api/achievements/list`
 
 ##### 请求头
 
@@ -1283,7 +1357,6 @@ jwIDAQAB
 
 ##### 请求参数
 
-- `achievements_id`: `String` 类型，成果ID
 
 ##### 请求参数示例
 
@@ -1338,6 +1411,7 @@ jwIDAQAB
 ```
 
 ..........其他错误
+
 
 # 常见错误代码参考表
 
