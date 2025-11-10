@@ -55,7 +55,7 @@ SELECT * FROM achievements_competition WHERE user_id = userId;(dataScope = "5")
 
 ##### 响应结果示例
 
-学生结果
+
 
 ```json
 {
