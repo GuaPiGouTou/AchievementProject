@@ -43,8 +43,6 @@ public class AchievementsPaperController extends BaseController
     public TableDataInfo list(AchievementsPaper achievementsPaper)
     {
         startPage();
-        achievementsPaper.setUserId(getUserId());
-        achievementsPaper.setDeptId(getDeptId());
         List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(achievementsPaper);
         return getDataTable(list);
     }

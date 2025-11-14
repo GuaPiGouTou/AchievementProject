@@ -37,6 +37,8 @@ import ImagePreview from "@/components/ImagePreview"
 import DictTag from '@/components/DictTag'
 // 字典数据组件
 import DictData from '@/components/DictData'
+import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue";
+
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -58,7 +60,7 @@ Vue.component('FileUpload', FileUpload)
 Vue.component('Base64File', Base64File)
 Vue.component('ImageUpload', ImageUpload)
 Vue.component('ImagePreview', ImagePreview)
-
+Vue.component('AttachmentManagement', AttachmentManagement);
 Vue.use(directive)
 Vue.use(plugins)
 DictData.install()

@@ -20,13 +20,6 @@ public class AchievementsPaper extends BaseEntity
     /** 论文id */
     private Long paperId;
 
-    public Long getDeptId() {
-        return deptId;
-    }
-
-    public void setDeptId(Long deptId) {
-        this.deptId = deptId;
-    }
 
     /** dept_id */
     private Long deptId;
@@ -238,6 +231,14 @@ public class AchievementsPaper extends BaseEntity
     public Date getUpdatedAt() 
     {
         return updatedAt;
+    }
+
+    public Long getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(Long deptId) {
+        this.deptId = deptId;
     }
 
     @Override

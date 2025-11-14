@@ -1,3 +1,5 @@
+## 竞赛管理接口文档
+
 ### 查询竞赛列表
 
 #### `GET /api/selectContestList`
@@ -448,3 +450,391 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 ```
 
 ........其他错误
+
+## 教材著作管理接口文档
+
+### 查询教材列表
+
+`GET /api/selectTextbookList`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+
+#### 查询数据字段
+
+数据库ry-vue中achievements_textbook的全部字段
+
+#### 请求参数示例
+
+```
+GET /api/selectTextbookList?userId=1&deptId=100
+```
+
+#### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```sql
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```sql
+SELECT * FROM achievements_textbook;  (data_scope = "1")
+
+SELECT * FROM achievements_textbook WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_textbook WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_textbook WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，教材列表
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": [
+    {
+      "textbook_id": 1001,
+      "user_id": 24306010534,
+      "dept_id": 101,
+      "textbook_name": "人工智能导论",
+      "author_role": "主编",
+      "press_name": "高等教育出版社",
+      "isbn_number": "978-7-04-060000-1",
+      "publish_date": "2024-05-20",
+      "textbook_type": "规划教材",
+      "edition": "第一版",
+      "word_count": null,
+      "using_institutions": null,
+      "applicable_major": null,
+      "textbook_level": "本科",
+      "approval_number": null,
+      "audit_status": "待审核",
+      "created_at": "2025-11-07T10:53:26",
+      "updated_at": "2025-11-07T10:53:26"
+    }
+  ],
+  "msg": "查询成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"教材列表查询失败"    
+}
+```
+
+### 查询教材记录详细信息
+
+`GET /api/selectTextbookById`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `textbookId`: `Long`类型，教材ID（用于查询教材表的具体记录）
+
+#### 查询数据字段
+
+数据库ry-vue中achievements_textbook的指定ID记录
+
+#### 请求参数示例
+
+```
+GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
+```
+
+需要进行权限检查原理同**查询教材列表**
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，教材详细信息
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "textbook_id": 1001,
+    "user_id": 24306010534,
+    "dept_id": 101,
+    "textbook_name": "人工智能导论",
+    "author_role": "主编",
+    "press_name": "高等教育出版社",
+    "isbn_number": "978-7-04-060000-1",
+    "publish_date": "2024-05-20",
+    "textbook_type": "规划教材",
+    "edition": "第一版",
+    "word_count": null,
+    "using_institutions": null,
+    "applicable_major": null,
+    "textbook_level": "本科",
+    "approval_number": null,
+    "audit_status": "待审核",
+    "created_at": "2025-11-07T10:53:26",
+    "updated_at": "2025-11-07T10:53:26"
+  },
+  "msg": "查询成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增教材成果
+
+`POST /api/insertTextbook`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `textbookName`: `String`类型，教材名称
+- `authorRole`: `String`类型，作者角色（主编/副主编/参编/独著）
+- `pressName`: `String`类型，出版社
+- `isbnNumber`: `String`类型，ISBN号
+- `publishDate`: `Date`类型，出版时间
+- `textbookType`: `String`类型，教材类型（规划教材/校本教材/国家级规划/省部级规划/行业规划）
+- `edition`: `String`类型，版次
+- `wordCount`: `Integer`类型，字数（万字）
+- `usingInstitutions`: `String`类型，使用院校（JSON格式）
+- `applicableMajor`: `String`类型，适用专业
+- `textbookLevel`: `String`类型，教材层次（本科/专科/研究生/职业教育）
+- `approvalNumber`: `String`类型，批准文号
+- `auditStatus`: `String`类型，审核状态
+
+创建时间，更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "userId": 24306010534,
+  "deptId": 100,
+  "textbookName": "人工智能导论",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-1",
+  "publishDate": "2024-05-20",
+  "textbookType": "规划教材",
+  "edition": "第一版",
+  "wordCount": 50,
+  "usingInstitutions": "[\"清华大学\", \"北京大学\"]",
+  "applicableMajor": "计算机科学与技术,人工智能",
+  "textbookLevel": "本科",
+  "approvalNumber": "JY2024001",
+  "auditStatus": "待审核"
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "textbook_id": 1001
+  },
+  "msg": "插入成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"教材信息插入失败"    
+}
+```
+
+### 更新教材记录
+
+`POST /api/updateTextbook`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `textbookId`: `Long`类型，教材ID
+- `textbookName`: `String`类型，教材名称
+- `authorRole`: `String`类型，作者角色（主编/副主编/参编/独著）
+- `pressName`: `String`类型，出版社
+- `isbnNumber`: `String`类型，ISBN号
+- `publishDate`: `Date`类型，出版时间
+- `textbookType`: `String`类型，教材类型（规划教材/校本教材/国家级规划/省部级规划/行业规划）
+- `edition`: `String`类型，版次
+- `wordCount`: `Integer`类型，字数（万字）
+- `usingInstitutions`: `String`类型，使用院校（JSON格式）
+- `applicableMajor`: `String`类型，适用专业
+- `textbookLevel`: `String`类型，教材层次（本科/专科/研究生/职业教育）
+- `approvalNumber`: `String`类型，批准文号
+- `auditStatus`: `String`类型，审核状态
+
+更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "userId": 24306010534,
+  "deptId": 100,
+  "textbookId": 1001,
+  "textbookName": "人工智能导论（第二版）",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-2",
+  "publishDate": "2025-05-20",
+  "textbookType": "国家级规划",
+  "edition": "第二版",
+  "wordCount": 55,
+  "usingInstitutions": "[\"清华大学\", \"北京大学\", \"浙江大学\"]",
+  "applicableMajor": "计算机科学与技术,人工智能,软件工程",
+  "textbookLevel": "本科",
+  "approvalNumber": "JY2025001",
+  "auditStatus": "待审核"
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "textbook_id": 1001
+  },
+  "msg": "更新成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"教材信息更新失败"    
+}
+```
+
+#### 删除教材记录
+
+`POST /api/deleteTextbooks`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `textbookIds`: `Array`类型，删除的教材记录ID
+
+更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "userId": 24306010534,
+  "deptId": 100,
+  "textbookIds": [1001, 1002, 1003]
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "textbook_id": 1001
+  },
+  "msg": "删除成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": null,
+  "msg":"教材信息删除失败"    
+}
+```

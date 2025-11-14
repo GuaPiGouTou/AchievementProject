@@ -169,7 +169,7 @@
           size="mini"
           type="text"
           icon="el-icon-edit"
-          @click="att(scope.row)"
+          @click="handleAttachment(scope.row)"
           v-hasPermi="['paper:paper:edit']"
         >附件</el-button>
         </template>
@@ -202,67 +202,14 @@
       @pagination="getList"
     />
     <!-- 附件管理弹窗 -->
-    <el-dialog
-      :title="atttitle"
-      :visible.sync="attopen"
-      width="600px"
-      append-to-body
-      :close-on-click-modal="false">
-
-      <!-- 文件列表展示 -->
-      <div class="file-list-container">
-        <el-table
-          :data="fileList"
-          empty-text="暂无文件"
-          v-loading="loading">
-          <el-table-column
-            prop="fileName"
-            label="文件名"
-            min-width="200"
-            show-overflow-tooltip>
-            <template slot-scope="{ row }">
-              <div class="file-name-cell">
-               <!-- <i :class="getFileIcon(row.fileExtension)" class="file-icon"></i> -->
-                <span class="file-name-text">
-                  {{ row.fileName || '未命名文件' }}
-                </span>
-                <span class="file-extension">.{{ row.fileExtension }}</span>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            prop="fileSize"
-            label="大小"
-            width="100"
-            align="right">
-            <template slot-scope="{ row }">
-              {{ formatFileSize(row.fileSize) }}
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            label="操作"
-            width="240"
-            align="center"
-            fixed="right">
-            <template slot-scope="{ row, $index }">
-
-              <el-button @click="DownloadFile(row, $index)">下载</el-button>
-              <el-button type="danger" @click="DeletedelAttachment(row, $index)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-
-      </div>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="attopen = false">关闭</el-button>
-        </span>
-      </template>
-    </el-dialog>
+   <AttachmentManagement
+    :visible="attachmentVisible" :title="attachmentTitle " :resourceId="currentPaperId" attachmentType="paper"
+    @update:visible="attachmentVisible = $event"
+    @close="handleAttachmentClose"
+    @load-success="handleAttachmentLoadSuccess"
+    @download-success="handleDownloadSuccess"
+    @delete-success="handleDeleteSuccess"
+    />
     <!-- 添加或修改论文成果对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -340,6 +287,7 @@
 </template>
 
 <script>
+  import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listPaper, getPaper, delPaper, addPaper, updatePaper } from "@/api/paper/paper"
 import { listAttachmentidAndType,DowAttachmentcheck,delAttachment } from "@/api/attachment/attachment"
 import Cookies from "js-cookie"
@@ -348,6 +296,11 @@ export default {
   name: "Paper",
   data() {
     return {
+      //附件弹窗参数
+    currentPaperId:null,
+    currentPaper:"",
+    attachmentTitle:"",
+    attachmentVisible:false,
       files:"",
       paperCategory:[
   {
@@ -514,12 +467,7 @@ export default {
       this.title = "添加论文成果"
     },
     /** 附件操作 */
-  /** 打开附件弹窗 */
-    handleAttachment(row) {
-      this.currentPaperId = row.paperId
-      this.atttitle = `附件管理 - ${row.paperTitle || '论文'}`
-      this.attopen = true
-    },
+
 
     /** 弹窗打开时触发 */
     handleAttachmentOpen() {
@@ -667,6 +615,35 @@ export default {
       this.download('paper/paper/export', {
         ...this.queryParams
       }, `paper_${new Date().getTime()}.xlsx`)
+    },
+    /** 打开附件管理 */
+    handleAttachment(row) {
+      this.currentPaperId = row.paperId
+      this.currentPaper = row
+      this.attachmentTitle = `附件管理 - ${row.paperTitle || '论文'}`
+      this.attachmentVisible = true
+    }, /** 附件弹窗关闭 */
+    handleAttachmentClose() {
+      this.currentPaperId = null
+      this.currentPaper = null
+    },
+    /** 附件加载成功 */
+    handleAttachmentLoadSuccess(fileList) {
+      console.log(`加载了 ${fileList.length} 个附件`)
+      // 可以在这里更新论文的附件数量显示
+      if (this.currentPaper) {
+        this.$set(this.currentPaper, 'attachmentCount', fileList.length)
+      }
+    },
+
+    /** 下载成功 */
+    handleDownloadSuccess(file) {
+      this.$message.success(`文件"${file.fileName}"下载成功`)
+    },
+
+    /** 删除成功 */
+    handleDeleteSuccess(file) {
+      this.$message.success(`文件"${file.fileName}"删除成功`)
     }
   }
 }
