@@ -142,6 +142,14 @@ HTTPS：https://github.com/GuaPiGouTou/AchievementProject.git
 
 3.修改完成竞赛模块导出可选导出字段
 
+#### 2025-11-15-23:00
+
+1.完成Spring Cloud OpenFeign 引入，接口文件编写
+
+2.api查询接口更新加入分页
+
+3.api查询字段文档改为驼峰命名
+
 ### 后端日志
 #### 2025-11-1 16:52
 
