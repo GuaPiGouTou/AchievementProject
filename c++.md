@@ -12,6 +12,8 @@
 
 - `userId`: `Long `类型，用户ID（用于查询角色权限）
 - `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `pageNum`:`Long `类型
+- `pageSize`:`Long `类型
 
 
 ##### 查询数据字段
