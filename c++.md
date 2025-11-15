@@ -22,7 +22,7 @@
 ##### 请求参数示例
 
 ```json
-GET /api/selectContestList?userId=1&deptId=100
+GET /api/selectContestList?userId=1&deptId=100&pageNum=1&pageSize=10
 ```
 
 sql示例
@@ -66,60 +66,44 @@ SELECT * FROM achievements_competition WHERE user_id = userId;(dataScope = "5")
 
 ##### 响应结果示例
 
-
-
 ```json
 {
-  "code": 200,
-  "data": [
+  "total": 1,
+  "rows": [
     {
-      "competition_id": 1001,
-      "user_id": 1,
-      "dept_id": 101,
-      "competition_name": "全国大学生程序设计大赛",
-      "competition_level": "国家级",
-      "competition_type": "算法编程类",
-      "competition_time": "2024-10-15T09:00:00",
-      "role_type": "指导老师",
-      "award_level": "一等奖",
-      "award_date": "2024-10-20",
+      "createBy": null,
+      "createTime": null,
+      "updateBy": null,
+      "updateTime": null,
+      "remark": null,
+      "competitionId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "competitionName": "全国大学生程序设计大赛",
+      "competitionLevel": "国家级",
+      "competitionType": "算法编程类",
+      "competitionTime": "2024-10-15",
+      "roleType": "指导老师",
+      "awardLevel": "一等奖",
+      "awardDate": "2024-10-20",
       "organizer": "教育部高等教育司",
-      "competition_category": "学科竞赛",
-      "team_size": 3,
-      "team_name": "创新之星团队",
-      "student_participants": "[\"张三\", \"李四\", \"王五\"]",
-      "award_certificate_no": "CERT20241020001",
-      "competition_website": "https://acm.contest.edu.cn",
-      "audit_status": "待审核",
-      "created_at": "2025-11-07T10:25:10",
-      "updated_at": "2025-11-10T16:38:56"
-    },
-    {
-      "competition_id": 1002,
-      "user_id": 1,
-      "dept_id": 100,
-      "competition_name": "全国大学生java",
-      "competition_level": "国家级",
-      "competition_type": "算法编程",
-      "competition_time": "2025-11-10T16:02:50",
-      "role_type": "参赛者",
-      "award_level": "三等奖",
-      "award_date": "2025-11-10",
-      "organizer": "教育局",
-      "competition_category": "学科竞赛",
-      "team_size": 1,
-      "team_name": "无敌",
-      "student_participants": "成型也，薛红绯",
-      "award_certificate_no": "CERT20241020002",
-      "competition_website": "https://acm.contest.edu.cn",
-      "audit_status": "待审核",
-      "created_at": "2025-11-10T16:03:40",
-      "updated_at": "2025-11-10T17:12:24"
+      "competitionCategory": "学科竞赛",
+      "teamSize": 3,
+      "teamName": "创新之星团队",
+      "studentParticipants": "[\"张三\", \"李四\", \"王五\"]",
+      "awardCertificateNo": "CERT20241020001",
+      "competitionWebsite": "https://acm.contest.edu.cn",
+      "auditStatus": "待审核",
+      "createdAt": "2025-11-07",
+      "updatedAt": "2025-11-10"
     }
   ],
+  "code": 200,
   "msg": "查询成功"
 }
 ```
+
+
 
 请求失败结果
 

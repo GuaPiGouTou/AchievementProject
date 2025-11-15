@@ -2,13 +2,19 @@ package com.ruoyi.competition.controller;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.ExportRequestDTO;
 
 import com.ruoyi.competition.domain.demo;
+
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -32,6 +38,7 @@ import com.ruoyi.competition.service.IAchievementsCompetitionService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
+
 /**
  * 竞赛成果Controller
  * 
@@ -46,28 +53,25 @@ public class AchievementsCompetitionController extends BaseController
     private IAchievementsCompetitionService achievementsCompetitionService;
     @Autowired
     private ContestFeignClient contestFeignClient;
+    @Autowired
+    private ObjectMapper objectMapper;
     /**
      * 查询竞赛成果列表
      */
     @PreAuthorize("@ss.hasPermi('competition:competition:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsCompetition achievementsCompetition)
-    {
-
-// 使用Feign客户端调用远程服务
-        try {
-            List<demo> result = contestFeignClient.getContestList(1L, 8L);
-            System.out.println("result");
-            System.out.println(result);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public TableDataInfo list(AchievementsCompetition achievementsCompetition) {
 
         startPage();
         List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(achievementsCompetition);
-        System.out.println("list");
+
+
+        System.out.println("----------");
         System.out.println(list);
-        return getDataTable(list);
+        TableDataInfo dataTable = getDataTable(list);
+        System.out.println("----------");
+        System.out.println(dataTable.toString());
+        return dataTable;
     }
 
     /**
