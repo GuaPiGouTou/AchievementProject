@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.ExportRequestDTO;
 
@@ -61,6 +62,10 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:list')")
     @GetMapping("/list")
     public TableDataInfo list(AchievementsCompetition achievementsCompetition) {
+        // pageNum 分页页码
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        // pageSize 分页大小
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
 
         startPage();
         List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(achievementsCompetition);

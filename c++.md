@@ -12,8 +12,8 @@
 
 - `userId`: `Long `类型，用户ID（用于查询角色权限）
 - `deptId`: `Long `类型，部门ID（用于部门权限隔离）
-- `pageNum`:`Long `类型
-- `pageSize`:`Long `类型
+- `pageNum`:`Long `类型，分页页码
+- `pageSize`:`Long `类型, 分页大小
 
 
 ##### 查询数据字段
@@ -111,9 +111,10 @@ SELECT * FROM achievements_competition WHERE user_id = userId;(dataScope = "5")
 
 ```json
 {
-  "code": 501,
-  "data": "",
-  "msg":"竞赛列表查询失败"    
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
 }
 ```
 
@@ -160,30 +161,35 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ```json
 {
+  "msg": "操作成功",
   "code": 200,
   "data": {
-      "competition_id": 1001,
-      "user_id": 1,
-      "dept_id": 101,
-      "competition_name": "全国大学生程序设计大赛",
-      "competition_level": "国家级",
-      "competition_type": "算法编程类",
-      "competition_time": "2024-10-15T09:00:00",
-      "role_type": "指导老师",
-      "award_level": "一等奖",
-      "award_date": "2024-10-20",
-      "organizer": "教育部高等教育司",
-      "competition_category": "学科竞赛",
-      "team_size": 3,
-      "team_name": "创新之星团队",
-      "student_participants": "[\"张三\", \"李四\", \"王五\"]",
-      "award_certificate_no": "CERT20241020001",
-      "competition_website": "https://acm.contest.edu.cn",
-      "audit_status": "待审核",
-      "created_at": "2025-11-07T10:25:10",
-      "updated_at": "2025-11-10T16:38:56"
-    },
-  "msg": "查询成功"
+    "createBy": null,
+    "createTime": null,
+    "updateBy": null,
+    "updateTime": null,
+    "remark": null,
+    "competitionId": 1001,
+    "userId": 1,
+    "deptId": 101,
+    "competitionName": "全国大学生程序设计大赛",
+    "competitionLevel": "国家级",
+    "competitionType": "算法编程类",
+    "competitionTime": "2024-10-15",
+    "roleType": "指导老师",
+    "awardLevel": "一等奖",
+    "awardDate": "2024-10-20",
+    "organizer": "教育部高等教育司",
+    "competitionCategory": "学科竞赛",
+    "teamSize": 3,
+    "teamName": "创新之星团队",
+    "studentParticipants": "[\"张三\", \"李四\", \"王五\"]",
+    "awardCertificateNo": "CERT20241020001",
+    "competitionWebsite": "https://acm.contest.edu.cn",
+    "auditStatus": "待审核",
+    "createdAt": "2025-11-07",
+    "updatedAt": "2025-11-10"
+  }
 }
 ```
 
