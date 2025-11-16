@@ -1,32 +1,13 @@
 package com.ruoyi.competition.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
-import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.competition.domain.ExportRequestDTO;
+import com.ruoyi.attachment.domain.ExportRequestDTO;
 
-import com.ruoyi.competition.domain.demo;
-
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -85,13 +66,13 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:export')")
     @Log(title = "竞赛成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO exportRequestDTO )
+    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
     {
         System.out.println(exportRequestDTO.getHiddenColumns().toString());
         List<String> hiddenColumns = exportRequestDTO.getHiddenColumns();
-        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(exportRequestDTO.getAchievementsCompetition());
+        AchievementsCompetition queryParams = exportRequestDTO.getData();
+        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
-       // 显示指定列
         if(hiddenColumns != null && !hiddenColumns.isEmpty())
         {
             util.showColumn(hiddenColumns.toArray(new String[0]));

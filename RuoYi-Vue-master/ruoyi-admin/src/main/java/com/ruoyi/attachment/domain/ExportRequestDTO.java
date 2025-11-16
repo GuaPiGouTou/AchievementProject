@@ -1,4 +1,4 @@
-package com.ruoyi.competition.domain;
+package com.ruoyi.attachment.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class ExportRequestDTO {
+public class ExportRequestDTO<T> {
     private List<String> hiddenColumns;
-    private AchievementsCompetition achievementsCompetition;
+    private T data;
 }
