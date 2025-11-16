@@ -1,17 +1,17 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : bb
+ Source Server         : bd
  Source Server Type    : MySQL
- Source Server Version : 80405 (8.4.5)
- Source Host           : 172.16.46.202:3306
+ Source Server Version : 80012 (8.0.12)
+ Source Host           : localhost:3306
  Source Schema         : ry-vue
 
  Target Server Type    : MySQL
- Target Server Version : 80405 (8.4.5)
+ Target Server Version : 80012 (8.0.12)
  File Encoding         : 65001
 
- Date: 07/11/2025 14:01:06
+ Date: 16/11/2025 12:47:12
 */
 
 SET NAMES utf8mb4;
@@ -22,13 +22,13 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `achievement_type`;
 CREATE TABLE `achievement_type`  (
-  `type_id` bigint NOT NULL AUTO_INCREMENT COMMENT '类型ID',
-  `parent_id` bigint NULL DEFAULT 0 COMMENT '父类型ID',
+  `type_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '类型ID',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父类型ID',
   `ancestors` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '祖级列表',
   `type_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '类型名称',
   `type_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '类型编码',
   `type_category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '学术成果' COMMENT '类型分类',
-  `order_num` int NULL DEFAULT 0 COMMENT '显示顺序',
+  `order_num` int(11) NULL DEFAULT 0 COMMENT '显示顺序',
   `type_icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型图标',
   `type_color` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '#1890ff' COMMENT '类型颜色',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
@@ -41,7 +41,7 @@ CREATE TABLE `achievement_type`  (
   UNIQUE INDEX `uk_type_code`(`type_code` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
   INDEX `idx_type_name`(`type_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果类型表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievement_type
@@ -76,16 +76,16 @@ INSERT INTO `achievement_type` VALUES (106, 0, '', '转化成果', 'transfer', '
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements`;
 CREATE TABLE `achievements`  (
-  `achievements_id` bigint NOT NULL AUTO_INCREMENT COMMENT '成果id',
-  `id` bigint NULL DEFAULT NULL COMMENT '关联的子表ID，逻辑外键',
+  `achievements_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '成果id',
+  `id` bigint(20) NULL DEFAULT NULL COMMENT '关联的子表ID，逻辑外键',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户ID，逻辑外键',
   `user_identity` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户身份(0学生 1教师)',
-  `achievements_type` bigint NOT NULL COMMENT '成果类型ID（关联achievement_type）',
+  `achievements_type` bigint(20) NOT NULL COMMENT '成果类型ID（关联achievement_type）',
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '成果名称',
   `status` enum('通过','待审核','驳回') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '待审核' COMMENT '审核状态',
   `submit_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '提交时间',
   `audit_time` datetime NULL DEFAULT NULL COMMENT '审核时间',
-  `audit_user_id` bigint NULL DEFAULT NULL COMMENT '审核人ID',
+  `audit_user_id` bigint(20) NULL DEFAULT NULL COMMENT '审核人ID',
   `audit_opinion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '审核意见',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -97,7 +97,7 @@ CREATE TABLE `achievements`  (
   INDEX `idx_achievements_type`(`achievements_type` ASC, `status` ASC) USING BTREE,
   INDEX `id`(`id` ASC) USING BTREE,
   CONSTRAINT `fk_achievements_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements
@@ -132,18 +132,18 @@ INSERT INTO `achievements` VALUES (30, 18, 'admin', '00', 2, '123', '待审核',
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_attachment`;
 CREATE TABLE `achievements_attachment`  (
-  `attachment_id` bigint NOT NULL AUTO_INCREMENT COMMENT '附件ID',
-  `user_id` bigint NOT NULL COMMENT '关联子表ID',
+  `attachment_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '附件ID',
+  `user_id` bigint(20) NOT NULL COMMENT '关联子表ID',
   `attachment_type` enum('paper','award','competition','monograph','patent','research','software','textbook','transfer') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '附件类型',
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件名称',
   `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件路径',
-  `file_size` bigint NOT NULL COMMENT '文件大小（字节）',
+  `file_size` bigint(20) NOT NULL COMMENT '文件大小（字节）',
   `file_extension` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '文件扩展名',
   `file_category` enum('certificate','document','image','other') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'document' COMMENT '文件分类',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '文件描述',
   `upload_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
   `upload_user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '上传用户ID',
-  `download_count` int NOT NULL DEFAULT 0 COMMENT '下载次数',
+  `download_count` int(11) NOT NULL DEFAULT 0 COMMENT '下载次数',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
@@ -151,21 +151,22 @@ CREATE TABLE `achievements_attachment`  (
   PRIMARY KEY (`attachment_id`) USING BTREE,
   INDEX `idx_achievements_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_attachment_type`(`attachment_type` ASC) USING BTREE,
-  INDEX `fk_attachment_id`(`upload_user_id` ASC) USING BTREE,
-  CONSTRAINT `fk_attachment_id` FOREIGN KEY (`upload_user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1000 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果附件表' ROW_FORMAT = Dynamic;
+  INDEX `fk_attachment_id`(`upload_user_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1053 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果附件表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_attachment
 -- ----------------------------
+INSERT INTO `achievements_attachment` VALUES (1042, 27, 'paper', '测试1.pdf', '/profile/upload/2025/11/09/测试1_20251109143736A007.pdf', 252252, 'pdf', 'document', '成果附件 - 测试1.pdf', '2025-11-09 14:37:36', '1', 0, '', '2025-11-09 14:37:36', '', NULL);
+INSERT INTO `achievements_attachment` VALUES (1047, 29, 'paper', '2024QM万码奔腾-薛红菲-安全监控岗.xlsx', '/profile/upload/2025/11/13/2024QM万码奔腾-薛红菲-安全监控岗_20251113142313A002.xlsx', 12016, 'xlsx', 'document', '成果附件 - 2024QM万码奔腾-薛红菲-安全监控岗.xlsx', '2025-11-13 14:23:14', '1', 0, '', '2025-11-13 14:23:14', '', NULL);
+INSERT INTO `achievements_attachment` VALUES (1051, 1001, 'textbook', '2024QM万码奔腾-薛红菲-安全监控岗.xlsx', '/profile/upload/2025/11/16/2024QM万码奔腾-薛红菲-安全监控岗_20251116111106A001.xlsx', 12016, 'xlsx', 'document', '成果附件 - 2024QM万码奔腾-薛红菲-安全监控岗.xlsx', '2025-11-16 11:11:06', '1', 0, '', '2025-11-16 11:11:06', '', NULL);
 
 -- ----------------------------
 -- Table structure for achievements_award
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_award`;
 CREATE TABLE `achievements_award`  (
-  `award_id` bigint NOT NULL COMMENT '获奖',
+  `award_id` bigint(20) NOT NULL COMMENT '获奖',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `award_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '奖项名称id',
   `award_winner` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '获奖人',
@@ -184,7 +185,7 @@ CREATE TABLE `achievements_award`  (
   INDEX `idx_award_date`(`award_date` ASC) USING BTREE,
   INDEX `idx_award_level`(`award_level` ASC) USING BTREE,
   CONSTRAINT `fk_award_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '获奖成果表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '获奖成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_award
@@ -196,8 +197,9 @@ INSERT INTO `achievements_award` VALUES (1001, '24306010534', '优秀教学成�
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_competition`;
 CREATE TABLE `achievements_competition`  (
-  `competition_id` bigint NOT NULL AUTO_INCREMENT COMMENT '竞赛id',
-  `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
+  `competition_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '竞赛id',
+  `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户ID',
+  `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '部门ID',
   `competition_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '竞赛名称',
   `competition_level` enum('国际级','国家级','省级','校级','院级','市级') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '竞赛级别',
   `competition_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '竞赛类型',
@@ -207,7 +209,7 @@ CREATE TABLE `achievements_competition`  (
   `award_date` date NULL DEFAULT NULL COMMENT '获奖日期',
   `organizer` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主办单位',
   `competition_category` enum('学科竞赛','科技创新','教学竞赛','科研竞赛','技能竞赛','综合类竞赛','创业竞赛') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '竞赛类别',
-  `team_size` int NULL DEFAULT 1 COMMENT '团队人数',
+  `team_size` int(11) NULL DEFAULT 1 COMMENT '团队人数',
   `team_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '团队名称',
   `student_participants` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '指导的学生参赛（仅指导老师角色使用）',
   `award_certificate_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '获奖证书编号',
@@ -218,21 +220,25 @@ CREATE TABLE `achievements_competition`  (
   PRIMARY KEY (`competition_id`) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_competition_time`(`competition_time` ASC) USING BTREE,
-  INDEX `idx_competition_level`(`competition_level` ASC) USING BTREE,
-  CONSTRAINT `fk_competition_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1002 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '竞赛成果表' ROW_FORMAT = Dynamic;
+  INDEX `idx_competition_level`(`competition_level` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1007 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '竞赛成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_competition
 -- ----------------------------
-INSERT INTO `achievements_competition` VALUES (1001, '24306010534', '全国大学生程序设计大赛', '国家级', '算法编程类', '2024-10-15 09:00:00', '指导老师', '一等奖', '2024-10-20', '教育部高等教育司', '学科竞赛', 3, '创新之星团队', '[\"张三\", \"李四\", \"王五\"]', 'CERT20241020001', 'https://acm.contest.edu.cn', '待审核', '2025-11-07 10:25:10', '2025-11-07 10:25:10');
+INSERT INTO `achievements_competition` VALUES (1001, 1, 101, '全国大学生程序设计大赛', '国家级', '算法编程类', '2024-10-15 00:00:00', '指导老师', '一等奖', '2024-10-20', '教育部高等教育司', '学科竞赛', 3, '创新之星团队', '[\"张三\", \"李四\", \"王五\"]', 'CERT20241020001', 'https://acm.contest.edu.cn', '待审核', '2025-11-07 00:00:00', '2025-11-10 00:00:00');
+INSERT INTO `achievements_competition` VALUES (1002, 1, 100, '全国大学生java', '国家级', '算法编程', '2025-11-10 16:02:50', '参赛者', '三等奖', '2025-11-10', '教育局', '学科竞赛', 1, '无敌', '成型也，薛红绯', 'CERT20241020002', 'https://acm.contest.edu.cn', '待审核', '2025-11-10 16:03:40', '2025-11-10 17:12:24');
+INSERT INTO `achievements_competition` VALUES (1003, 1, 202, '全国大学生java', '国家级', '算法编程', '2025-11-10 16:02:50', '参赛者', '三等奖', '2025-11-10', '教育局', '学科竞赛', 1, '无敌', '成型也，薛红绯', 'CERT20241020002', 'https://acm.contest.edu.cn', '待审核', '2025-11-10 16:03:40', '2025-11-10 16:39:30');
+INSERT INTO `achievements_competition` VALUES (1004, NULL, NULL, '123', '国际级', '123', '2025-11-10 00:00:00', '队员', '二等奖', '2025-11-12', '123', '技能竞赛', 1, '3', '3', '3', '3', '待审核', '2025-11-13 14:12:18', '2025-11-13 14:12:18');
+INSERT INTO `achievements_competition` VALUES (1005, NULL, NULL, '1', '国家级', '1', '2025-10-27 00:00:00', '队长', '特等奖', '2025-11-18', '1', '技能竞赛', 1, '1', '1', '1', '1', '待审核', '2025-11-13 14:24:42', '2025-11-13 14:24:42');
+INSERT INTO `achievements_competition` VALUES (1006, NULL, NULL, '1', '国际级', '1', '2025-10-27 00:00:00', '队员', '一等奖', '2025-11-18', '1', '技能竞赛', 1, '1', '1', '1', '1', '待审核', '2025-11-13 14:29:11', '2025-11-13 14:29:11');
 
 -- ----------------------------
 -- Table structure for achievements_monograph
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_monograph`;
 CREATE TABLE `achievements_monograph`  (
-  `monograph_id` int NOT NULL COMMENT '专著id',
+  `monograph_id` int(11) NOT NULL COMMENT '专著id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `monograph_title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '专著名称',
   `author_role` enum('独著','主编','副主编','参编','译者','编者') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '作者角色',
@@ -241,8 +247,8 @@ CREATE TABLE `achievements_monograph`  (
   `publish_date` date NOT NULL COMMENT '出版时间',
   `monograph_type` enum('学术专著','教材','译著','编著','科普著作','工具书','论文集') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '专著类型',
   `edition` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版次（如：第一版、第二版等）',
-  `word_count` int NULL DEFAULT NULL COMMENT '字数（万字）',
-  `page_count` int NULL DEFAULT NULL COMMENT '页数',
+  `word_count` int(11) NULL DEFAULT NULL COMMENT '字数（万字）',
+  `page_count` int(11) NULL DEFAULT NULL COMMENT '页数',
   `language` enum('中文','英文','其他') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '中文' COMMENT '著作语言',
   `subject_category` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '学科分类',
   `is_included` tinyint(1) NULL DEFAULT 0 COMMENT '是否被收录（1:是,0:否）',
@@ -263,7 +269,7 @@ CREATE TABLE `achievements_monograph`  (
   INDEX `idx_monograph_type`(`monograph_type` ASC) USING BTREE,
   INDEX `idx_user_publish`(`user_id` ASC, `publish_date` ASC) USING BTREE,
   CONSTRAINT `fk_monograph_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果专著表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果专著表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_monograph
@@ -275,7 +281,7 @@ INSERT INTO `achievements_monograph` VALUES (1001, '24306010534', '深度学习�
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_paper`;
 CREATE TABLE `achievements_paper`  (
-  `paper_id` bigint NOT NULL AUTO_INCREMENT COMMENT '论文id',
+  `paper_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '论文id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `paper_title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '论文标题',
   `paper_category` enum('A1','A2','B1','B2','C','D') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '论文类别',
@@ -294,30 +300,26 @@ CREATE TABLE `achievements_paper`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_publish_date`(`publish_date` ASC) USING BTREE,
   INDEX `idx_journal`(`journal` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '论文成果表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 30 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '论文成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_paper
 -- ----------------------------
 INSERT INTO `achievements_paper` VALUES (3, '24306010534', '人工智能在教育领域的应用研究与实践探索', 'B1', '人工智能与教育技术', '1', '计算机科学与技术学报', '2024-06-15', '45', '3', '12-25', '10.1234/j.cnki.1000-1234.2024.03.002', '待审核', '2025-11-06 00:00:00', '2025-11-06 00:00:00');
-INSERT INTO `achievements_paper` VALUES (13, 'admin', '123', 'A1', '123', '123', '123', '2025-11-05', '123', '123', '123', '123', '待审核', '2025-11-19 00:00:00', '2025-11-20 00:00:00');
-INSERT INTO `achievements_paper` VALUES (14, 'admin', '123', 'A1', '123', '123', '123', '2025-11-19', '123', '123', '123', '123', '待审核', '2025-11-05 00:00:00', '2025-11-15 00:00:00');
-INSERT INTO `achievements_paper` VALUES (15, 'admin', '123', 'A1', '123', '213', '123', '2025-11-20', '123', '213', '123', '123', '待审核', '2025-11-21 00:00:00', '2025-11-21 00:00:00');
-INSERT INTO `achievements_paper` VALUES (16, 'admin', '123', 'A2', '213', '123', '123', '2025-11-19', '123', '123', '123', '123', '待审核', '2025-11-18 00:00:00', '2025-11-28 00:00:00');
-INSERT INTO `achievements_paper` VALUES (17, 'admin', '123', 'A2', '213', '123', '123', '2025-11-19', '123', '123', '123', '123', '待审核', '2025-11-18 00:00:00', '2025-11-28 00:00:00');
-INSERT INTO `achievements_paper` VALUES (18, 'admin', '123', 'A2', '213', '123', '123', '2025-11-19', '123', '123', '123', '123', '待审核', '2025-11-18 00:00:00', '2025-11-28 00:00:00');
+INSERT INTO `achievements_paper` VALUES (27, 'admin', '123', 'A1', '123', '123', '123', '2025-11-19', '123', '123', '123', '123', '待审核', '2025-11-08 00:00:00', '2025-11-27 00:00:00');
+INSERT INTO `achievements_paper` VALUES (29, 'admin', '123', 'A2', '123', '123', '213', '2025-11-12', '213', '123', '123', '123', '待审核', '2025-11-26 00:00:00', '2025-11-05 00:00:00');
 
 -- ----------------------------
 -- Table structure for achievements_patent
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_patent`;
 CREATE TABLE `achievements_patent`  (
-  `patent_id` bigint NOT NULL COMMENT '专利id',
+  `patent_id` bigint(20) NOT NULL COMMENT '专利id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `patent_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '专利名称',
   `patent_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '专利号',
   `patent_type` enum('发明专利','实用新型','外观设计') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '专利类型',
-  `author_order` int NOT NULL COMMENT '发明人顺序',
+  `author_order` int(11) NOT NULL COMMENT '发明人顺序',
   `application_date` date NOT NULL COMMENT '申请日期',
   `authorization_date` date NULL DEFAULT NULL COMMENT '授权日期',
   `publication_date` date NULL DEFAULT NULL COMMENT '公布日期',
@@ -338,7 +340,7 @@ CREATE TABLE `achievements_patent`  (
   INDEX `idx_application_date`(`application_date` ASC) USING BTREE,
   INDEX `idx_patent_type`(`patent_type` ASC) USING BTREE,
   CONSTRAINT `fk_patent_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '专利成果表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '专利成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_patent
@@ -350,7 +352,7 @@ INSERT INTO `achievements_patent` VALUES (1001, '24306010534', '一种人工智�
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_research`;
 CREATE TABLE `achievements_research`  (
-  `research_id` bigint NOT NULL COMMENT '项目id',
+  `research_id` bigint(20) NOT NULL COMMENT '项目id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `project_number` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目编号',
   `project_category` enum('纵向项目','横向项目') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '项目类别',
@@ -377,10 +379,8 @@ CREATE TABLE `achievements_research`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_start_date`(`start_date` ASC) USING BTREE,
   INDEX `idx_project_level`(`project_level` ASC) USING BTREE,
-  CONSTRAINT `fk_research_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `chk_research_dates` CHECK (`start_date` <= `end_date`),
-  CONSTRAINT `chk_research_funding` CHECK ((`total_funding` >= `received_funding`) and (`total_funding` >= 0))
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '项目成果表' ROW_FORMAT = Dynamic;
+  CONSTRAINT `fk_research_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '项目成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_research
@@ -392,7 +392,7 @@ INSERT INTO `achievements_research` VALUES (1001, '24306010534', 'NSFC2024001', 
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_software`;
 CREATE TABLE `achievements_software`  (
-  `software_id` bigint NOT NULL COMMENT '软著id',
+  `software_id` bigint(20) NOT NULL COMMENT '软著id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `software_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '软件名称',
   `software_version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '软件版本',
@@ -414,7 +414,7 @@ CREATE TABLE `achievements_software`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_register_date`(`register_date` ASC) USING BTREE,
   CONSTRAINT `fk_software_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '软件著作权成果表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '软件著作权成果表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_software
@@ -426,8 +426,9 @@ INSERT INTO `achievements_software` VALUES (1001, '24306010534', '智能教学�
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_textbook`;
 CREATE TABLE `achievements_textbook`  (
-  `textbook_id` bigint NOT NULL COMMENT '教材id',
-  `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
+  `textbook_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '教材id',
+  `user_id` bigint(20) NULL DEFAULT NULL COMMENT '用户ID',
+  `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '部门ID',
   `textbook_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '教材名称',
   `author_role` enum('主编','副主编','参编','独著') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '作者角色',
   `press_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '出版社',
@@ -435,7 +436,7 @@ CREATE TABLE `achievements_textbook`  (
   `publish_date` date NOT NULL COMMENT '出版时间',
   `textbook_type` enum('规划教材','校本教材','国家级规划','省部级规划','行业规划') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '教材类型',
   `edition` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '版次',
-  `word_count` int NULL DEFAULT NULL COMMENT '字数（万字）',
+  `word_count` int(11) NULL DEFAULT NULL COMMENT '字数（万字）',
   `using_institutions` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '使用院校（JSON格式）',
   `applicable_major` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '适用专业',
   `textbook_level` enum('本科','专科','研究生','职业教育') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '本科' COMMENT '教材层次',
@@ -444,23 +445,26 @@ CREATE TABLE `achievements_textbook`  (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`textbook_id`) USING BTREE,
-  UNIQUE INDEX `uk_isbn`(`isbn_number` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
-  INDEX `idx_publish_date`(`publish_date` ASC) USING BTREE,
-  CONSTRAINT `fk_textbook_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '教材著作表' ROW_FORMAT = Dynamic;
+  INDEX `idx_publish_date`(`publish_date` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1009 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '教材著作表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_textbook
 -- ----------------------------
-INSERT INTO `achievements_textbook` VALUES (1001, '24306010534', '人工智能导论', '主编', '高等教育出版社', '978-7-04-060000-1', '2024-05-20', '规划教材', '第一版', NULL, NULL, NULL, '本科', NULL, '待审核', '2025-11-07 10:53:26', '2025-11-07 10:53:26');
+INSERT INTO `achievements_textbook` VALUES (1001, 24306010534, NULL, '人工智能导论', '主编', '高等教育出版社', '978-7-04-060000-1', '2024-05-20', '规划教材', '第一版', NULL, NULL, NULL, '本科', NULL, '待审核', '2025-11-07 00:00:00', '2025-11-07 00:00:00');
+INSERT INTO `achievements_textbook` VALUES (1002, NULL, NULL, '123', '副主编', '123', '123', '2025-10-27', '国家级规划', '123', 123, '123', '123', '研究生', '123', NULL, '2025-11-18 00:00:00', '2025-11-18 00:00:00');
+INSERT INTO `achievements_textbook` VALUES (1005, NULL, NULL, '1123', '副主编', '123', '123', '2025-11-10', '规划教材', '123', 123, '123', '123', '研究生', '123', NULL, '2025-11-19 00:00:00', '2025-11-19 00:00:00');
+INSERT INTO `achievements_textbook` VALUES (1006, NULL, NULL, '123', '主编', '123', '123', '2025-10-27', '校本教材', '123', 123, '123', '123', '专科', '123', NULL, '2025-11-26 00:00:00', '2025-11-19 00:00:00');
+INSERT INTO `achievements_textbook` VALUES (1007, NULL, NULL, '123', '副主编', '123', '123', '2025-11-03', '校本教材', '123', 123, '123', '123', '研究生', '123', NULL, '2025-11-13 00:00:00', '2025-11-20 00:00:00');
+INSERT INTO `achievements_textbook` VALUES (1008, NULL, NULL, '123', '副主编', '123', '123', '2025-11-10', '校本教材', NULL, NULL, NULL, NULL, '本科', NULL, NULL, '2025-11-16 11:14:59', '2025-11-16 11:14:59');
 
 -- ----------------------------
 -- Table structure for achievements_transfer
 -- ----------------------------
 DROP TABLE IF EXISTS `achievements_transfer`;
 CREATE TABLE `achievements_transfer`  (
-  `transfer_id` bigint NOT NULL COMMENT '转化id',
+  `transfer_id` bigint(20) NOT NULL COMMENT '转化id',
   `user_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `achievement_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '成果名称',
   `achievement_type` enum('论文','专利','软件著作权','技术秘密','其他') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '成果类型',
@@ -487,7 +491,7 @@ CREATE TABLE `achievements_transfer`  (
   INDEX `idx_transfer_date`(`transfer_date` ASC) USING BTREE,
   INDEX `idx_partner_enterprise`(`partner_enterprise` ASC) USING BTREE,
   CONSTRAINT `fk_transfer_user` FOREIGN KEY (`user_id`) REFERENCES `sys_user` (`user_name`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果转化表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '成果转化表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of achievements_transfer
@@ -499,7 +503,7 @@ INSERT INTO `achievements_transfer` VALUES (1001, '24306010534', '智能教学�
 -- ----------------------------
 DROP TABLE IF EXISTS `gen_table`;
 CREATE TABLE `gen_table`  (
-  `table_id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `table_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
   `table_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '表名称',
   `table_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '表描述',
   `sub_table_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '关联子表的表名',
@@ -521,21 +525,21 @@ CREATE TABLE `gen_table`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`table_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代码生成业务表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代码生成业务表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of gen_table
 -- ----------------------------
-INSERT INTO `gen_table` VALUES (7, 'achievements_paper', '论文成果表', NULL, NULL, 'AchievementsPaper', 'crud', 'element-ui', 'com.ruoyi.paper', 'paper', 'paper', '论文成果', 'xixia', '0', '/', '{\"parentMenuId\":2000}', 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59', NULL);
-INSERT INTO `gen_table` VALUES (8, 'achievements_attachment', '成果附件表', NULL, NULL, 'AchievementsAttachment', 'crud', '', 'com.ruoyi.system', 'system', 'attachment', '成果附件', 'ruoyi', '0', '/', NULL, 'admin', '2025-11-06 23:33:25', '', NULL, NULL);
+INSERT INTO `gen_table` VALUES (13, 'achievements_competition', '竞赛成果表', NULL, NULL, 'AchievementsCompetition', 'crud', 'element-ui', 'com.ruoyi.competition', 'competition', 'competition', '竞赛成果', 'ruoyi', '0', '/', '{\"parentMenuId\":2000}', 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10', NULL);
+INSERT INTO `gen_table` VALUES (14, 'achievements_textbook', '教材著作表', NULL, NULL, 'AchievementsTextbook', 'crud', 'element-ui', 'com.ruoyi.textbook', 'textbook', 'textbook', '教材著作', 'xixia', '0', '/', '{\"parentMenuId\":2000}', 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20', NULL);
 
 -- ----------------------------
 -- Table structure for gen_table_column
 -- ----------------------------
 DROP TABLE IF EXISTS `gen_table_column`;
 CREATE TABLE `gen_table_column`  (
-  `column_id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `table_id` bigint NULL DEFAULT NULL COMMENT '归属表编号',
+  `column_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `table_id` bigint(20) NULL DEFAULT NULL COMMENT '归属表编号',
   `column_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '列名称',
   `column_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '列描述',
   `column_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '列类型',
@@ -551,48 +555,55 @@ CREATE TABLE `gen_table_column`  (
   `query_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'EQ' COMMENT '查询方式（等于、不等于、大于、小于、范围）',
   `html_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件）',
   `dict_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典类型',
-  `sort` int NULL DEFAULT NULL COMMENT '排序',
+  `sort` int(11) NULL DEFAULT NULL COMMENT '排序',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`column_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 137 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代码生成业务表字段' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 250 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代码生成业务表字段' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of gen_table_column
 -- ----------------------------
-INSERT INTO `gen_table_column` VALUES (106, 7, 'paper_id', '论文id', 'bigint', 'Long', 'paperId', '1', '1', '0', '0', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (107, 7, 'user_id', '用户ID', 'varchar(30)', 'String', 'userId', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 2, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (108, 7, 'paper_title', '论文标题', 'varchar(500)', 'String', 'paperTitle', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'textarea', '', 3, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (109, 7, 'paper_category', '论文类别', 'enum(\'A1\',\'A2\',\'B1\',\'B2\',\'C\',\'D\')', 'String', 'paperCategory', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'select', '', 4, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (110, 7, 'research_direction', '研究方向', 'varchar(200)', 'String', 'researchDirection', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 5, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (111, 7, 'author_information', '作者信息（1:第一作者,2:第二作者等）', 'varchar(100)', 'String', 'authorInformation', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'textarea', '', 6, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (112, 7, 'journal', '期刊名称', 'varchar(255)', 'String', 'journal', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 7, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (113, 7, 'publish_date', '发表时间', 'date', 'Date', 'publishDate', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'datetime', '', 8, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (114, 7, 'volume', '卷号', 'varchar(50)', 'String', 'volume', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 9, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (115, 7, 'issue', '期号', 'varchar(50)', 'String', 'issue', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 10, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (116, 7, 'page_range', '页码范围', 'varchar(50)', 'String', 'pageRange', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 11, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (117, 7, 'doi', 'DOI号', 'varchar(100)', 'String', 'doi', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 12, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (118, 7, 'audit_status', '审核状态', 'enum(\'通过\',\'驳回\',\'待审核\')', 'String', 'auditStatus', '0', '0', '0', '0', '0', '1', '1', 'EQ', 'select', '', 13, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (119, 7, 'created_at', '创建时间', 'timestamp', 'Date', 'createdAt', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'datetime', '', 14, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (120, 7, 'updated_at', '更新时间', 'timestamp', 'Date', 'updatedAt', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'datetime', '', 15, 'admin', '2025-11-05 23:49:02', '', '2025-11-05 23:58:59');
-INSERT INTO `gen_table_column` VALUES (121, 8, 'attachment_id', '附件ID', 'bigint', 'Long', 'attachmentId', '1', '1', '0', '1', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (122, 8, 'user_id', '关联子表ID', 'bigint', 'Long', 'userId', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 2, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (123, 8, 'attachment_type', '附件类型', 'enum(\'paper\',\'award\',\'competition\',\'monograph\',\'patent\',\'research\',\'software\',\'textbook\',\'transfer\')', 'String', 'attachmentType', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'select', '', 3, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (124, 8, 'file_name', '文件名称', 'varchar(255)', 'String', 'fileName', '0', '0', '1', '1', '1', '1', '1', 'LIKE', 'input', '', 4, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (125, 8, 'file_path', '文件路径', 'varchar(500)', 'String', 'filePath', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'textarea', '', 5, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (126, 8, 'file_size', '文件大小（字节）', 'bigint', 'Long', 'fileSize', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 6, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (127, 8, 'file_extension', '文件扩展名', 'varchar(20)', 'String', 'fileExtension', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 7, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (128, 8, 'file_category', '文件分类', 'enum(\'certificate\',\'document\',\'image\',\'other\')', 'String', 'fileCategory', '0', '0', '1', '1', '1', '1', '1', 'EQ', NULL, '', 8, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (129, 8, 'description', '文件描述', 'varchar(500)', 'String', 'description', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'textarea', '', 9, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (130, 8, 'upload_time', '上传时间', 'timestamp', 'Date', 'uploadTime', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'datetime', '', 10, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (131, 8, 'upload_user_id', '上传用户ID', 'varchar(30)', 'String', 'uploadUserId', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 11, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (132, 8, 'download_count', '下载次数', 'int', 'Long', 'downloadCount', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 12, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (133, 8, 'create_by', '创建者', 'varchar(64)', 'String', 'createBy', '0', '0', '0', '1', NULL, NULL, NULL, 'EQ', 'input', '', 13, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (134, 8, 'create_time', '创建时间', 'timestamp', 'Date', 'createTime', '0', '0', '1', '1', NULL, NULL, NULL, 'EQ', 'datetime', '', 14, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (135, 8, 'update_by', '更新者', 'varchar(64)', 'String', 'updateBy', '0', '0', '0', '1', '1', NULL, NULL, 'EQ', 'input', '', 15, 'admin', '2025-11-06 23:33:25', '', NULL);
-INSERT INTO `gen_table_column` VALUES (136, 8, 'update_time', '更新时间', 'timestamp', 'Date', 'updateTime', '0', '0', '0', '1', '1', NULL, NULL, 'EQ', 'datetime', '', 16, 'admin', '2025-11-06 23:33:25', '', NULL);
+INSERT INTO `gen_table_column` VALUES (212, 13, 'competition_id', '竞赛id', 'bigint', 'Long', 'competitionId', '1', '1', '0', '0', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (213, 13, 'user_id', '用户ID', 'bigint', 'Long', 'userId', '0', '0', '0', '0', '0', '0', '0', 'EQ', 'input', '', 2, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (214, 13, 'dept_id', '部门ID', 'bigint', 'Long', 'deptId', '0', '0', '0', '0', '0', '0', '0', 'EQ', 'input', '', 3, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (215, 13, 'competition_name', '竞赛名称', 'varchar(255)', 'String', 'competitionName', '0', '0', '1', '1', '1', '1', '1', 'LIKE', 'input', '', 4, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (216, 13, 'competition_level', '竞赛级别', 'enum(\'国际级\',\'国家级\',\'省级\',\'校级\',\'院级\',\'市级\')', 'String', 'competitionLevel', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'select', '', 5, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (217, 13, 'competition_type', '竞赛类型', 'varchar(100)', 'String', 'competitionType', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 6, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (218, 13, 'competition_time', '竞赛时间', 'datetime', 'Date', 'competitionTime', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'datetime', '', 7, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (219, 13, 'role_type', '角色类型', 'enum(\'参赛者\',\'队长\',\'队员\',\'指导老师\',\'评委\',\'组织者\')', 'String', 'roleType', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'select', '', 8, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (220, 13, 'award_level', '获奖等级', 'enum(\'特等奖\',\'一等奖\',\'二等奖\',\'三等奖\',\'优秀奖\',\'参与奖\',\'组织奖\',\'指导奖\',\'金奖\',\'银奖\',\'铜奖\')', 'String', 'awardLevel', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'select', '', 9, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (221, 13, 'award_date', '获奖日期', 'date', 'Date', 'awardDate', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'datetime', '', 10, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (222, 13, 'organizer', '主办单位', 'varchar(255)', 'String', 'organizer', '0', '0', '1', '1', '1', '1', '0', 'EQ', 'input', '', 11, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (223, 13, 'competition_category', '竞赛类别', 'enum(\'学科竞赛\',\'科技创新\',\'教学竞赛\',\'科研竞赛\',\'技能竞赛\',\'综合类竞赛\',\'创业竞赛\')', 'String', 'competitionCategory', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'select', '', 12, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (224, 13, 'team_size', '团队人数', 'int', 'Long', 'teamSize', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'input', '', 13, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (225, 13, 'team_name', '团队名称', 'varchar(100)', 'String', 'teamName', '0', '0', '0', '1', '1', '1', '1', 'LIKE', 'input', '', 14, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (226, 13, 'student_participants', '指导的学生参赛（仅指导老师角色使用）', 'text', 'String', 'studentParticipants', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'textarea', '', 15, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (227, 13, 'award_certificate_no', '获奖证书编号', 'varchar(100)', 'String', 'awardCertificateNo', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'input', '', 16, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (228, 13, 'competition_website', '竞赛官网', 'varchar(500)', 'String', 'competitionWebsite', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'textarea', '', 17, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (229, 13, 'audit_status', '审核状态', 'enum(\'通过\',\'驳回\',\'待审核\')', 'String', 'auditStatus', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'radio', '', 18, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (230, 13, 'created_at', '创建时间', 'timestamp', 'Date', 'createdAt', '0', '0', '0', '0', '0', '1', '0', 'EQ', 'datetime', '', 19, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (231, 13, 'updated_at', '更新时间', 'timestamp', 'Date', 'updatedAt', '0', '0', '0', '0', '0', '1', '0', 'EQ', 'datetime', '', 20, 'admin', '2025-11-12 18:55:16', '', '2025-11-12 19:10:10');
+INSERT INTO `gen_table_column` VALUES (232, 14, 'textbook_id', '教材id', 'bigint(20)', 'Long', 'textbookId', '1', '0', '0', '0', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (233, 14, 'user_id', '用户ID', 'bigint(20)', 'Long', 'userId', '0', '0', '0', '0', '0', '0', '0', 'EQ', 'input', '', 2, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (234, 14, 'dept_id', '部门ID', 'bigint(20)', 'Long', 'deptId', '0', '0', '0', '0', '0', '0', '0', 'EQ', 'input', '', 3, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (235, 14, 'textbook_name', '教材名称', 'varchar(500)', 'String', 'textbookName', '0', '0', '1', '1', '1', '1', '1', 'LIKE', 'textarea', '', 4, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (236, 14, 'author_role', '作者角色', 'enum(\'主编\',\'副主编\',\'参编\',\'独著\')', 'String', 'authorRole', '0', '0', '1', '1', '1', '1', '0', 'EQ', 'select', '', 5, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (237, 14, 'press_name', '出版社', 'varchar(200)', 'String', 'pressName', '0', '0', '1', '1', '1', '1', '0', 'LIKE', 'input', '', 6, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (238, 14, 'isbn_number', 'ISBN号', 'varchar(20)', 'String', 'isbnNumber', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'input', '', 7, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (239, 14, 'publish_date', '出版时间', 'date', 'Date', 'publishDate', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'datetime', '', 8, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (240, 14, 'textbook_type', '教材类型', 'enum(\'规划教材\',\'校本教材\',\'国家级规划\',\'省部级规划\',\'行业规划\')', 'String', 'textbookType', '0', '0', '1', '1', '1', '1', '1', 'EQ', 'select', '', 9, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (241, 14, 'edition', '版次', 'varchar(50)', 'String', 'edition', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'input', '', 10, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (242, 14, 'word_count', '字数（万字）', 'int(11)', 'Long', 'wordCount', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'input', '', 11, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (243, 14, 'using_institutions', '使用院校（JSON格式）', 'text', 'String', 'usingInstitutions', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'textarea', '', 12, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (244, 14, 'applicable_major', '适用专业', 'text', 'String', 'applicableMajor', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'textarea', '', 13, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (245, 14, 'textbook_level', '教材层次', 'enum(\'本科\',\'专科\',\'研究生\',\'职业教育\')', 'String', 'textbookLevel', '0', '0', '0', '1', '1', '1', '0', 'EQ', NULL, '', 14, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (246, 14, 'approval_number', '批准文号', 'varchar(100)', 'String', 'approvalNumber', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'input', '', 15, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (247, 14, 'audit_status', '审核状态', 'enum(\'通过\',\'驳回\',\'待审核\')', 'String', 'auditStatus', '0', '0', '0', '1', '1', '1', '1', 'EQ', 'radio', '', 16, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (248, 14, 'created_at', '创建时间', 'timestamp', 'Date', 'createdAt', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'datetime', '', 17, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
+INSERT INTO `gen_table_column` VALUES (249, 14, 'updated_at', '更新时间', 'timestamp', 'Date', 'updatedAt', '0', '0', '0', '1', '1', '1', '0', 'EQ', 'datetime', '', 18, 'admin', '2025-11-16 10:20:36', '', '2025-11-16 10:22:20');
 
 -- ----------------------------
 -- Table structure for qrtz_blob_triggers
@@ -605,7 +616,7 @@ CREATE TABLE `qrtz_blob_triggers`  (
   `blob_data` blob NULL COMMENT '存放持久化Trigger对象',
   PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`) USING BTREE,
   CONSTRAINT `qrtz_blob_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'Blob类型的触发器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'Blob类型的触发器表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_blob_triggers
@@ -620,7 +631,7 @@ CREATE TABLE `qrtz_calendars`  (
   `calendar_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '日历名称',
   `calendar` blob NOT NULL COMMENT '存放持久化calendar对象',
   PRIMARY KEY (`sched_name`, `calendar_name`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '日历信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '日历信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_calendars
@@ -638,7 +649,7 @@ CREATE TABLE `qrtz_cron_triggers`  (
   `time_zone_id` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '时区',
   PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`) USING BTREE,
   CONSTRAINT `qrtz_cron_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'Cron类型的触发器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = 'Cron类型的触发器表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_cron_triggers
@@ -654,16 +665,16 @@ CREATE TABLE `qrtz_fired_triggers`  (
   `trigger_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_name的外键',
   `trigger_group` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
   `instance_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调度器实例名',
-  `fired_time` bigint NOT NULL COMMENT '触发的时间',
-  `sched_time` bigint NOT NULL COMMENT '定时器制定的时间',
-  `priority` int NOT NULL COMMENT '优先级',
+  `fired_time` bigint(20) NOT NULL COMMENT '触发的时间',
+  `sched_time` bigint(20) NOT NULL COMMENT '定时器制定的时间',
+  `priority` int(11) NOT NULL COMMENT '优先级',
   `state` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '状态',
   `job_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '任务名称',
   `job_group` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '任务组名',
   `is_nonconcurrent` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否并发',
   `requests_recovery` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '是否接受恢复执行',
   PRIMARY KEY (`sched_name`, `entry_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '已触发的触发器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '已触发的触发器表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_fired_triggers
@@ -685,7 +696,7 @@ CREATE TABLE `qrtz_job_details`  (
   `requests_recovery` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '是否接受恢复执行',
   `job_data` blob NULL COMMENT '存放持久化job对象',
   PRIMARY KEY (`sched_name`, `job_name`, `job_group`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '任务详细信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '任务详细信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_job_details
@@ -699,7 +710,7 @@ CREATE TABLE `qrtz_locks`  (
   `sched_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调度名称',
   `lock_name` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '悲观锁名称',
   PRIMARY KEY (`sched_name`, `lock_name`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '存储的悲观锁信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '存储的悲观锁信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_locks
@@ -713,7 +724,7 @@ CREATE TABLE `qrtz_paused_trigger_grps`  (
   `sched_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调度名称',
   `trigger_group` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
   PRIMARY KEY (`sched_name`, `trigger_group`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '暂停的触发器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '暂停的触发器表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_paused_trigger_grps
@@ -726,10 +737,10 @@ DROP TABLE IF EXISTS `qrtz_scheduler_state`;
 CREATE TABLE `qrtz_scheduler_state`  (
   `sched_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调度名称',
   `instance_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '实例名称',
-  `last_checkin_time` bigint NOT NULL COMMENT '上次检查时间',
-  `checkin_interval` bigint NOT NULL COMMENT '检查间隔时间',
+  `last_checkin_time` bigint(20) NOT NULL COMMENT '上次检查时间',
+  `checkin_interval` bigint(20) NOT NULL COMMENT '检查间隔时间',
   PRIMARY KEY (`sched_name`, `instance_name`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '调度器状态表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '调度器状态表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_scheduler_state
@@ -743,12 +754,12 @@ CREATE TABLE `qrtz_simple_triggers`  (
   `sched_name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调度名称',
   `trigger_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_name的外键',
   `trigger_group` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_triggers表trigger_group的外键',
-  `repeat_count` bigint NOT NULL COMMENT '重复的次数统计',
-  `repeat_interval` bigint NOT NULL COMMENT '重复的间隔时间',
-  `times_triggered` bigint NOT NULL COMMENT '已经触发的次数',
+  `repeat_count` bigint(20) NOT NULL COMMENT '重复的次数统计',
+  `repeat_interval` bigint(20) NOT NULL COMMENT '重复的间隔时间',
+  `times_triggered` bigint(20) NOT NULL COMMENT '已经触发的次数',
   PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`) USING BTREE,
   CONSTRAINT `qrtz_simple_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '简单触发器的信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '简单触发器的信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_simple_triggers
@@ -765,17 +776,17 @@ CREATE TABLE `qrtz_simprop_triggers`  (
   `str_prop_1` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第一个参数',
   `str_prop_2` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第二个参数',
   `str_prop_3` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'String类型的trigger的第三个参数',
-  `int_prop_1` int NULL DEFAULT NULL COMMENT 'int类型的trigger的第一个参数',
-  `int_prop_2` int NULL DEFAULT NULL COMMENT 'int类型的trigger的第二个参数',
-  `long_prop_1` bigint NULL DEFAULT NULL COMMENT 'long类型的trigger的第一个参数',
-  `long_prop_2` bigint NULL DEFAULT NULL COMMENT 'long类型的trigger的第二个参数',
+  `int_prop_1` int(11) NULL DEFAULT NULL COMMENT 'int类型的trigger的第一个参数',
+  `int_prop_2` int(11) NULL DEFAULT NULL COMMENT 'int类型的trigger的第二个参数',
+  `long_prop_1` bigint(20) NULL DEFAULT NULL COMMENT 'long类型的trigger的第一个参数',
+  `long_prop_2` bigint(20) NULL DEFAULT NULL COMMENT 'long类型的trigger的第二个参数',
   `dec_prop_1` decimal(13, 4) NULL DEFAULT NULL COMMENT 'decimal类型的trigger的第一个参数',
   `dec_prop_2` decimal(13, 4) NULL DEFAULT NULL COMMENT 'decimal类型的trigger的第二个参数',
   `bool_prop_1` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Boolean类型的trigger的第一个参数',
   `bool_prop_2` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Boolean类型的trigger的第二个参数',
   PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`) USING BTREE,
   CONSTRAINT `qrtz_simprop_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `trigger_name`, `trigger_group`) REFERENCES `qrtz_triggers` (`sched_name`, `trigger_name`, `trigger_group`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同步机制的行锁表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '同步机制的行锁表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_simprop_triggers
@@ -792,20 +803,20 @@ CREATE TABLE `qrtz_triggers`  (
   `job_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_job_details表job_name的外键',
   `job_group` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'qrtz_job_details表job_group的外键',
   `description` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '相关介绍',
-  `next_fire_time` bigint NULL DEFAULT NULL COMMENT '上一次触发时间（毫秒）',
-  `prev_fire_time` bigint NULL DEFAULT NULL COMMENT '下一次触发时间（默认为-1表示不触发）',
-  `priority` int NULL DEFAULT NULL COMMENT '优先级',
+  `next_fire_time` bigint(20) NULL DEFAULT NULL COMMENT '上一次触发时间（毫秒）',
+  `prev_fire_time` bigint(20) NULL DEFAULT NULL COMMENT '下一次触发时间（默认为-1表示不触发）',
+  `priority` int(11) NULL DEFAULT NULL COMMENT '优先级',
   `trigger_state` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '触发器状态',
   `trigger_type` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '触发器的类型',
-  `start_time` bigint NOT NULL COMMENT '开始时间',
-  `end_time` bigint NULL DEFAULT NULL COMMENT '结束时间',
+  `start_time` bigint(20) NOT NULL COMMENT '开始时间',
+  `end_time` bigint(20) NULL DEFAULT NULL COMMENT '结束时间',
   `calendar_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '日程表名称',
-  `misfire_instr` smallint NULL DEFAULT NULL COMMENT '补偿执行的策略',
+  `misfire_instr` smallint(6) NULL DEFAULT NULL COMMENT '补偿执行的策略',
   `job_data` blob NULL COMMENT '存放持久化job对象',
   PRIMARY KEY (`sched_name`, `trigger_name`, `trigger_group`) USING BTREE,
   INDEX `sched_name`(`sched_name` ASC, `job_name` ASC, `job_group` ASC) USING BTREE,
   CONSTRAINT `qrtz_triggers_ibfk_1` FOREIGN KEY (`sched_name`, `job_name`, `job_group`) REFERENCES `qrtz_job_details` (`sched_name`, `job_name`, `job_group`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '触发器详细信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '触发器详细信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of qrtz_triggers
@@ -816,7 +827,7 @@ CREATE TABLE `qrtz_triggers`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config`  (
-  `config_id` int NOT NULL AUTO_INCREMENT COMMENT '参数主键',
+  `config_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '参数主键',
   `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '参数名称',
   `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '参数键名',
   `config_value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '参数键值',
@@ -827,7 +838,7 @@ CREATE TABLE `sys_config`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '参数配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '参数配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_config
@@ -846,11 +857,11 @@ INSERT INTO `sys_config` VALUES (8, '用户管理-账号密码更新周期', 'sy
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept`  (
-  `dept_id` bigint NOT NULL AUTO_INCREMENT COMMENT '部门id',
-  `parent_id` bigint NULL DEFAULT 0 COMMENT '父部门id',
+  `dept_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '部门id',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父部门id',
   `ancestors` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '祖级列表',
   `dept_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '部门名称',
-  `order_num` int NULL DEFAULT 0 COMMENT '显示顺序',
+  `order_num` int(11) NULL DEFAULT 0 COMMENT '显示顺序',
   `leader` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '负责人',
   `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '联系电话',
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '邮箱',
@@ -861,7 +872,7 @@ CREATE TABLE `sys_dept`  (
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 214 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '部门表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 218 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -889,15 +900,19 @@ INSERT INTO `sys_dept` VALUES (209, 101, '0,100,101', '人工智能', 5, NULL, N
 INSERT INTO `sys_dept` VALUES (210, 101, '0,100,101', '轨道交通信号与控制', 6, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-06 19:40:00', '', NULL);
 INSERT INTO `sys_dept` VALUES (211, 101, '0,100,101', '网络安全', 7, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-06 19:40:07', '', NULL);
 INSERT INTO `sys_dept` VALUES (212, 101, '0,100,101', '软件工程', 8, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-06 19:40:13', '', NULL);
-INSERT INTO `sys_dept` VALUES (213, 103, '0,100,101,103', '2024级', 1, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-06 19:40:38', '', NULL);
+INSERT INTO `sys_dept` VALUES (213, 103, '0,100,101,103', '2024级', 4, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-06 19:40:38', 'admin', '2025-11-09 14:33:48');
+INSERT INTO `sys_dept` VALUES (214, 103, '0,100,101,103', '2021级', 1, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-09 14:33:44', '', NULL);
+INSERT INTO `sys_dept` VALUES (215, 103, '0,100,101,103', '2023级', 3, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-09 14:33:53', 'admin', '2025-11-09 14:33:57');
+INSERT INTO `sys_dept` VALUES (216, 103, '0,100,101,103', '2022级', 2, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-09 14:34:02', '', NULL);
+INSERT INTO `sys_dept` VALUES (217, 103, '0,100,101,103', '2025级', 5, NULL, NULL, NULL, '0', '0', 'admin', '2025-11-09 14:34:08', '', NULL);
 
 -- ----------------------------
 -- Table structure for sys_dict_data
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_data`;
 CREATE TABLE `sys_dict_data`  (
-  `dict_code` bigint NOT NULL AUTO_INCREMENT COMMENT '字典编码',
-  `dict_sort` int NULL DEFAULT 0 COMMENT '字典排序',
+  `dict_code` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '字典编码',
+  `dict_sort` int(11) NULL DEFAULT 0 COMMENT '字典排序',
   `dict_label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典标签',
   `dict_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典键值',
   `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典类型',
@@ -911,7 +926,7 @@ CREATE TABLE `sys_dict_data`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dict_code`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典数据表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_data
@@ -951,7 +966,7 @@ INSERT INTO `sys_dict_data` VALUES (29, 2, '失败', '1', 'sys_common_status', '
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_type`;
 CREATE TABLE `sys_dict_type`  (
-  `dict_id` bigint NOT NULL AUTO_INCREMENT COMMENT '字典主键',
+  `dict_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '字典主键',
   `dict_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典名称',
   `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '字典类型',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
@@ -962,7 +977,7 @@ CREATE TABLE `sys_dict_type`  (
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dict_id`) USING BTREE,
   UNIQUE INDEX `dict_type`(`dict_type` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典类型表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -983,7 +998,7 @@ INSERT INTO `sys_dict_type` VALUES (10, '系统状态', 'sys_common_status', '0'
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job`;
 CREATE TABLE `sys_job`  (
-  `job_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `job_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务ID',
   `job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '任务名称',
   `job_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'DEFAULT' COMMENT '任务组名',
   `invoke_target` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调用目标字符串',
@@ -997,7 +1012,7 @@ CREATE TABLE `sys_job`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注信息',
   PRIMARY KEY (`job_id`, `job_name`, `job_group`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job
@@ -1011,7 +1026,7 @@ INSERT INTO `sys_job` VALUES (3, '系统默认（多参）', 'DEFAULT', 'ryTask.
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job_log`;
 CREATE TABLE `sys_job_log`  (
-  `job_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
+  `job_log_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
   `job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务名称',
   `job_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '任务组名',
   `invoke_target` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '调用目标字符串',
@@ -1020,7 +1035,7 @@ CREATE TABLE `sys_job_log`  (
   `exception_info` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '异常信息',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job_log
@@ -1031,7 +1046,7 @@ CREATE TABLE `sys_job_log`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_logininfor`;
 CREATE TABLE `sys_logininfor`  (
-  `info_id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `info_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
   `user_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '用户账号',
   `ipaddr` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '登录IP地址',
   `login_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '登录地点',
@@ -1043,7 +1058,7 @@ CREATE TABLE `sys_logininfor`  (
   PRIMARY KEY (`info_id`) USING BTREE,
   INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 138 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 227 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -1086,22 +1101,111 @@ INSERT INTO `sys_logininfor` VALUES (134, 'admin', '172.16.193.221', '内网IP',
 INSERT INTO `sys_logininfor` VALUES (135, 'admin', '172.16.193.221', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-07 10:46:45');
 INSERT INTO `sys_logininfor` VALUES (136, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-07 10:55:03');
 INSERT INTO `sys_logininfor` VALUES (137, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-07 10:55:11');
+INSERT INTO `sys_logininfor` VALUES (138, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-07 14:58:45');
+INSERT INTO `sys_logininfor` VALUES (139, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-07 15:39:34');
+INSERT INTO `sys_logininfor` VALUES (140, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-08 13:38:26');
+INSERT INTO `sys_logininfor` VALUES (141, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-08 13:38:30');
+INSERT INTO `sys_logininfor` VALUES (142, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-08 13:38:33');
+INSERT INTO `sys_logininfor` VALUES (143, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-08 18:52:42');
+INSERT INTO `sys_logininfor` VALUES (144, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-08 18:52:46');
+INSERT INTO `sys_logininfor` VALUES (145, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-08 20:53:40');
+INSERT INTO `sys_logininfor` VALUES (146, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-08 20:53:45');
+INSERT INTO `sys_logininfor` VALUES (147, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 11:38:24');
+INSERT INTO `sys_logininfor` VALUES (148, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:35:16');
+INSERT INTO `sys_logininfor` VALUES (149, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 14:35:24');
+INSERT INTO `sys_logininfor` VALUES (150, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 14:35:33');
+INSERT INTO `sys_logininfor` VALUES (151, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:35:40');
+INSERT INTO `sys_logininfor` VALUES (152, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:36:05');
+INSERT INTO `sys_logininfor` VALUES (153, '24306010534', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:36:17');
+INSERT INTO `sys_logininfor` VALUES (154, '24306010534', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:36:26');
+INSERT INTO `sys_logininfor` VALUES (155, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 14:36:36');
+INSERT INTO `sys_logininfor` VALUES (156, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:36:46');
+INSERT INTO `sys_logininfor` VALUES (157, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:37:53');
+INSERT INTO `sys_logininfor` VALUES (158, '24306010534', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:38:03');
+INSERT INTO `sys_logininfor` VALUES (159, '24306010534', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:38:15');
+INSERT INTO `sys_logininfor` VALUES (160, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:38:29');
+INSERT INTO `sys_logininfor` VALUES (161, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:39:48');
+INSERT INTO `sys_logininfor` VALUES (162, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-09 14:40:04');
+INSERT INTO `sys_logininfor` VALUES (163, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:40:07');
+INSERT INTO `sys_logininfor` VALUES (164, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:40:24');
+INSERT INTO `sys_logininfor` VALUES (165, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-09 14:40:34');
+INSERT INTO `sys_logininfor` VALUES (166, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-09 14:40:37');
+INSERT INTO `sys_logininfor` VALUES (167, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 14:40:40');
+INSERT INTO `sys_logininfor` VALUES (168, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:40:45');
+INSERT INTO `sys_logininfor` VALUES (169, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 14:48:00');
+INSERT INTO `sys_logininfor` VALUES (170, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 14:48:04');
+INSERT INTO `sys_logininfor` VALUES (171, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '退出成功', '2025-11-09 14:48:12');
+INSERT INTO `sys_logininfor` VALUES (172, '24306010535', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 14:48:24');
+INSERT INTO `sys_logininfor` VALUES (173, '24306010535', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '退出成功', '2025-11-09 14:48:56');
+INSERT INTO `sys_logininfor` VALUES (174, '24306010534', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 14:49:01');
+INSERT INTO `sys_logininfor` VALUES (175, '24306010534', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '退出成功', '2025-11-09 14:49:24');
+INSERT INTO `sys_logininfor` VALUES (176, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 14:49:33');
+INSERT INTO `sys_logininfor` VALUES (177, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '退出成功', '2025-11-09 14:51:31');
+INSERT INTO `sys_logininfor` VALUES (178, '24306010534', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 14:51:43');
+INSERT INTO `sys_logininfor` VALUES (179, '24306010534', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '退出成功', '2025-11-09 14:52:00');
+INSERT INTO `sys_logininfor` VALUES (180, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:57:23');
+INSERT INTO `sys_logininfor` VALUES (181, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '退出成功', '2025-11-09 14:57:41');
+INSERT INTO `sys_logininfor` VALUES (182, '24306010535', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-09 14:57:57');
+INSERT INTO `sys_logininfor` VALUES (183, 'admin123', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '1', '验证码已失效', '2025-11-09 15:00:56');
+INSERT INTO `sys_logininfor` VALUES (184, 'admin123', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 15:00:59');
+INSERT INTO `sys_logininfor` VALUES (185, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 15:01:07');
+INSERT INTO `sys_logininfor` VALUES (186, 'admin', '172.16.193.66', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 15:01:13');
+INSERT INTO `sys_logininfor` VALUES (187, 'admin', '172.17.89.114', '内网IP', 'Chrome 12', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-09 16:14:58');
+INSERT INTO `sys_logininfor` VALUES (188, 'admin', '172.17.89.114', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-09 16:15:11');
+INSERT INTO `sys_logininfor` VALUES (189, 'admin', '172.16.77.150', '内网IP', 'Chrome 13', 'Windows 10', '1', '验证码错误', '2025-11-09 16:57:50');
+INSERT INTO `sys_logininfor` VALUES (190, 'admin', '172.16.77.150', '内网IP', 'Chrome 13', 'Windows 10', '1', '验证码错误', '2025-11-09 16:57:56');
+INSERT INTO `sys_logininfor` VALUES (191, 'admin', '172.16.77.150', '内网IP', 'Chrome 13', 'Windows 10', '0', '登录成功', '2025-11-09 16:58:02');
+INSERT INTO `sys_logininfor` VALUES (192, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-10 15:50:45');
+INSERT INTO `sys_logininfor` VALUES (193, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码错误', '2025-11-10 15:50:48');
+INSERT INTO `sys_logininfor` VALUES (194, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-10 15:50:52');
+INSERT INTO `sys_logininfor` VALUES (195, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2025-11-10 15:51:00');
+INSERT INTO `sys_logininfor` VALUES (196, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码错误', '2025-11-10 16:58:47');
+INSERT INTO `sys_logininfor` VALUES (197, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码错误', '2025-11-10 16:58:52');
+INSERT INTO `sys_logininfor` VALUES (198, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码错误', '2025-11-10 16:58:59');
+INSERT INTO `sys_logininfor` VALUES (199, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-10 16:59:04');
+INSERT INTO `sys_logininfor` VALUES (200, 'admin', '172.17.94.80', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2025-11-10 16:59:13');
+INSERT INTO `sys_logininfor` VALUES (201, 'admin', '172.17.84.169', '内网IP', 'Chrome 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-11 17:47:30');
+INSERT INTO `sys_logininfor` VALUES (202, 'admin', '172.17.84.169', '内网IP', 'Chrome 14', 'Windows 10', '1', '验证码错误', '2025-11-11 17:47:51');
+INSERT INTO `sys_logininfor` VALUES (203, 'admin', '172.17.84.169', '内网IP', 'Chrome 14', 'Windows 10', '1', '用户不存在/密码错误', '2025-11-11 17:48:01');
+INSERT INTO `sys_logininfor` VALUES (204, 'admin', '172.17.84.169', '内网IP', 'Chrome 14', 'Windows 10', '1', '验证码错误', '2025-11-11 17:48:14');
+INSERT INTO `sys_logininfor` VALUES (205, 'admin', '172.17.84.169', '内网IP', 'Chrome 14', 'Windows 10', '1', '验证码错误', '2025-11-11 17:48:26');
+INSERT INTO `sys_logininfor` VALUES (206, 'admin', '172.16.193.182', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-11 19:48:07');
+INSERT INTO `sys_logininfor` VALUES (207, 'admin', '172.16.193.182', '内网IP', 'Chrome 12', 'Windows 10', '1', '验证码错误', '2025-11-12 18:54:46');
+INSERT INTO `sys_logininfor` VALUES (208, 'admin', '172.16.193.182', '内网IP', 'Chrome 12', 'Windows 10', '1', '验证码错误', '2025-11-12 18:54:52');
+INSERT INTO `sys_logininfor` VALUES (209, 'admin', '172.16.193.182', '内网IP', 'Chrome 12', 'Windows 10', '0', '登录成功', '2025-11-12 18:54:57');
+INSERT INTO `sys_logininfor` VALUES (210, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-13 10:18:30');
+INSERT INTO `sys_logininfor` VALUES (211, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-13 12:06:55');
+INSERT INTO `sys_logininfor` VALUES (212, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-13 13:33:00');
+INSERT INTO `sys_logininfor` VALUES (213, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-13 13:33:04');
+INSERT INTO `sys_logininfor` VALUES (214, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-14 09:01:12');
+INSERT INTO `sys_logininfor` VALUES (215, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-14 09:01:12');
+INSERT INTO `sys_logininfor` VALUES (216, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-14 19:10:54');
+INSERT INTO `sys_logininfor` VALUES (217, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-14 23:55:33');
+INSERT INTO `sys_logininfor` VALUES (218, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-14 23:55:37');
+INSERT INTO `sys_logininfor` VALUES (219, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-15 19:32:31');
+INSERT INTO `sys_logininfor` VALUES (220, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-15 19:32:37');
+INSERT INTO `sys_logininfor` VALUES (221, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码已失效', '2025-11-15 23:56:57');
+INSERT INTO `sys_logininfor` VALUES (222, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-15 23:57:00');
+INSERT INTO `sys_logininfor` VALUES (223, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-16 10:19:51');
+INSERT INTO `sys_logininfor` VALUES (224, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '1', '验证码错误', '2025-11-16 10:29:47');
+INSERT INTO `sys_logininfor` VALUES (225, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-16 10:29:51');
+INSERT INTO `sys_logininfor` VALUES (226, 'admin', '127.0.0.1', '内网IP', 'Firefox 14', 'Windows 10', '0', '登录成功', '2025-11-16 12:38:14');
 
 -- ----------------------------
 -- Table structure for sys_menu
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu`  (
-  `menu_id` bigint NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
+  `menu_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
   `menu_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '菜单名称',
-  `parent_id` bigint NULL DEFAULT 0 COMMENT '父菜单ID',
-  `order_num` int NULL DEFAULT 0 COMMENT '显示顺序',
+  `parent_id` bigint(20) NULL DEFAULT 0 COMMENT '父菜单ID',
+  `order_num` int(11) NULL DEFAULT 0 COMMENT '显示顺序',
   `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '路由地址',
   `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '组件路径',
   `query` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '路由参数',
   `route_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '路由名称',
-  `is_frame` int NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
-  `is_cache` int NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
+  `is_frame` int(11) NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
+  `is_cache` int(11) NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
   `menu_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '菜单类型（M目录 C菜单 F按钮）',
   `visible` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '菜单状态（0显示 1隐藏）',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '菜单状态（0正常 1停用）',
@@ -1113,7 +1217,7 @@ CREATE TABLE `sys_menu`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '备注',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2009 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '菜单权限表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2027 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '菜单权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -1210,13 +1314,31 @@ INSERT INTO `sys_menu` VALUES (2005, '论文成果新增', 2003, 2, '#', '', NUL
 INSERT INTO `sys_menu` VALUES (2006, '论文成果修改', 2003, 3, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'paper:paper:edit', '#', 'admin', '2025-11-06 19:24:17', '', NULL, '');
 INSERT INTO `sys_menu` VALUES (2007, '论文成果删除', 2003, 4, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'paper:paper:remove', '#', 'admin', '2025-11-06 19:24:17', '', NULL, '');
 INSERT INTO `sys_menu` VALUES (2008, '论文成果导出', 2003, 5, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'paper:paper:export', '#', 'admin', '2025-11-06 19:24:17', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2009, '成果附件', 2000, 1, 'attachment', 'attachment/attachment/index', NULL, '', 1, 0, 'C', '0', '0', 'attachment:attachment:list', 'clipboard', 'admin', '2025-11-08 14:07:54', 'admin', '2025-11-09 14:49:47', '成果附件菜单');
+INSERT INTO `sys_menu` VALUES (2010, '成果附件查询', 2009, 1, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'attachment:attachment:query', '#', 'admin', '2025-11-08 14:07:54', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2011, '成果附件新增', 2009, 2, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'attachment:attachment:add', '#', 'admin', '2025-11-08 14:07:54', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2012, '成果附件修改', 2009, 3, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'attachment:attachment:edit', '#', 'admin', '2025-11-08 14:07:54', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2013, '成果附件删除', 2009, 4, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'attachment:attachment:remove', '#', 'admin', '2025-11-08 14:07:54', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2014, '成果附件导出', 2009, 5, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'attachment:attachment:export', '#', 'admin', '2025-11-08 14:07:54', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2015, '竞赛成果', 2000, 1, 'competition', 'competition/competition/index', NULL, '', 1, 0, 'C', '0', '0', 'competition:competition:list', 'redis-list', 'admin', '2025-11-12 11:21:49', 'admin', '2025-11-13 14:31:44', '竞赛成果菜单');
+INSERT INTO `sys_menu` VALUES (2016, '竞赛成果查询', 2015, 1, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'competition:competition:query', '#', 'admin', '2025-11-12 11:21:49', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2017, '竞赛成果新增', 2015, 2, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'competition:competition:add', '#', 'admin', '2025-11-12 11:21:49', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2018, '竞赛成果修改', 2015, 3, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'competition:competition:edit', '#', 'admin', '2025-11-12 11:21:49', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2019, '竞赛成果删除', 2015, 4, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'competition:competition:remove', '#', 'admin', '2025-11-12 11:21:49', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2020, '竞赛成果导出', 2015, 5, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'competition:competition:export', '#', 'admin', '2025-11-12 11:21:49', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2021, '教材著作', 2000, 1, 'textbook', 'textbook/textbook/index', NULL, '', 1, 0, 'C', '0', '0', 'textbook:textbook:list', 'education', 'admin', '2025-11-16 10:23:18', 'admin', '2025-11-16 12:45:26', '教材著作菜单');
+INSERT INTO `sys_menu` VALUES (2022, '教材著作查询', 2021, 1, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'textbook:textbook:query', '#', 'admin', '2025-11-16 10:23:18', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2023, '教材著作新增', 2021, 2, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'textbook:textbook:add', '#', 'admin', '2025-11-16 10:23:18', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2024, '教材著作修改', 2021, 3, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'textbook:textbook:edit', '#', 'admin', '2025-11-16 10:23:18', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2025, '教材著作删除', 2021, 4, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'textbook:textbook:remove', '#', 'admin', '2025-11-16 10:23:18', '', NULL, '');
+INSERT INTO `sys_menu` VALUES (2026, '教材著作导出', 2021, 5, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'textbook:textbook:export', '#', 'admin', '2025-11-16 10:23:18', '', NULL, '');
 
 -- ----------------------------
 -- Table structure for sys_notice
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_notice`;
 CREATE TABLE `sys_notice`  (
-  `notice_id` int NOT NULL AUTO_INCREMENT COMMENT '公告ID',
+  `notice_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '公告ID',
   `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '公告标题',
   `notice_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '公告类型（1通知 2公告）',
   `notice_content` longblob NULL COMMENT '公告内容',
@@ -1227,7 +1349,7 @@ CREATE TABLE `sys_notice`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`notice_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知公告表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知公告表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_notice
@@ -1240,12 +1362,12 @@ INSERT INTO `sys_notice` VALUES (2, '维护通知：2018-07-01 若依系统凌�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_oper_log`;
 CREATE TABLE `sys_oper_log`  (
-  `oper_id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `oper_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '模块标题',
-  `business_type` int NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `business_type` int(11) NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
   `method` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '方法名称',
   `request_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '请求方式',
-  `operator_type` int NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `operator_type` int(11) NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
   `oper_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '操作人员',
   `dept_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '部门名称',
   `oper_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '请求URL',
@@ -1253,15 +1375,15 @@ CREATE TABLE `sys_oper_log`  (
   `oper_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '操作地点',
   `oper_param` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '请求参数',
   `json_result` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '返回参数',
-  `status` int NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
+  `status` int(11) NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
   `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '错误消息',
   `oper_time` datetime NULL DEFAULT NULL COMMENT '操作时间',
-  `cost_time` bigint NULL DEFAULT 0 COMMENT '消耗时间',
+  `cost_time` bigint(20) NULL DEFAULT 0 COMMENT '消耗时间',
   PRIMARY KEY (`oper_id`) USING BTREE,
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 221 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 426 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1387,16 +1509,221 @@ INSERT INTO `sys_oper_log` VALUES (217, '论文成果', 1, 'com.ruoyi.paper.cont
 INSERT INTO `sys_oper_log` VALUES (218, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-18\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A2\",\"paperId\":16,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"213\",\"updatedAt\":\"2025-11-28\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":16}', 0, NULL, '2025-11-07 11:43:03', 23);
 INSERT INTO `sys_oper_log` VALUES (219, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-18\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A2\",\"paperId\":17,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"213\",\"updatedAt\":\"2025-11-28\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":17}', 0, NULL, '2025-11-07 11:43:10', 20);
 INSERT INTO `sys_oper_log` VALUES (220, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-18\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A2\",\"paperId\":18,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"213\",\"updatedAt\":\"2025-11-28\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":18}', 0, NULL, '2025-11-07 11:43:38', 29);
+INSERT INTO `sys_oper_log` VALUES (221, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/tool/gen/8', '127.0.0.1', '内网IP', '[8]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 14:04:15', 93);
+INSERT INTO `sys_oper_log` VALUES (222, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '127.0.0.1', '内网IP', '{\"tables\":\"achievements_attachment\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 14:04:25', 92);
+INSERT INTO `sys_oper_log` VALUES (223, '代码生成', 2, 'com.ruoyi.generator.controller.GenController.editSave()', 'PUT', 1, 'admin', '计算机科学与技术', '/tool/gen', '127.0.0.1', '内网IP', '{\"businessName\":\"attachment\",\"className\":\"AchievementsAttachment\",\"columns\":[{\"capJavaField\":\"AttachmentId\",\"columnComment\":\"附件ID\",\"columnId\":137,\"columnName\":\"attachment_id\",\"columnType\":\"bigint(20)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-08 14:04:25\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":true,\"insert\":false,\"isIncrement\":\"1\",\"isInsert\":\"0\",\"isPk\":\"1\",\"isRequired\":\"0\",\"javaField\":\"attachmentId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":true,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":1,\"superColumn\":false,\"tableId\":9,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"UserId\",\"columnComment\":\"关联子表ID\",\"columnId\":138,\"columnName\":\"user_id\",\"columnType\":\"bigint(20)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-08 14:04:25\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"input\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isList\":\"1\",\"isPk\":\"0\",\"isQuery\":\"1\",\"isRequired\":\"1\",\"javaField\":\"userId\",\"javaType\":\"Long\",\"list\":true,\"params\":{},\"pk\":false,\"query\":true,\"queryType\":\"EQ\",\"required\":true,\"sort\":2,\"superColumn\":false,\"tableId\":9,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"AttachmentType\",\"columnComment\":\"附件类型\",\"columnId\":139,\"columnName\":\"attachment_type\",\"columnType\":\"enum(\'paper\',\'award\',\'competition\',\'monograph\',\'patent\',\'research\',\'software\',\'textbook\',\'transfer\')\",\"createBy\":\"admin\",\"createTime\":\"2025-11-08 14:04:25\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"select\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isList\":\"1\",\"isPk\":\"0\",\"isQuery\":\"1\",\"isRequired\":\"1\",\"javaField\":\"attachmentType\",\"javaType\":\"String\",\"list\":true,\"params\":{},\"pk\":false,\"query\":true,\"queryType\":\"EQ\",\"required\":true,\"sort\":3,\"superColumn\":false,\"tableId\":9,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"FileName\",\"columnComment\":\"文件名称\",\"columnId\":140,\"columnName\":\"file_name\",\"columnType\":\"varchar(255)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-08 14:04:25\",\"dictType\":\"\",\"edit\":true,\"h', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 14:06:27', 125);
+INSERT INTO `sys_oper_log` VALUES (224, '代码生成', 8, 'com.ruoyi.generator.controller.GenController.batchGenCode()', 'GET', 1, 'admin', '计算机科学与技术', '/tool/gen/batchGenCode', '127.0.0.1', '内网IP', '{\"tables\":\"achievements_attachment\"}', NULL, 0, NULL, '2025-11-08 14:06:31', 213);
+INSERT INTO `sys_oper_log` VALUES (225, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:53:27\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"1\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:53:28', 150);
+INSERT INTO `sys_oper_log` VALUES (226, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:53:49\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"24306010535\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:53:49', 88);
+INSERT INTO `sys_oper_log` VALUES (227, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:55:16\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"24306010534\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:55:16', 61);
+INSERT INTO `sys_oper_log` VALUES (228, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:55:24\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"3\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:55:24', 30);
+INSERT INTO `sys_oper_log` VALUES (229, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:55:26\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"24306010534\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:55:26', 24);
+INSERT INTO `sys_oper_log` VALUES (230, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:56:16\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"3\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:56:16', 49);
+INSERT INTO `sys_oper_log` VALUES (231, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"createTime\":\"2025-11-08 18:56:28\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"3\",\"userId\":1}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\r\n### The error may exist in file [C:\\Users\\Administrator\\Downloads\\RuoYi-Vue-master\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\attachment\\AchievementsAttachmentMapper.xml]\r\n### The error may involve com.ruoyi.attachment.mapper.AchievementsAttachmentMapper.insertAchievementsAttachment-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_attachment          ( user_id,                          file_name,             file_path,             file_size,             file_extension,                          description,             upload_time,             upload_user_id,             download_count,                          create_time )           values ( ?,                          ?,             ?,             ?,             ?,                          ?,             ?,             ?,             ?,                          ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))\n; Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`)); nested exception is java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`ry-vue`.`achievements_attachment`, CONSTRAINT `fk_paper_id` FOREIGN KEY (`user_id`) REFERENCES `achievements_paper` (`paper_id`))', '2025-11-08 18:56:28', 82);
+INSERT INTO `sys_oper_log` VALUES (232, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"attachmentId\":1007,\"createTime\":\"2025-11-08 18:58:04\",\"description\":\"123\",\"downloadCount\":0,\"fileExtension\":\"cs\",\"fileName\":\"测试\",\"filePath\":\"测试\",\"fileSize\":10,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"24306010534\",\"userId\":3}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 18:58:05', 40);
+INSERT INTO `sys_oper_log` VALUES (233, '成果附件', 1, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment', '127.0.0.1', '内网IP', '{\"attachmentId\":1008,\"createTime\":\"2025-11-08 19:42:37\",\"description\":\"附件\",\"downloadCount\":0,\"fileExtension\":\"docx\",\"fileName\":\"师生成果管理系统\",\"filePath\":\"ruoyi/uploadPath/2025/11/07/\",\"fileSize\":11621,\"params\":{},\"uploadTime\":\"2025-11-08\",\"uploadUserId\":\"24306010534\",\"userId\":3}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 19:42:38', 135);
+INSERT INTO `sys_oper_log` VALUES (234, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-08 20:36:27', 24);
+INSERT INTO `sys_oper_log` VALUES (235, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 12:25:13', 27);
+INSERT INTO `sys_oper_log` VALUES (236, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-05\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A1\",\"paperId\":19,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-12\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-28\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":19}', 0, NULL, '2025-11-09 12:27:59', 35);
+INSERT INTO `sys_oper_log` VALUES (237, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-10\",\"doi\":\"31\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"31\",\"paperCategory\":\"A1\",\"paperId\":20,\"paperTitle\":\"12\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-14\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":20}', 0, NULL, '2025-11-09 12:31:40', 146);
+INSERT INTO `sys_oper_log` VALUES (238, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-06\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"B1\",\"paperId\":21,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-12\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-06\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":21}', 0, NULL, '2025-11-09 12:32:47', 60);
+INSERT INTO `sys_oper_log` VALUES (239, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 12:38:44', 22);
+INSERT INTO `sys_oper_log` VALUES (240, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-15\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"213\",\"paperCategory\":\"A1\",\"paperId\":22,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-14\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":22}', 0, NULL, '2025-11-09 12:39:06', 14);
+INSERT INTO `sys_oper_log` VALUES (241, '论文成果', 3, 'com.ruoyi.paper.controller.AchievementsPaperController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/paper/paper/13,14,15,16,17,18,20,19', '127.0.0.1', '内网IP', '[13,14,15,16,17,18,20,19]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 12:39:34', 100);
+INSERT INTO `sys_oper_log` VALUES (242, '论文成果', 3, 'com.ruoyi.paper.controller.AchievementsPaperController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/paper/paper/21,22', '127.0.0.1', '内网IP', '[21,22]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 12:39:37', 5);
+INSERT INTO `sys_oper_log` VALUES (243, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"213\",\"createdAt\":\"2025-11-26\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A2\",\"paperId\":23,\"paperTitle\":\"131\",\"params\":{},\"publishDate\":\"2025-11-20\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-14\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":23}', 0, NULL, '2025-11-09 12:41:16', 46);
+INSERT INTO `sys_oper_log` VALUES (244, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1010', '127.0.0.1', '内网IP', '[1010]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:22:03', 67);
+INSERT INTO `sys_oper_log` VALUES (245, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:25:15', 17);
+INSERT INTO `sys_oper_log` VALUES (246, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:26:08', 4);
+INSERT INTO `sys_oper_log` VALUES (247, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:29:46', 7);
+INSERT INTO `sys_oper_log` VALUES (248, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:30:26', 5);
+INSERT INTO `sys_oper_log` VALUES (249, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":24,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":24}', 0, NULL, '2025-11-09 13:31:26', 53);
+INSERT INTO `sys_oper_log` VALUES (250, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":25,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":25}', 0, NULL, '2025-11-09 13:31:54', 66);
+INSERT INTO `sys_oper_log` VALUES (251, '论文成果', 3, 'com.ruoyi.paper.controller.AchievementsPaperController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/paper/paper/23,24,25', '127.0.0.1', '内网IP', '[23,24,25]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:32:25', 23);
+INSERT INTO `sys_oper_log` VALUES (252, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":26,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":26}', 0, NULL, '2025-11-09 13:32:39', 39);
+INSERT INTO `sys_oper_log` VALUES (253, '论文成果', 3, 'com.ruoyi.paper.controller.AchievementsPaperController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/paper/paper/26', '127.0.0.1', '内网IP', '[26]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:34:24', 103);
+INSERT INTO `sys_oper_log` VALUES (254, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 13:34:30', 21);
+INSERT INTO `sys_oper_log` VALUES (255, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1014', '127.0.0.1', '内网IP', '[1014]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:38:19', 48);
+INSERT INTO `sys_oper_log` VALUES (256, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1007', '127.0.0.1', '内网IP', '[1007]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:38:44', 37);
+INSERT INTO `sys_oper_log` VALUES (257, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 13:39:10', 5);
+INSERT INTO `sys_oper_log` VALUES (258, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1015', '127.0.0.1', '内网IP', '[1015]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:39:51', 78);
+INSERT INTO `sys_oper_log` VALUES (259, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1016', '127.0.0.1', '内网IP', '[1016]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:50:59', 35);
+INSERT INTO `sys_oper_log` VALUES (260, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1017', '127.0.0.1', '内网IP', '[1017]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:51:09', 52);
+INSERT INTO `sys_oper_log` VALUES (261, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1008', '127.0.0.1', '内网IP', '[1008]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:53:06', 50);
+INSERT INTO `sys_oper_log` VALUES (262, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 13:53:24', 8);
+INSERT INTO `sys_oper_log` VALUES (263, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1018', '127.0.0.1', '内网IP', '[1018]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:54:30', 111);
+INSERT INTO `sys_oper_log` VALUES (264, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1019', '127.0.0.1', '内网IP', '[1019]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:55:04', 76);
+INSERT INTO `sys_oper_log` VALUES (265, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1020', '127.0.0.1', '内网IP', '[1020]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:56:26', 52);
+INSERT INTO `sys_oper_log` VALUES (266, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 13:59:44', 23);
+INSERT INTO `sys_oper_log` VALUES (267, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1021', '127.0.0.1', '内网IP', '[1021]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:59:47', 10);
+INSERT INTO `sys_oper_log` VALUES (268, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1022', '127.0.0.1', '内网IP', '[1022]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:59:59', 20);
+INSERT INTO `sys_oper_log` VALUES (269, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1023', '127.0.0.1', '内网IP', '[1023]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 13:59:59', 12);
+INSERT INTO `sys_oper_log` VALUES (270, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:00:13', 6);
+INSERT INTO `sys_oper_log` VALUES (271, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1024', '127.0.0.1', '内网IP', '[1024]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:00:26', 14);
+INSERT INTO `sys_oper_log` VALUES (272, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1025', '127.0.0.1', '内网IP', '[1025]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:00:29', 20);
+INSERT INTO `sys_oper_log` VALUES (273, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1026', '127.0.0.1', '内网IP', '[1026]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:00:31', 19);
+INSERT INTO `sys_oper_log` VALUES (274, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:01:29', 5);
+INSERT INTO `sys_oper_log` VALUES (275, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1027', '127.0.0.1', '内网IP', '[1027]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:01:33', 20);
+INSERT INTO `sys_oper_log` VALUES (276, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1011,1012,1013', '127.0.0.1', '内网IP', '[1011,1012,1013]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:07:09', 70);
+INSERT INTO `sys_oper_log` VALUES (277, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:15:27', 29);
+INSERT INTO `sys_oper_log` VALUES (278, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1028', '127.0.0.1', '内网IP', '[1028]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:15:30', 28);
+INSERT INTO `sys_oper_log` VALUES (279, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1029', '127.0.0.1', '内网IP', '[1029]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:15:36', 21);
+INSERT INTO `sys_oper_log` VALUES (280, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1030', '127.0.0.1', '内网IP', '[1030]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:15:37', 19);
+INSERT INTO `sys_oper_log` VALUES (281, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:15:47', 4);
+INSERT INTO `sys_oper_log` VALUES (282, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1031', '127.0.0.1', '内网IP', '[1031]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:16:09', 91);
+INSERT INTO `sys_oper_log` VALUES (283, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:16:28', 5);
+INSERT INTO `sys_oper_log` VALUES (284, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1032', '127.0.0.1', '内网IP', '[1032]', '{\"msg\":\"成功删除 0 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:22:24', 13);
+INSERT INTO `sys_oper_log` VALUES (285, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1032', '127.0.0.1', '内网IP', '[1032]', '{\"msg\":\"成功删除 0 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:22:38', 6);
+INSERT INTO `sys_oper_log` VALUES (286, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1032', '127.0.0.1', '内网IP', '[1032]', '{\"msg\":\"成功删除 1 个附件。详细信息: 附件ID 1032: 物理文件不存在; 数据库记录删除成功\",\"code\":200}', 0, NULL, '2025-11-09 14:24:08', 59);
+INSERT INTO `sys_oper_log` VALUES (287, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:24:30', 17);
+INSERT INTO `sys_oper_log` VALUES (288, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1033', '127.0.0.1', '内网IP', '[1033]', '{\"msg\":\"成功删除 1 个附件。详细信息: 附件ID 1033: 物理文件不存在; 数据库记录删除成功\",\"code\":200}', 0, NULL, '2025-11-09 14:24:45', 48);
+INSERT INTO `sys_oper_log` VALUES (289, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1034', '127.0.0.1', '内网IP', '[1034]', '{\"msg\":\"成功删除 1 个附件。详细信息: 附件ID 1034: 物理文件不存在; 数据库记录删除成功\",\"code\":200}', 0, NULL, '2025-11-09 14:24:59', 63);
+INSERT INTO `sys_oper_log` VALUES (290, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1035', '127.0.0.1', '内网IP', '[1035]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:29:50', 105);
+INSERT INTO `sys_oper_log` VALUES (291, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:30:40', 22);
+INSERT INTO `sys_oper_log` VALUES (292, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1038', '127.0.0.1', '内网IP', '[1038]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:30:55', 30);
+INSERT INTO `sys_oper_log` VALUES (293, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1037', '127.0.0.1', '内网IP', '[1037]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:30:58', 16);
+INSERT INTO `sys_oper_log` VALUES (294, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1036', '127.0.0.1', '内网IP', '[1036]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:31:32', 70);
+INSERT INTO `sys_oper_log` VALUES (295, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:31:48', 5);
+INSERT INTO `sys_oper_log` VALUES (296, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-09 14:32:04', 3);
+INSERT INTO `sys_oper_log` VALUES (297, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1041', '127.0.0.1', '内网IP', '[1041]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:32:17', 22);
+INSERT INTO `sys_oper_log` VALUES (298, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1039', '127.0.0.1', '内网IP', '[1039]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:32:27', 49);
+INSERT INTO `sys_oper_log` VALUES (299, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1040', '127.0.0.1', '内网IP', '[1040]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 14:32:40', 97);
+INSERT INTO `sys_oper_log` VALUES (300, '部门管理', 1, 'com.ruoyi.web.controller.system.SysDeptController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"createBy\":\"admin\",\"deptName\":\"2021级\",\"orderNum\":1,\"params\":{},\"parentId\":103,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:33:44', 89);
+INSERT INTO `sys_oper_log` VALUES (301, '部门管理', 2, 'com.ruoyi.web.controller.system.SysDeptController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"deptId\":213,\"deptName\":\"2024级\",\"orderNum\":4,\"params\":{},\"parentId\":103,\"parentName\":\"计算机科学与技术\",\"status\":\"0\",\"updateBy\":\"admin\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:33:48', 24);
+INSERT INTO `sys_oper_log` VALUES (302, '部门管理', 1, 'com.ruoyi.web.controller.system.SysDeptController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"createBy\":\"admin\",\"deptName\":\"2023级\",\"orderNum\":2,\"params\":{},\"parentId\":103,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:33:53', 12);
+INSERT INTO `sys_oper_log` VALUES (303, '部门管理', 2, 'com.ruoyi.web.controller.system.SysDeptController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"deptId\":215,\"deptName\":\"2023级\",\"orderNum\":3,\"params\":{},\"parentId\":103,\"parentName\":\"计算机科学与技术\",\"status\":\"0\",\"updateBy\":\"admin\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:33:57', 30);
+INSERT INTO `sys_oper_log` VALUES (304, '部门管理', 1, 'com.ruoyi.web.controller.system.SysDeptController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"createBy\":\"admin\",\"deptName\":\"2022级\",\"orderNum\":2,\"params\":{},\"parentId\":103,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:34:02', 13);
+INSERT INTO `sys_oper_log` VALUES (305, '部门管理', 1, 'com.ruoyi.web.controller.system.SysDeptController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/system/dept', '127.0.0.1', '内网IP', '{\"ancestors\":\"0,100,101,103\",\"children\":[],\"createBy\":\"admin\",\"deptName\":\"2025级\",\"orderNum\":5,\"params\":{},\"parentId\":103,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:34:08', 10);
+INSERT INTO `sys_oper_log` VALUES (306, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.dataScope()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role/dataScope', '127.0.0.1', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-05 10:51:24\",\"dataScope\":\"4\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"deptIds\":[],\"flag\":false,\"menuCheckStrictly\":true,\"params\":{},\"roleId\":101,\"roleKey\":\"studentAdministrator\",\"roleName\":\"学生管理员\",\"roleSort\":3,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:34:34', 63);
+INSERT INTO `sys_oper_log` VALUES (307, '用户管理', 4, 'com.ruoyi.web.controller.system.SysUserController.insertAuthRole()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/user/authRole', '127.0.0.1', '内网IP', '{\"roleIds\":\"100\",\"userId\":\"2144\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:34:59', 68);
+INSERT INTO `sys_oper_log` VALUES (308, '用户管理', 2, 'com.ruoyi.web.controller.system.SysUserController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/user', '127.0.0.1', '内网IP', '{\"admin\":false,\"avatar\":\"\",\"createBy\":\"\",\"delFlag\":\"0\",\"email\":\"\",\"loginDate\":\"2025-11-09 14:36:18\",\"loginIp\":\"127.0.0.1\",\"nickName\":\"成兴业\",\"params\":{},\"phonenumber\":\"\",\"postIds\":[],\"roleIds\":[101],\"roles\":[],\"sex\":\"0\",\"status\":\"0\",\"updateBy\":\"admin\",\"userId\":2143,\"userName\":\"24306010534\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:37:06', 101);
+INSERT INTO `sys_oper_log` VALUES (309, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-08\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"123\",\"paperCategory\":\"A1\",\"paperId\":27,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-19\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-27\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":27}', 0, NULL, '2025-11-09 14:37:36', 48);
+INSERT INTO `sys_oper_log` VALUES (310, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role', '127.0.0.1', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-05 10:50:19\",\"dataScope\":\"5\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"flag\":false,\"menuCheckStrictly\":true,\"menuIds\":[2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014],\"params\":{},\"roleId\":100,\"roleKey\":\"student\",\"roleName\":\"普通学生\",\"roleSort\":4,\"status\":\"0\",\"updateBy\":\"admin\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:38:59', 77);
+INSERT INTO `sys_oper_log` VALUES (311, '用户管理', 2, 'com.ruoyi.web.controller.system.SysUserController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/user', '127.0.0.1', '内网IP', '{\"admin\":false,\"avatar\":\"\",\"createBy\":\"\",\"delFlag\":\"0\",\"deptId\":213,\"email\":\"\",\"loginDate\":\"2025-11-09 14:38:04\",\"loginIp\":\"127.0.0.1\",\"nickName\":\"成兴业\",\"params\":{},\"phonenumber\":\"\",\"postIds\":[],\"roleIds\":[101],\"roles\":[{\"admin\":false,\"dataScope\":\"4\",\"deptCheckStrictly\":false,\"flag\":false,\"menuCheckStrictly\":false,\"params\":{},\"roleId\":101,\"roleKey\":\"studentAdministrator\",\"roleName\":\"学生管理员\",\"roleSort\":3,\"status\":\"0\"}],\"sex\":\"0\",\"status\":\"0\",\"updateBy\":\"admin\",\"userId\":2143,\"userName\":\"24306010534\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:39:35', 56);
+INSERT INTO `sys_oper_log` VALUES (312, '用户管理', 2, 'com.ruoyi.web.controller.system.SysUserController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/user', '127.0.0.1', '内网IP', '{\"admin\":false,\"avatar\":\"\",\"createBy\":\"\",\"delFlag\":\"0\",\"deptId\":213,\"email\":\"13934910703@qq.com\",\"loginDate\":\"2025-11-09 14:35:41\",\"loginIp\":\"127.0.0.1\",\"nickName\":\"薛红菲\",\"params\":{},\"phonenumber\":\"13934910703\",\"postIds\":[],\"roleIds\":[100],\"roles\":[{\"admin\":false,\"dataScope\":\"5\",\"deptCheckStrictly\":false,\"flag\":false,\"menuCheckStrictly\":false,\"params\":{},\"roleId\":100,\"roleKey\":\"student\",\"roleName\":\"普通学生\",\"roleSort\":4,\"status\":\"0\"}],\"sex\":\"0\",\"status\":\"0\",\"updateBy\":\"admin\",\"userId\":2144,\"userName\":\"24306010535\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:39:44', 52);
+INSERT INTO `sys_oper_log` VALUES (313, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.dataScope()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role/dataScope', '127.0.0.1', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-05 10:50:19\",\"dataScope\":\"5\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"deptIds\":[],\"flag\":false,\"menuCheckStrictly\":true,\"params\":{},\"roleId\":100,\"roleKey\":\"student\",\"roleName\":\"普通学生\",\"roleSort\":4,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:40:58', 74);
+INSERT INTO `sys_oper_log` VALUES (314, '角色管理', 4, 'com.ruoyi.web.controller.system.SysRoleController.cancelAuthUser()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role/authUser/cancel', '127.0.0.1', '内网IP', '{\"roleId\":100,\"userId\":2}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:41:08', 6);
+INSERT INTO `sys_oper_log` VALUES (315, '菜单管理', 2, 'com.ruoyi.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/menu', '172.16.193.66', '内网IP', '{\"children\":[],\"component\":\"attachment/attachment/index\",\"createTime\":\"2025-11-08 14:07:54\",\"icon\":\"clipboard\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2009,\"menuName\":\"成果附件\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2000,\"path\":\"attachment\",\"perms\":\"attachment:attachment:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:49:47', 28);
+INSERT INTO `sys_oper_log` VALUES (316, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role', '172.16.193.66', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-05 10:51:24\",\"dataScope\":\"4\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"flag\":false,\"menuCheckStrictly\":true,\"menuIds\":[2000,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,4],\"params\":{},\"roleId\":101,\"roleKey\":\"studentAdministrator\",\"roleName\":\"学生管理员\",\"roleSort\":3,\"status\":\"0\",\"updateBy\":\"admin\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:50:43', 40);
+INSERT INTO `sys_oper_log` VALUES (317, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role', '172.16.193.66', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-03 11:30:07\",\"dataScope\":\"2\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"flag\":false,\"menuCheckStrictly\":true,\"menuIds\":[1,100,1000,1001,1002,1003,1004,1005,1006,101,1007,1008,1009,1010,1011,102,1012,1013,1014,1015,103,1016,1017,1018,1019,104,1020,1021,1022,1023,1024,105,1025,1026,1027,1028,1029,106,1030,1031,1032,1033,1034,107,1035,1036,1037,1038,108,500,1039,1040,1041,501,1042,1043,1044,1045,2,109,1046,1047,1048,110,1049,1050,1051,1052,1053,1054,111,112,113,114,3,115,116,1055,1056,1057,1058,1059,1060,117,4],\"params\":{},\"remark\":\"普通角色\",\"roleId\":2,\"roleKey\":\"common\",\"roleName\":\"普通角色\",\"roleSort\":2,\"status\":\"1\",\"updateBy\":\"admin\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 14:50:54', 29);
+INSERT INTO `sys_oper_log` VALUES (318, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '172.16.193.66', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-26\",\"doi\":\"213\",\"issue\":\"123\",\"journal\":\"123\",\"pageRange\":\"213\",\"paperCategory\":\"A2\",\"paperId\":28,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-10-29\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-13\",\"userId\":\"admin\",\"volume\":\"123\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":28}', 0, NULL, '2025-11-09 15:01:52', 25);
+INSERT INTO `sys_oper_log` VALUES (319, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1045', '172.16.193.66', '内网IP', '[1045]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-09 15:02:02', 59);
+INSERT INTO `sys_oper_log` VALUES (320, '论文成果', 3, 'com.ruoyi.paper.controller.AchievementsPaperController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/paper/paper/28', '172.16.193.66', '内网IP', '[28]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 15:02:04', 13);
+INSERT INTO `sys_oper_log` VALUES (321, '论文成果', 5, 'com.ruoyi.paper.controller.AchievementsPaperController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper/export', '172.16.193.66', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-09 15:30:05', 540);
+INSERT INTO `sys_oper_log` VALUES (322, '论文成果', 5, 'com.ruoyi.paper.controller.AchievementsPaperController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper/export', '172.17.89.114', '内网IP', '{\"publishDate\":\"2025-11-05\",\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-09 16:19:20', 40);
+INSERT INTO `sys_oper_log` VALUES (323, '成果附件', 5, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment/export', '172.17.89.114', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-09 16:20:14', 34);
+INSERT INTO `sys_oper_log` VALUES (324, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '172.16.77.150', '内网IP', '{\"tables\":\"achievements_competition\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-09 16:58:20', 67);
+INSERT INTO `sys_oper_log` VALUES (325, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/tool/gen/10', '172.17.94.80', '内网IP', '[10]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-10 16:00:23', 10);
+INSERT INTO `sys_oper_log` VALUES (326, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/tool/gen/9', '172.17.94.80', '内网IP', '[9]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-10 16:00:28', 12);
+INSERT INTO `sys_oper_log` VALUES (327, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '172.17.94.80', '内网IP', '{\"tables\":\"achievements_competition\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-10 16:04:51', 41);
+INSERT INTO `sys_oper_log` VALUES (328, '角色管理', 2, 'com.ruoyi.web.controller.system.SysRoleController.dataScope()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/role/dataScope', '172.17.94.80', '内网IP', '{\"admin\":false,\"createTime\":\"2025-11-05 10:51:24\",\"dataScope\":\"2\",\"delFlag\":\"0\",\"deptCheckStrictly\":true,\"deptIds\":[100,101,103,215,104,105],\"flag\":false,\"menuCheckStrictly\":true,\"params\":{},\"roleId\":101,\"roleKey\":\"studentAdministrator\",\"roleName\":\"学生管理员\",\"roleSort\":3,\"status\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-10 17:02:29', 12);
+INSERT INTO `sys_oper_log` VALUES (329, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/tool/gen/11,7', '172.16.193.182', '内网IP', '[11,7]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-11 19:48:15', 18);
+INSERT INTO `sys_oper_log` VALUES (330, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '172.16.193.182', '内网IP', '{\"tables\":\"achievements_competition\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-11 19:48:22', 78);
+INSERT INTO `sys_oper_log` VALUES (331, '代码生成', 3, 'com.ruoyi.generator.controller.GenController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/tool/gen/12', '172.16.193.182', '内网IP', '[12]', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-12 18:55:10', 12);
+INSERT INTO `sys_oper_log` VALUES (332, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '172.16.193.182', '内网IP', '{\"tables\":\"achievements_competition\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-12 18:55:16', 45);
+INSERT INTO `sys_oper_log` VALUES (333, '代码生成', 2, 'com.ruoyi.generator.controller.GenController.editSave()', 'PUT', 1, 'admin', '计算机科学与技术', '/tool/gen', '172.16.193.182', '内网IP', '{\"businessName\":\"competition\",\"className\":\"AchievementsCompetition\",\"columns\":[{\"capJavaField\":\"CompetitionId\",\"columnComment\":\"竞赛id\",\"columnId\":212,\"columnName\":\"competition_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":true,\"insert\":false,\"isIncrement\":\"1\",\"isInsert\":\"0\",\"isPk\":\"1\",\"isRequired\":\"0\",\"javaField\":\"competitionId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":true,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":1,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"UserId\",\"columnComment\":\"用户ID\",\"columnId\":213,\"columnName\":\"user_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"userId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":2,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"DeptId\",\"columnComment\":\"部门ID\",\"columnId\":214,\"columnName\":\"dept_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"deptId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":3,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"CompetitionName\",\"columnComment\":\"竞赛名称\",\"columnId\":215,\"columnName\":\"competition_name\",\"columnType\":\"varchar(255)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"input\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isL', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-12 19:09:52', 63);
+INSERT INTO `sys_oper_log` VALUES (334, '代码生成', 2, 'com.ruoyi.generator.controller.GenController.editSave()', 'PUT', 1, 'admin', '计算机科学与技术', '/tool/gen', '172.16.193.182', '内网IP', '{\"businessName\":\"competition\",\"className\":\"AchievementsCompetition\",\"columns\":[{\"capJavaField\":\"CompetitionId\",\"columnComment\":\"竞赛id\",\"columnId\":212,\"columnName\":\"competition_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":true,\"insert\":false,\"isIncrement\":\"1\",\"isInsert\":\"0\",\"isPk\":\"1\",\"isRequired\":\"0\",\"javaField\":\"competitionId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":true,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":1,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"updateTime\":\"2025-11-12 19:09:52\",\"usableColumn\":false},{\"capJavaField\":\"UserId\",\"columnComment\":\"用户ID\",\"columnId\":213,\"columnName\":\"user_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"userId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":2,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"updateTime\":\"2025-11-12 19:09:52\",\"usableColumn\":false},{\"capJavaField\":\"DeptId\",\"columnComment\":\"部门ID\",\"columnId\":214,\"columnName\":\"dept_id\",\"columnType\":\"bigint\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"deptId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":3,\"superColumn\":false,\"tableId\":13,\"updateBy\":\"\",\"updateTime\":\"2025-11-12 19:09:52\",\"usableColumn\":false},{\"capJavaField\":\"CompetitionName\",\"columnComment\":\"竞赛名称\",\"columnId\":215,\"columnName\":\"competition_name\",\"columnType\":\"varchar(255)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-12 18:55:16\",\"dictType\":\"\",\"edit\":t', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-12 19:10:10', 42);
+INSERT INTO `sys_oper_log` VALUES (335, '代码生成', 8, 'com.ruoyi.generator.controller.GenController.batchGenCode()', 'GET', 1, 'admin', '计算机科学与技术', '/tool/gen/batchGenCode', '172.16.193.182', '内网IP', '{\"tables\":\"achievements_competition\"}', NULL, 0, NULL, '2025-11-12 19:10:12', 23);
+INSERT INTO `sys_oper_log` VALUES (336, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"0\":\"competitionId\",\"1\":\"competitionTime\",\"2\":\"studentParticipants\",\"3\":\"auditStatus\",\"4\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 10:30:35', 1040);
+INSERT INTO `sys_oper_log` VALUES (337, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"hiddenColumns[0]\":\"competitionId\",\"pageSize\":\"10\",\"hiddenColumns[1]\":\"organizer\",\"pageNum\":\"1\",\"hiddenColumns[2]\":\"competitionTime\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:50)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 10:51:18', 13);
+INSERT INTO `sys_oper_log` VALUES (338, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"hiddenColumns[0]\":\"competitionId\",\"pageSize\":\"10\",\"hiddenColumns[1]\":\"competitionTime\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-13 10:53:15', 1204);
+INSERT INTO `sys_oper_log` VALUES (339, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"achievementsCompetition[pageNum]\":\"1\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"competitionTime\",\"achievementsCompetition[pageSize]\":\"10\",\"hiddenColumns[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 10:56:29', 65);
+INSERT INTO `sys_oper_log` VALUES (340, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[queryConditions]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:04:05', 62);
+INSERT INTO `sys_oper_log` VALUES (341, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryConditions[pageNum]\":\"1\",\"queryConditions[pageSize]\":\"10\"}', NULL, 0, NULL, '2025-11-13 11:05:27', 37);
+INSERT INTO `sys_oper_log` VALUES (342, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"\",\"requestData[queryParams]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:08:12', 38);
+INSERT INTO `sys_oper_log` VALUES (343, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"\",\"requestData[queryParams]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:11:01', 987);
+INSERT INTO `sys_oper_log` VALUES (344, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"\",\"requestData[queryParams]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:11:50', 46);
+INSERT INTO `sys_oper_log` VALUES (345, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"\",\"requestData[queryParams]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:12:58', 203);
+INSERT INTO `sys_oper_log` VALUES (346, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"competitionTime,competitionId,organizer\",\"requestData[achievementsCompetition]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:14:34', 40);
+INSERT INTO `sys_oper_log` VALUES (347, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"requestData[hiddenColumns]\":\"competitionId,competitionTime,organizer\",\"requestData[achievementsCompetition]\":\"[object Object]\"}', NULL, 0, NULL, '2025-11-13 11:22:09', 919);
+INSERT INTO `sys_oper_log` VALUES (348, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"jsonString\":\"{\\\"hiddenColumns\\\":[\\\"competitionTime\\\",\\\"organizer\\\"],\\\"achievementsCompetition\\\":{\\\"pageNum\\\":1,\\\"pageSize\\\":10,\\\"competitionName\\\":null,\\\"competitionLevel\\\":null,\\\"competitionType\\\":null,\\\"competitionTime\\\":null,\\\"awardLevel\\\":null,\\\"awardDate\\\":null,\\\"competitionCategory\\\":null,\\\"teamName\\\":null,\\\"studentParticipants\\\":null,\\\"auditStatus\\\":null}}\"}', NULL, 0, NULL, '2025-11-13 11:22:52', 51);
+INSERT INTO `sys_oper_log` VALUES (349, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"hiddenColumns[0]\":\"competitionId\",\"pageSize\":\"10\",\"hiddenColumns[1]\":\"competitionTime\",\"pageNum\":\"1\",\"hiddenColumns[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 11:25:14', 69);
+INSERT INTO `sys_oper_log` VALUES (350, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-13 11:26:23', 67);
+INSERT INTO `sys_oper_log` VALUES (351, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"params\":{}}', NULL, 0, NULL, '2025-11-13 11:30:58', 61);
+INSERT INTO `sys_oper_log` VALUES (352, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"params\":{}}', NULL, 0, NULL, '2025-11-13 11:31:55', 42);
+INSERT INTO `sys_oper_log` VALUES (353, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionTime\",\"selectClist[2]\":\"organizer\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:55)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 12:09:31', 16);
+INSERT INTO `sys_oper_log` VALUES (354, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionTime\",\"selectClist[2]\":\"organizer\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:55)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 12:09:35', 3);
+INSERT INTO `sys_oper_log` VALUES (355, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionId\",\"selectClist[2]\":\"organizer\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:55)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 12:11:11', 11);
+INSERT INTO `sys_oper_log` VALUES (356, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionTime\",\"selectClist[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 12:12:16', 5);
+INSERT INTO `sys_oper_log` VALUES (357, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionTime\",\"selectClist[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 12:17:56', 13);
+INSERT INTO `sys_oper_log` VALUES (358, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"selectClist[0]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"selectClist[1]\":\"competitionTime\"}', NULL, 0, NULL, '2025-11-13 12:35:17', 9);
+INSERT INTO `sys_oper_log` VALUES (359, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"organizer\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"competitionTime\"}', NULL, 0, NULL, '2025-11-13 12:36:25', 1);
+INSERT INTO `sys_oper_log` VALUES (360, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"organizer\",\"hiddenColumns[1]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"competitionId\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:54)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 12:37:26', 10);
+INSERT INTO `sys_oper_log` VALUES (361, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"queryParams[competitionName]\":\"全国大学生程序设计大赛\",\"hiddenColumns[0]\":\"organizer\",\"hiddenColumns[1]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"competitionId\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:54)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-13 12:37:49', 1);
+INSERT INTO `sys_oper_log` VALUES (362, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionTime\",\"hiddenColumns[1]\":\"competitionId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-13 12:43:03', 941);
+INSERT INTO `sys_oper_log` VALUES (363, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"organizer\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"competitionTime\"}', NULL, 0, NULL, '2025-11-13 12:45:49', 84);
+INSERT INTO `sys_oper_log` VALUES (364, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"hiddenColumns[8]\":\"roleType\",\"hiddenColumns[9]\":\"competitionName\",\"hiddenColumns[6]\":\"awardCertificateNo\",\"hiddenColumns[7]\":\"competitionCategory\",\"queryParams[pageNum]\":\"1\",\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[13]\":\"updatedAt\",\"hiddenColumns[1]\":\"competitionTime\",\"hiddenColumns[14]\":\"competitionWebsite\",\"hiddenColumns[15]\":\"teamName\",\"hiddenColumns[16]\":\"awardDate\",\"hiddenColumns[4]\":\"organizer\",\"hiddenColumns[5]\":\"createdAt\",\"hiddenColumns[10]\":\"awardLevel\",\"hiddenColumns[2]\":\"auditStatus\",\"hiddenColumns[11]\":\"teamSize\",\"hiddenColumns[3]\":\"studentParticipants\",\"hiddenColumns[12]\":\"competitionLevel\"}', NULL, 0, NULL, '2025-11-13 12:48:11', 898);
+INSERT INTO `sys_oper_log` VALUES (365, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"hiddenColumns[8]\":\"awardCertificateNo\",\"hiddenColumns[9]\":\"updatedAt\",\"hiddenColumns[6]\":\"competitionCategory\",\"hiddenColumns[7]\":\"roleType\",\"queryParams[pageNum]\":\"1\",\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[13]\":\"competitionName\",\"hiddenColumns[1]\":\"competitionTime\",\"hiddenColumns[4]\":\"auditStatus\",\"hiddenColumns[5]\":\"createdAt\",\"hiddenColumns[10]\":\"awardLevel\",\"hiddenColumns[2]\":\"organizer\",\"hiddenColumns[11]\":\"teamSize\",\"hiddenColumns[3]\":\"studentParticipants\",\"hiddenColumns[12]\":\"competitionLevel\"}', NULL, 0, NULL, '2025-11-13 12:57:18', 953);
+INSERT INTO `sys_oper_log` VALUES (366, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"competitionName\",\"queryParams[pageNum]\":\"1\"}', NULL, 0, NULL, '2025-11-13 13:01:05', 922);
+INSERT INTO `sys_oper_log` VALUES (367, '论文成果', 2, 'com.ruoyi.paper.controller.AchievementsPaperController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorInformation\":\"1\",\"createdAt\":\"2025-11-06\",\"doi\":\"10.1234/j.cnki.1000-1234.2024.03.002\",\"issue\":\"3\",\"journal\":\"计算机科学与技术学报\",\"pageRange\":\"12-25\",\"paperCategory\":\"B1\",\"paperId\":3,\"paperTitle\":\"人工智能在教育领域的应用研究与实践探索\",\"params\":{},\"publishDate\":\"2024-06-15\",\"researchDirection\":\"人工智能与教育技术\",\"updatedAt\":\"2025-11-06\",\"userId\":\"24306010534\",\"volume\":\"45\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":3}', 0, NULL, '2025-11-13 13:47:53', 12);
+INSERT INTO `sys_oper_log` VALUES (368, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1046', '127.0.0.1', '内网IP', '[1046]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-13 14:01:14', 66);
+INSERT INTO `sys_oper_log` VALUES (369, '竞赛成果', 1, 'com.ruoyi.competition.controller.AchievementsCompetitionController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition', '127.0.0.1', '内网IP', '{\"awardCertificateNo\":\"3\",\"awardDate\":\"2025-11-12\",\"awardLevel\":\"二等奖\",\"competitionCategory\":\"技能竞赛\",\"competitionId\":1004,\"competitionLevel\":\"国际级\",\"competitionName\":\"123\",\"competitionTime\":\"2025-11-10\",\"competitionType\":\"123\",\"competitionWebsite\":\"3\",\"organizer\":\"123\",\"params\":{},\"roleType\":\"队员\",\"studentParticipants\":\"3\",\"teamName\":\"3\",\"teamSize\":1}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-13 14:12:18', 108);
+INSERT INTO `sys_oper_log` VALUES (370, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1044', '127.0.0.1', '内网IP', '[1044]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-13 14:22:48', 27);
+INSERT INTO `sys_oper_log` VALUES (371, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1043', '127.0.0.1', '内网IP', '[1043]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-13 14:22:53', 12);
+INSERT INTO `sys_oper_log` VALUES (372, '论文成果', 1, 'com.ruoyi.paper.controller.AchievementsPaperController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper', '127.0.0.1', '内网IP', '{\"authorInformation\":\"123\",\"createdAt\":\"2025-11-26\",\"doi\":\"123\",\"issue\":\"123\",\"journal\":\"213\",\"pageRange\":\"123\",\"paperCategory\":\"A2\",\"paperId\":29,\"paperTitle\":\"123\",\"params\":{},\"publishDate\":\"2025-11-12\",\"researchDirection\":\"123\",\"updatedAt\":\"2025-11-05\",\"userId\":\"admin\",\"volume\":\"213\"}', '{\"msg\":\"操作成功\",\"code\":200,\"paperId\":29}', 0, NULL, '2025-11-13 14:23:13', 98);
+INSERT INTO `sys_oper_log` VALUES (373, '竞赛成果', 1, 'com.ruoyi.competition.controller.AchievementsCompetitionController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition', '127.0.0.1', '内网IP', '{\"awardCertificateNo\":\"1\",\"awardDate\":\"2025-11-18\",\"awardLevel\":\"特等奖\",\"competitionCategory\":\"技能竞赛\",\"competitionId\":1005,\"competitionLevel\":\"国家级\",\"competitionName\":\"1\",\"competitionTime\":\"2025-10-27\",\"competitionType\":\"1\",\"competitionWebsite\":\"1\",\"organizer\":\"1\",\"params\":{},\"roleType\":\"队长\",\"studentParticipants\":\"1\",\"teamName\":\"1\",\"teamSize\":1}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-13 14:24:42', 7);
+INSERT INTO `sys_oper_log` VALUES (374, '竞赛成果', 1, 'com.ruoyi.competition.controller.AchievementsCompetitionController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition', '127.0.0.1', '内网IP', '{\"awardCertificateNo\":\"1\",\"awardDate\":\"2025-11-18\",\"awardLevel\":\"一等奖\",\"competitionCategory\":\"技能竞赛\",\"competitionId\":1006,\"competitionLevel\":\"国际级\",\"competitionName\":\"1\",\"competitionTime\":\"2025-10-27\",\"competitionType\":\"1\",\"competitionWebsite\":\"1\",\"organizer\":\"1\",\"params\":{},\"roleType\":\"队员\",\"studentParticipants\":\"1\",\"teamName\":\"1\",\"teamSize\":1}', '{\"msg\":\"操作成功\",\"competitionId\":1006,\"code\":200}', 0, NULL, '2025-11-13 14:29:11', 45);
+INSERT INTO `sys_oper_log` VALUES (375, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1048', '127.0.0.1', '内网IP', '[1048]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-13 14:29:19', 19);
+INSERT INTO `sys_oper_log` VALUES (376, '菜单管理', 2, 'com.ruoyi.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"competition/competition/index\",\"createTime\":\"2025-11-12 11:21:49\",\"icon\":\"redis-list\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2015,\"menuName\":\"竞赛成果\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2000,\"path\":\"competition\",\"perms\":\"competition:competition:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-13 14:31:44', 128);
+INSERT INTO `sys_oper_log` VALUES (377, '论文成果', 5, 'com.ruoyi.paper.controller.AchievementsPaperController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/paper/paper/export', '127.0.0.1', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-13 14:32:18', 3382);
+INSERT INTO `sys_oper_log` VALUES (378, '竞赛成果', 2, 'com.ruoyi.competition.controller.AchievementsCompetitionController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/competition/competition', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"awardCertificateNo\":\"CERT20241020001\",\"awardDate\":\"2024-10-20\",\"awardLevel\":\"一等奖\",\"competitionCategory\":\"学科竞赛\",\"competitionId\":1001,\"competitionLevel\":\"国家级\",\"competitionName\":\"全国大学生程序设计大赛\",\"competitionTime\":\"2024-10-15\",\"competitionType\":\"算法编程类\",\"competitionWebsite\":\"https://acm.contest.edu.cn\",\"createdAt\":\"2025-11-07\",\"deptId\":101,\"organizer\":\"教育部高等教育司\",\"params\":{},\"roleType\":\"指导老师\",\"studentParticipants\":\"[\\\"张三\\\", \\\"李四\\\", \\\"王五\\\"]\",\"teamName\":\"创新之星团队\",\"teamSize\":3,\"updatedAt\":\"2025-11-10\",\"userId\":1}', '{\"msg\":\"操作成功\",\"competitionId\":1001,\"code\":200}', 0, NULL, '2025-11-13 14:36:45', 117);
+INSERT INTO `sys_oper_log` VALUES (379, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1049', '127.0.0.1', '内网IP', '[1049]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-13 14:36:48', 22);
+INSERT INTO `sys_oper_log` VALUES (380, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\"}', NULL, 0, NULL, '2025-11-13 14:37:25', 72);
+INSERT INTO `sys_oper_log` VALUES (381, '竞赛成果', 2, 'com.ruoyi.competition.controller.AchievementsCompetitionController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/competition/competition', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"awardCertificateNo\":\"CERT20241020001\",\"awardDate\":\"2024-10-20\",\"awardLevel\":\"一等奖\",\"competitionCategory\":\"学科竞赛\",\"competitionId\":1001,\"competitionLevel\":\"国家级\",\"competitionName\":\"全国大学生程序设计大赛\",\"competitionTime\":\"2024-10-15\",\"competitionType\":\"算法编程类\",\"competitionWebsite\":\"https://acm.contest.edu.cn\",\"createdAt\":\"2025-11-07\",\"deptId\":101,\"organizer\":\"教育部高等教育司\",\"params\":{},\"roleType\":\"指导老师\",\"studentParticipants\":\"[\\\"张三\\\", \\\"李四\\\", \\\"王五\\\"]\",\"teamName\":\"创新之星团队\",\"teamSize\":3,\"updatedAt\":\"2025-11-10\",\"userId\":1}', '{\"msg\":\"操作成功\",\"competitionId\":1001,\"code\":200}', 0, NULL, '2025-11-14 09:01:34', 23);
+INSERT INTO `sys_oper_log` VALUES (382, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1050', '127.0.0.1', '内网IP', '[1050]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-14 09:01:38', 27);
+INSERT INTO `sys_oper_log` VALUES (383, '代码生成', 6, 'com.ruoyi.generator.controller.GenController.importTableSave()', 'POST', 1, 'admin', '计算机科学与技术', '/tool/gen/importTable', '127.0.0.1', '内网IP', '{\"tables\":\"achievements_textbook\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 10:20:36', 134);
+INSERT INTO `sys_oper_log` VALUES (384, '代码生成', 2, 'com.ruoyi.generator.controller.GenController.editSave()', 'PUT', 1, 'admin', '计算机科学与技术', '/tool/gen', '127.0.0.1', '内网IP', '{\"businessName\":\"textbook\",\"className\":\"AchievementsTextbook\",\"columns\":[{\"capJavaField\":\"TextbookId\",\"columnComment\":\"教材id\",\"columnId\":232,\"columnName\":\"textbook_id\",\"columnType\":\"bigint(20)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-16 10:20:36\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isPk\":\"1\",\"isRequired\":\"0\",\"javaField\":\"textbookId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":true,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":1,\"superColumn\":false,\"tableId\":14,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"UserId\",\"columnComment\":\"用户ID\",\"columnId\":233,\"columnName\":\"user_id\",\"columnType\":\"bigint(20)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-16 10:20:36\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"userId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":2,\"superColumn\":false,\"tableId\":14,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"DeptId\",\"columnComment\":\"部门ID\",\"columnId\":234,\"columnName\":\"dept_id\",\"columnType\":\"bigint(20)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-16 10:20:36\",\"dictType\":\"\",\"edit\":false,\"htmlType\":\"input\",\"increment\":false,\"insert\":false,\"isEdit\":\"0\",\"isIncrement\":\"0\",\"isInsert\":\"0\",\"isList\":\"0\",\"isPk\":\"0\",\"isQuery\":\"0\",\"isRequired\":\"0\",\"javaField\":\"deptId\",\"javaType\":\"Long\",\"list\":false,\"params\":{},\"pk\":false,\"query\":false,\"queryType\":\"EQ\",\"required\":false,\"sort\":3,\"superColumn\":false,\"tableId\":14,\"updateBy\":\"\",\"usableColumn\":false},{\"capJavaField\":\"TextbookName\",\"columnComment\":\"教材名称\",\"columnId\":235,\"columnName\":\"textbook_name\",\"columnType\":\"varchar(500)\",\"createBy\":\"admin\",\"createTime\":\"2025-11-16 10:20:36\",\"dictType\":\"\",\"edit\":true,\"htmlType\":\"textarea\",\"increment\":false,\"insert\":true,\"isEdit\":\"1\",\"isIncrement\":\"0\",\"isInsert\":\"1\",\"isList\":', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 10:22:20', 99);
+INSERT INTO `sys_oper_log` VALUES (385, '代码生成', 8, 'com.ruoyi.generator.controller.GenController.batchGenCode()', 'GET', 1, 'admin', '计算机科学与技术', '/tool/gen/batchGenCode', '127.0.0.1', '内网IP', '{\"tables\":\"achievements_textbook\"}', NULL, 0, NULL, '2025-11-16 10:22:26', 211);
+INSERT INTO `sys_oper_log` VALUES (386, '教材著作', 5, 'com.ruoyi.textbook.controller.AchievementsTextbookController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook/export', '127.0.0.1', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-16 10:29:56', 839);
+INSERT INTO `sys_oper_log` VALUES (387, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"competitionId\",\"hiddenColumns[1]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"organizer\"}', NULL, 0, NULL, '2025-11-16 10:30:53', 59);
+INSERT INTO `sys_oper_log` VALUES (388, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-18\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-10-27\",\"textbookLevel\":\"研究生\",\"textbookName\":\"123\",\"textbookType\":\"国家级规划\",\"updatedAt\":\"2025-11-18\",\"usingInstitutions\":\"123\",\"wordCount\":123}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLException: Field \'textbook_id\' doesn\'t have a default value\r\n### The error may exist in file [E:\\git\\AchievementProject\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\textbook\\AchievementsTextbookMapper.xml]\r\n### The error may involve com.ruoyi.textbook.mapper.AchievementsTextbookMapper.insertAchievementsTextbook-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_textbook          ( textbook_name,             author_role,             press_name,             isbn_number,             publish_date,             textbook_type,             edition,             word_count,             using_institutions,             applicable_major,             textbook_level,             approval_number,                          created_at,             updated_at )           values ( ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,                          ?,             ? )\r\n### Cause: java.sql.SQLException: Field \'textbook_id\' doesn\'t have a default value\n; Field \'textbook_id\' doesn\'t have a default value; nested exception is java.sql.SQLException: Field \'textbook_id\' doesn\'t have a default value', '2025-11-16 11:07:42', 73);
+INSERT INTO `sys_oper_log` VALUES (389, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-18\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-10-27\",\"textbookLevel\":\"研究生\",\"textbookName\":\"123\",\"textbookType\":\"国家级规划\",\"updatedAt\":\"2025-11-18\",\"usingInstitutions\":\"123\",\"wordCount\":123}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 11:08:50', 12);
+INSERT INTO `sys_oper_log` VALUES (390, '教材著作', 2, 'com.ruoyi.textbook.controller.AchievementsTextbookController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorRole\":\"主编\",\"createdAt\":\"2025-11-07\",\"edition\":\"第一版\",\"isbnNumber\":\"978-7-04-060000-1\",\"params\":{},\"pressName\":\"高等教育出版社\",\"publishDate\":\"2024-05-20\",\"textbookId\":1001,\"textbookLevel\":\"本科\",\"textbookName\":\"人工智能导论\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-07\",\"userId\":24306010534}', '{\"msg\":\"操作成功\",\"code\":200,\"textbookId\":1001}', 0, NULL, '2025-11-16 11:11:06', 37);
+INSERT INTO `sys_oper_log` VALUES (391, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-19\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-11-10\",\"textbookLevel\":\"研究生\",\"textbookName\":\"1123\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-19\",\"usingInstitutions\":\"123\",\"wordCount\":123}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'\r\n### The error may exist in file [E:\\git\\AchievementProject\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\textbook\\AchievementsTextbookMapper.xml]\r\n### The error may involve com.ruoyi.textbook.mapper.AchievementsTextbookMapper.insertAchievementsTextbook-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_textbook          ( textbook_name,             author_role,             press_name,             isbn_number,             publish_date,             textbook_type,             edition,             word_count,             using_institutions,             applicable_major,             textbook_level,             approval_number,                          created_at,             updated_at )           values ( ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,                          ?,             ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'\n; Duplicate entry \'123\' for key \'uk_isbn\'; nested exception is java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'', '2025-11-16 11:11:24', 74);
+INSERT INTO `sys_oper_log` VALUES (392, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-19\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-11-10\",\"textbookLevel\":\"研究生\",\"textbookName\":\"1123\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-19\",\"usingInstitutions\":\"123\",\"wordCount\":123}', NULL, 1, '\r\n### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'\r\n### The error may exist in file [E:\\git\\AchievementProject\\RuoYi-Vue-master\\ruoyi-admin\\target\\classes\\mapper\\textbook\\AchievementsTextbookMapper.xml]\r\n### The error may involve com.ruoyi.textbook.mapper.AchievementsTextbookMapper.insertAchievementsTextbook-Inline\r\n### The error occurred while setting parameters\r\n### SQL: insert into achievements_textbook          ( textbook_name,             author_role,             press_name,             isbn_number,             publish_date,             textbook_type,             edition,             word_count,             using_institutions,             applicable_major,             textbook_level,             approval_number,                          created_at,             updated_at )           values ( ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,                          ?,             ? )\r\n### Cause: java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'\n; Duplicate entry \'123\' for key \'uk_isbn\'; nested exception is java.sql.SQLIntegrityConstraintViolationException: Duplicate entry \'123\' for key \'uk_isbn\'', '2025-11-16 11:11:28', 22);
+INSERT INTO `sys_oper_log` VALUES (393, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-19\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-11-10\",\"textbookLevel\":\"研究生\",\"textbookName\":\"1123\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-19\",\"usingInstitutions\":\"123\",\"wordCount\":123}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 11:12:30', 9);
+INSERT INTO `sys_oper_log` VALUES (394, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"主编\",\"createdAt\":\"2025-11-26\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-10-27\",\"textbookLevel\":\"专科\",\"textbookName\":\"123\",\"textbookType\":\"校本教材\",\"updatedAt\":\"2025-11-19\",\"usingInstitutions\":\"123\",\"wordCount\":123}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 11:13:58', 44);
+INSERT INTO `sys_oper_log` VALUES (395, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"applicableMajor\":\"123\",\"approvalNumber\":\"123\",\"authorRole\":\"副主编\",\"createdAt\":\"2025-11-13\",\"edition\":\"123\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-11-03\",\"textbookLevel\":\"研究生\",\"textbookName\":\"123\",\"textbookType\":\"校本教材\",\"updatedAt\":\"2025-11-20\",\"usingInstitutions\":\"123\",\"wordCount\":123}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 11:14:28', 13);
+INSERT INTO `sys_oper_log` VALUES (396, '教材著作', 1, 'com.ruoyi.textbook.controller.AchievementsTextbookController.add()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"authorRole\":\"副主编\",\"isbnNumber\":\"123\",\"params\":{},\"pressName\":\"123\",\"publishDate\":\"2025-11-10\",\"textbookName\":\"123\",\"textbookType\":\"校本教材\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 11:14:59', 64);
+INSERT INTO `sys_oper_log` VALUES (397, '教材著作', 2, 'com.ruoyi.textbook.controller.AchievementsTextbookController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorRole\":\"主编\",\"createdAt\":\"2025-11-07\",\"edition\":\"第一版\",\"isbnNumber\":\"978-7-04-060000-1\",\"params\":{},\"pressName\":\"高等教育出版社\",\"publishDate\":\"2024-05-20\",\"textbookId\":1001,\"textbookLevel\":\"本科\",\"textbookName\":\"人工智能导论\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-07\",\"userId\":24306010534}', '{\"msg\":\"操作成功\",\"code\":200,\"textbookId\":1001}', 0, NULL, '2025-11-16 11:17:52', 14);
+INSERT INTO `sys_oper_log` VALUES (398, '教材著作', 2, 'com.ruoyi.textbook.controller.AchievementsTextbookController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorRole\":\"主编\",\"createdAt\":\"2025-11-07\",\"edition\":\"第一版\",\"isbnNumber\":\"978-7-04-060000-1\",\"params\":{},\"pressName\":\"高等教育出版社\",\"publishDate\":\"2024-05-20\",\"textbookId\":1001,\"textbookLevel\":\"本科\",\"textbookName\":\"人工智能导论\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-07\",\"userId\":24306010534}', '{\"msg\":\"操作成功\",\"code\":200,\"textbookId\":1001}', 0, NULL, '2025-11-16 11:20:50', 33);
+INSERT INTO `sys_oper_log` VALUES (399, '教材著作', 2, 'com.ruoyi.textbook.controller.AchievementsTextbookController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/textbook/textbook', '127.0.0.1', '内网IP', '{\"auditStatus\":\"待审核\",\"authorRole\":\"主编\",\"createdAt\":\"2025-11-07\",\"edition\":\"第一版\",\"isbnNumber\":\"978-7-04-060000-1\",\"params\":{},\"pressName\":\"高等教育出版社\",\"publishDate\":\"2024-05-20\",\"textbookId\":1001,\"textbookLevel\":\"本科\",\"textbookName\":\"人工智能导论\",\"textbookType\":\"规划教材\",\"updatedAt\":\"2025-11-07\",\"userId\":24306010534}', '{\"msg\":\"操作成功\",\"code\":200,\"textbookId\":1001}', 0, NULL, '2025-11-16 11:24:18', 4);
+INSERT INTO `sys_oper_log` VALUES (400, '成果附件', 3, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.remove()', 'DELETE', 1, 'admin', '计算机科学与技术', '/attachment/attachment/1052', '127.0.0.1', '内网IP', '[1052]', '{\"msg\":\"成功删除 1 个附件\",\"code\":200}', 0, NULL, '2025-11-16 11:27:04', 75);
+INSERT INTO `sys_oper_log` VALUES (401, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"queryParams[pageNum]\":\"1\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:90)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-16 11:35:08', 4);
+INSERT INTO `sys_oper_log` VALUES (402, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"queryParams[pageNum]\":\"1\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:90)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-16 11:35:22', 1);
+INSERT INTO `sys_oper_log` VALUES (403, '成果附件', 5, 'com.ruoyi.attachment.controller.AchievementsAttachmentController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/attachment/attachment/export', '127.0.0.1', '内网IP', '{\"pageSize\":\"10\",\"pageNum\":\"1\"}', NULL, 0, NULL, '2025-11-16 11:39:36', 791);
+INSERT INTO `sys_oper_log` VALUES (404, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"authorRole\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:39:45', 48);
+INSERT INTO `sys_oper_log` VALUES (405, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"authorRole\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:39:48', 35);
+INSERT INTO `sys_oper_log` VALUES (406, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"authorRole\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:43:02', 88);
+INSERT INTO `sys_oper_log` VALUES (407, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"authorRole\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:43:34', 31);
+INSERT INTO `sys_oper_log` VALUES (408, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:48:39', 827);
+INSERT INTO `sys_oper_log` VALUES (409, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:49:38', 60);
+INSERT INTO `sys_oper_log` VALUES (410, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:51:35', 798);
+INSERT INTO `sys_oper_log` VALUES (411, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:54:06', 909);
+INSERT INTO `sys_oper_log` VALUES (412, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 11:57:54', 826);
+INSERT INTO `sys_oper_log` VALUES (413, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 12:01:23', 849);
+INSERT INTO `sys_oper_log` VALUES (414, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"authorRole\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookType\"}', NULL, 0, NULL, '2025-11-16 12:03:29', 853);
+INSERT INTO `sys_oper_log` VALUES (415, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"organizer\",\"hiddenColumns[1]\":\"competitionTime\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"competitionId\"}', NULL, 0, NULL, '2025-11-16 12:04:25', 62);
+INSERT INTO `sys_oper_log` VALUES (416, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"queryParams[pageNum]\":\"1\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:90)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-16 12:04:31', 3);
+INSERT INTO `sys_oper_log` VALUES (417, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"queryParams[pageNum]\":\"1\"}', NULL, 1, 'java.lang.NullPointerException\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController.export(AchievementsCompetitionController.java:71)\r\n	at com.ruoyi.competition.controller.AchievementsCompetitionController$$FastClassBySpringCGLIB$$2624a0f3.invoke(<generated>)\r\n	at org.springframework.cglib.proxy.MethodProxy.invoke(MethodProxy.java:218)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.invokeJoinpoint(CglibAopProxy.java:792)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.aspectj.AspectJAfterThrowingAdvice.invoke(AspectJAfterThrowingAdvice.java:64)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.AfterReturningAdviceInterceptor.invoke(AfterReturningAdviceInterceptor.java:57)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:175)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:162)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop', '2025-11-16 12:08:50', 11);
+INSERT INTO `sys_oper_log` VALUES (418, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"textbookId\",\"hiddenColumns[1]\":\"pressName\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"wordCount\"}', NULL, 0, NULL, '2025-11-16 12:10:08', 828);
+INSERT INTO `sys_oper_log` VALUES (419, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"wordCount\"}', NULL, 0, NULL, '2025-11-16 12:38:26', 807);
+INSERT INTO `sys_oper_log` VALUES (420, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"textbookId\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"wordCount\"}', NULL, 0, NULL, '2025-11-16 12:38:38', 53);
+INSERT INTO `sys_oper_log` VALUES (421, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"wordCount\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookId\"}', NULL, 0, NULL, '2025-11-16 12:39:33', 823);
+INSERT INTO `sys_oper_log` VALUES (422, '竞赛成果', 5, 'com.ruoyi.competition.controller.AchievementsCompetitionController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/competition/competition/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"wordCount\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookId\"}', NULL, 0, NULL, '2025-11-16 12:42:41', 1011);
+INSERT INTO `sys_oper_log` VALUES (423, '教材著作', 5, 'com.ruoyi.textbook.controller.AchievementsTextbookController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"wordCount\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookId\"}', NULL, 0, NULL, '2025-11-16 12:44:05', 858);
+INSERT INTO `sys_oper_log` VALUES (424, '教材著作', 5, 'com.ruoyi.textbook.controller.AchievementsTextbookController.export()', 'POST', 1, 'admin', '计算机科学与技术', '/textbook/textbook/export', '127.0.0.1', '内网IP', '{\"queryParams[pageSize]\":\"10\",\"hiddenColumns[0]\":\"pressName\",\"hiddenColumns[1]\":\"wordCount\",\"queryParams[pageNum]\":\"1\",\"hiddenColumns[2]\":\"textbookId\"}', NULL, 0, NULL, '2025-11-16 12:44:33', 53);
+INSERT INTO `sys_oper_log` VALUES (425, '菜单管理', 2, 'com.ruoyi.web.controller.system.SysMenuController.edit()', 'PUT', 1, 'admin', '计算机科学与技术', '/system/menu', '127.0.0.1', '内网IP', '{\"children\":[],\"component\":\"textbook/textbook/index\",\"createTime\":\"2025-11-16 10:23:18\",\"icon\":\"education\",\"isCache\":\"0\",\"isFrame\":\"1\",\"menuId\":2021,\"menuName\":\"教材著作\",\"menuType\":\"C\",\"orderNum\":1,\"params\":{},\"parentId\":2000,\"path\":\"textbook\",\"perms\":\"textbook:textbook:list\",\"routeName\":\"\",\"status\":\"0\",\"updateBy\":\"admin\",\"visible\":\"0\"}', '{\"msg\":\"操作成功\",\"code\":200}', 0, NULL, '2025-11-16 12:45:26', 111);
 
 -- ----------------------------
 -- Table structure for sys_post
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post`  (
-  `post_id` bigint NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
+  `post_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
   `post_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '岗位编码',
   `post_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '岗位名称',
-  `post_sort` int NOT NULL COMMENT '显示顺序',
+  `post_sort` int(11) NOT NULL COMMENT '显示顺序',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '状态（0正常 1停用）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -1404,7 +1731,7 @@ CREATE TABLE `sys_post`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`post_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '岗位信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '岗位信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_post
@@ -1416,10 +1743,10 @@ INSERT INTO `sys_post` VALUES (1, 'headteacher', '班主任', 1, '0', 'admin', '
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role`  (
-  `role_id` bigint NOT NULL AUTO_INCREMENT COMMENT '角色ID',
+  `role_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
   `role_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色名称',
   `role_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '角色权限字符串',
-  `role_sort` int NOT NULL COMMENT '显示顺序',
+  `role_sort` int(11) NOT NULL COMMENT '显示顺序',
   `data_scope` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
   `menu_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '菜单树选择项是否关联显示',
   `dept_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '部门树选择项是否关联显示',
@@ -1431,15 +1758,15 @@ CREATE TABLE `sys_role`  (
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 103 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 103 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
 INSERT INTO `sys_role` VALUES (1, '超级管理员', 'admin', 1, '1', 1, 1, '0', '0', 'admin', '2025-11-03 11:30:07', '', NULL, '超级管理员');
-INSERT INTO `sys_role` VALUES (2, '普通角色', 'common', 2, '2', 1, 1, '0', '0', 'admin', '2025-11-03 11:30:07', '', NULL, '普通角色');
-INSERT INTO `sys_role` VALUES (100, '普通学生', 'student', 4, '5', 1, 1, '0', '0', 'admin', '2025-11-05 10:50:19', 'admin', '2025-11-06 19:45:02', NULL);
-INSERT INTO `sys_role` VALUES (101, '学生管理员', 'studentAdministrator', 3, '1', 1, 1, '0', '0', 'admin', '2025-11-05 10:51:24', 'admin', '2025-11-05 10:52:12', NULL);
+INSERT INTO `sys_role` VALUES (2, '普通角色', 'common', 2, '2', 1, 1, '1', '0', 'admin', '2025-11-03 11:30:07', 'admin', '2025-11-09 14:50:54', '普通角色');
+INSERT INTO `sys_role` VALUES (100, '普通学生', 'student', 4, '5', 1, 1, '0', '0', 'admin', '2025-11-05 10:50:19', 'admin', '2025-11-09 14:40:57', NULL);
+INSERT INTO `sys_role` VALUES (101, '学生管理员', 'studentAdministrator', 3, '2', 1, 1, '0', '0', 'admin', '2025-11-05 10:51:24', 'admin', '2025-11-10 17:02:29', NULL);
 INSERT INTO `sys_role` VALUES (102, '普通老师', 'teacher', 5, '5', 1, 1, '0', '0', 'admin', '2025-11-05 10:51:59', '', '2025-11-06 19:37:12', NULL);
 
 -- ----------------------------
@@ -1447,10 +1774,10 @@ INSERT INTO `sys_role` VALUES (102, '普通老师', 'teacher', 5, '5', 1, 1, '0'
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_dept`;
 CREATE TABLE `sys_role_dept`  (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
-  `dept_id` bigint NOT NULL COMMENT '部门ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `dept_id` bigint(20) NOT NULL COMMENT '部门ID',
   PRIMARY KEY (`role_id`, `dept_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色和部门关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色和部门关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_dept
@@ -1458,16 +1785,22 @@ CREATE TABLE `sys_role_dept`  (
 INSERT INTO `sys_role_dept` VALUES (2, 100);
 INSERT INTO `sys_role_dept` VALUES (2, 101);
 INSERT INTO `sys_role_dept` VALUES (2, 105);
+INSERT INTO `sys_role_dept` VALUES (101, 100);
+INSERT INTO `sys_role_dept` VALUES (101, 101);
+INSERT INTO `sys_role_dept` VALUES (101, 103);
+INSERT INTO `sys_role_dept` VALUES (101, 104);
+INSERT INTO `sys_role_dept` VALUES (101, 105);
+INSERT INTO `sys_role_dept` VALUES (101, 215);
 
 -- ----------------------------
 -- Table structure for sys_role_menu
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu`  (
-  `role_id` bigint NOT NULL COMMENT '角色ID',
-  `menu_id` bigint NOT NULL COMMENT '菜单ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `menu_id` bigint(20) NOT NULL COMMENT '菜单ID',
   PRIMARY KEY (`role_id`, `menu_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色和菜单关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '角色和菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -1564,15 +1897,34 @@ INSERT INTO `sys_role_menu` VALUES (100, 2005);
 INSERT INTO `sys_role_menu` VALUES (100, 2006);
 INSERT INTO `sys_role_menu` VALUES (100, 2007);
 INSERT INTO `sys_role_menu` VALUES (100, 2008);
+INSERT INTO `sys_role_menu` VALUES (100, 2009);
+INSERT INTO `sys_role_menu` VALUES (100, 2010);
+INSERT INTO `sys_role_menu` VALUES (100, 2011);
+INSERT INTO `sys_role_menu` VALUES (100, 2012);
+INSERT INTO `sys_role_menu` VALUES (100, 2013);
+INSERT INTO `sys_role_menu` VALUES (100, 2014);
 INSERT INTO `sys_role_menu` VALUES (101, 4);
+INSERT INTO `sys_role_menu` VALUES (101, 2000);
+INSERT INTO `sys_role_menu` VALUES (101, 2003);
+INSERT INTO `sys_role_menu` VALUES (101, 2004);
+INSERT INTO `sys_role_menu` VALUES (101, 2005);
+INSERT INTO `sys_role_menu` VALUES (101, 2006);
+INSERT INTO `sys_role_menu` VALUES (101, 2007);
+INSERT INTO `sys_role_menu` VALUES (101, 2008);
+INSERT INTO `sys_role_menu` VALUES (101, 2009);
+INSERT INTO `sys_role_menu` VALUES (101, 2010);
+INSERT INTO `sys_role_menu` VALUES (101, 2011);
+INSERT INTO `sys_role_menu` VALUES (101, 2012);
+INSERT INTO `sys_role_menu` VALUES (101, 2013);
+INSERT INTO `sys_role_menu` VALUES (101, 2014);
 
 -- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
-  `user_id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-  `dept_id` bigint NULL DEFAULT NULL COMMENT '部门ID',
+  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '部门ID',
   `user_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户账号',
   `nick_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户昵称',
   `user_type` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '用户身份(0:学生，1:老师)',
@@ -1591,16 +1943,16 @@ CREATE TABLE `sys_user`  (
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
-  `initial` int NOT NULL DEFAULT 1 COMMENT '1：为True第一次登录需修改密码，0：为false第二次登录不修改密码',
+  `initial` int(11) NOT NULL DEFAULT 1 COMMENT '1：为True第一次登录需修改密码，0：为false第二次登录不修改密码',
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE INDEX `user_name_2`(`user_name` ASC) USING BTREE,
   INDEX `user_name`(`user_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3280 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3280 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '123', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$VmzbPOdcsnyIWxCBJHSoIeb.N/XochpzyQUAiE4USjI0NLPOWfPRK', '0', '0', '127.0.0.1', '2025-11-07 10:55:10', '2025-11-06 19:29:32', 'admin', '2025-11-03 11:30:07', '', '2025-11-06 19:29:32', '管理员', 1);
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '123', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$VmzbPOdcsnyIWxCBJHSoIeb.N/XochpzyQUAiE4USjI0NLPOWfPRK', '0', '0', '127.0.0.1', '2025-11-16 12:38:15', '2025-11-06 19:29:32', 'admin', '2025-11-03 11:30:07', '', '2025-11-06 19:29:32', '管理员', 1);
 INSERT INTO `sys_user` VALUES (2, 100, 'ry', '管理', '00', 'ry@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2025-11-03 11:30:07', '2025-11-03 11:30:07', 'admin', '2025-11-03 11:30:07', 'admin', '2025-11-06 19:38:46', '测试员', 1);
 INSERT INTO `sys_user` VALUES (100, NULL, '20210027', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
 INSERT INTO `sys_user` VALUES (101, NULL, '20210042', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
@@ -3645,8 +3997,8 @@ INSERT INTO `sys_user` VALUES (2139, NULL, '24306010530', '未命名', '00', '',
 INSERT INTO `sys_user` VALUES (2140, NULL, '24306010531', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
 INSERT INTO `sys_user` VALUES (2141, NULL, '24306010532', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
 INSERT INTO `sys_user` VALUES (2142, NULL, '24306010533', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
-INSERT INTO `sys_user` VALUES (2143, NULL, '24306010534', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
-INSERT INTO `sys_user` VALUES (2144, NULL, '24306010535', '薛红菲', '00', '13934910703@qq.com', '13934910703', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.16.193.221', '2025-11-05 10:38:26', NULL, '', NULL, '', '2025-11-05 10:38:50', NULL, 1);
+INSERT INTO `sys_user` VALUES (2143, 213, '24306010534', '成兴业', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.16.193.66', '2025-11-09 14:51:44', NULL, '', NULL, 'admin', '2025-11-09 14:39:35', NULL, 1);
+INSERT INTO `sys_user` VALUES (2144, 213, '24306010535', '薛红菲', '00', '13934910703@qq.com', '13934910703', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2025-11-09 14:57:53', NULL, '', NULL, 'admin', '2025-11-09 14:39:44', NULL, 1);
 INSERT INTO `sys_user` VALUES (2145, NULL, '24306010536', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
 INSERT INTO `sys_user` VALUES (2146, NULL, '24306010537', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
 INSERT INTO `sys_user` VALUES (2147, NULL, '24306010539', '未命名', '00', '', '', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '', NULL, NULL, '', NULL, '', NULL, NULL, 1);
@@ -4788,10 +5140,10 @@ INSERT INTO `sys_user` VALUES (3279, NULL, '25306060150', '未命名', '00', '',
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_post`;
 CREATE TABLE `sys_user_post`  (
-  `user_id` bigint NOT NULL COMMENT '用户ID',
-  `post_id` bigint NOT NULL COMMENT '岗位ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `post_id` bigint(20) NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (`user_id`, `post_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户与岗位关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户与岗位关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_post
@@ -4804,18 +5156,19 @@ INSERT INTO `sys_user_post` VALUES (2, 1);
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
-  `user_id` bigint NOT NULL COMMENT '用户ID',
-  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (`user_id`, `role_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户和角色关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户和角色关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
 INSERT INTO `sys_user_role` VALUES (1, 1);
 INSERT INTO `sys_user_role` VALUES (2, 2);
-INSERT INTO `sys_user_role` VALUES (2, 100);
 INSERT INTO `sys_user_role` VALUES (2, 101);
+INSERT INTO `sys_user_role` VALUES (2143, 101);
+INSERT INTO `sys_user_role` VALUES (2144, 100);
 
 -- ----------------------------
 -- Triggers structure for table achievements_award
@@ -4840,297 +5193,6 @@ CREATE TRIGGER `trg_after_insert_achievements_award` AFTER INSERT ON `achievemen
         (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
         (SELECT type_id FROM achievement_type WHERE type_code = 'award'),
         NEW.award_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_competition
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_competition`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_competition` AFTER INSERT ON `achievements_competition` FOR EACH ROW BEGIN
-    -- 插入成果基础表
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.competition_id,
-        NEW.user_id,
-        NEW.user_identity,
-        (SELECT type_id FROM achievement_type WHERE type_code = 'competition'),
-        NEW.competition_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_competition
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_update_achievements_competition`;
-delimiter ;;
-CREATE TRIGGER `trg_after_update_achievements_competition` AFTER UPDATE ON `achievements_competition` FOR EACH ROW BEGIN
-    -- 更新成果基础表
-    UPDATE achievements 
-    SET 
-        title = NEW.competition_name,
-        status = NEW.audit_status,
-        update_time = NOW(),
-        update_by = NEW.user_id
-    WHERE id = NEW.competition_id 
-      AND achievements_type = (SELECT type_id FROM achievement_type WHERE type_code = 'competition');
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_competition
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_delete_achievements_competition`;
-delimiter ;;
-CREATE TRIGGER `trg_after_delete_achievements_competition` AFTER DELETE ON `achievements_competition` FOR EACH ROW BEGIN
-    -- 删除成果基础表对应记录
-    DELETE FROM achievements 
-    WHERE id = OLD.competition_id 
-      AND achievements_type = (SELECT type_id FROM achievement_type WHERE type_code = 'competition');
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_monograph
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_monograph`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_monograph` AFTER INSERT ON `achievements_monograph` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.monograph_id,
-        NEW.user_id,
-        (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
-        (SELECT type_id FROM achievement_type WHERE type_code = 'monograph'),
-        NEW.monograph_title,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_paper
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_paper`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_paper` AFTER INSERT ON `achievements_paper` FOR EACH ROW BEGIN
-    -- 插入成果基础表
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.paper_id,
-        NEW.user_id,
-        (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
-        (SELECT type_id FROM achievement_type WHERE type_code = 'paper'),
-        NEW.paper_title,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_patent
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_patent`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_patent` AFTER INSERT ON `achievements_patent` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.patent_id,
-        NEW.user_id,
-        NEW.user_identity,
-        (SELECT type_id FROM achievement_type WHERE type_code = 'patent'),
-        NEW.patent_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_research
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_research`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_research` AFTER INSERT ON `achievements_research` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.research_id,
-        NEW.user_id,
-        (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
-        (SELECT type_id FROM achievement_type WHERE type_code = 'research'),
-        NEW.project_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_software
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_software`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_software` AFTER INSERT ON `achievements_software` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.software_id,
-        NEW.user_id,
-        NEW.user_identity,
-        (SELECT type_id FROM achievement_type WHERE type_code = 'software'),
-        NEW.software_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_textbook
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_textbook`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_textbook` AFTER INSERT ON `achievements_textbook` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.textbook_id,
-        NEW.user_id,
-        (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
-        (SELECT type_id FROM achievement_type WHERE type_code = 'textbook'),
-        NEW.textbook_name,
-        NEW.audit_status,
-        NEW.created_at,
-        NEW.user_id,
-        NEW.created_at
-    );
-END
-;;
-delimiter ;
-
--- ----------------------------
--- Triggers structure for table achievements_transfer
--- ----------------------------
-DROP TRIGGER IF EXISTS `trg_after_insert_achievements_transfer`;
-delimiter ;;
-CREATE TRIGGER `trg_after_insert_achievements_transfer` AFTER INSERT ON `achievements_transfer` FOR EACH ROW BEGIN
-    INSERT INTO achievements (
-        id,
-        user_id,
-        user_identity,
-        achievements_type,
-        title,
-        status,
-        submit_time,
-        create_by,
-        create_time
-    )
-    VALUES (
-        NEW.transfer_id,
-        NEW.user_id,
-        (SELECT user_type FROM sys_user WHERE user_name = NEW.user_id),
-        (SELECT type_id FROM achievement_type WHERE type_code = 'transfer'),
-        NEW.achievement_name,
         NEW.audit_status,
         NEW.created_at,
         NEW.user_id,
