@@ -1,18 +1,13 @@
 package com.ruoyi.attachment.service.impl;
 
-import java.util.Collections;
+
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.api.RestTemplateConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import com.ruoyi.attachment.mapper.AchievementsAttachmentMapper;
 import com.ruoyi.attachment.domain.AchievementsAttachment;
 import com.ruoyi.attachment.service.IAchievementsAttachmentService;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * 成果附件Service业务层处理
