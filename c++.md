@@ -2,7 +2,7 @@
 
 ### 查询竞赛列表
 
-#### `GET /api/selectContestList`
+`GET /api/selectContestList`
 
 ##### 请求头
 
@@ -122,7 +122,7 @@ SELECT * FROM achievements_competition WHERE user_id = userId;(dataScope = "5")
 
 ### 查询竞赛记录详细信息
 
-#### `GET /api/selectContestById
+`GET` /api/selectContestById
 
 ##### 请求头
 
@@ -207,7 +207,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ### 新增竞赛成果
 
-#### `POST /api/insertContest
+`POST` /api/insertContest
 
 ##### 请求头
 
@@ -273,11 +273,9 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ```json
 {
-  "code": 200,
-  "data": {
-      "competition_id": 1001
-    },
-  "msg": "插入成功"
+  "msg": "操作成功",
+  "competitionId": 1007,
+  "code": 200
 }
 ```
 
@@ -286,7 +284,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 ```json
 {
   "code": 501,
-  "data": "",
+  "competitionId": null,
   "msg":"竞赛信息插入失败"    
 }
 ```
@@ -295,7 +293,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ### 更新竞赛记录
 
-#### `POST /api/updateContest
+`POST` /api/updateContest
 
 ##### 请求头
 
@@ -363,11 +361,9 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ```json
 {
-  "code": 200,
-  "data": {
-      "competition_id": 1001
-    },
-  "msg": "更新成功"
+  "msg": "操作成功",
+  "competitionId": 1001,
+  "code": 200
 }
 ```
 
@@ -376,7 +372,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 ```json
 {
   "code": 501,
-  "data": "",
+  "competitionId": null,
   "msg":"竞赛信息更新失败"    
 }
 ```
@@ -385,7 +381,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ### 删除竞赛记录
 
-#### `POST  /api/deleteContests
+`POST`  /api/deleteContests
 
 ##### 请求头
 
@@ -395,7 +391,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 - `userId`: `Long `类型，用户ID（用于查询角色权限）
 - `deptId`: `Long `类型，部门ID（用于部门权限隔离）
-- `competitionIds`:`Array`类型，删除的竞赛记录ID
+- `competitionIds`:`Long[]`类型，删除的竞赛记录ID
 
 ##### 更新时间后端在接收参数后自行插入
 
@@ -423,11 +419,9 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ```json
 {
-  "code": 200,
-   "data": {
-      "competition_id": 1001
-    },
-  "msg": "删除成功"
+  "msg": "删除成功",
+  "competitionId": 1001,
+  "code": 200
 }
 ```
 
@@ -435,9 +429,9 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ```json
 {
-  "code": 501,
-  "data": null,
-  "msg":"竞赛信息删除失败"    
+  "msg": "删除失败",
+  "competitionId": null,
+  "code": 200
 }
 ```
 
@@ -457,6 +451,8 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`:`Long `类型，分页页码
+- `pageSize`:`Long `类型, 分页大小
 
 #### 查询数据字段
 
@@ -465,7 +461,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 #### 请求参数示例
 
 ```
-GET /api/selectTextbookList?userId=1&deptId=100
+GET /api/selectTextbookList?userId=1&deptId=100&pageNum=1&pageSize=10
 ```
 
 #### SQL权限控制
@@ -511,8 +507,8 @@ SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
 
 ```json
 {
-  "code": 200,
-  "data": [
+  "total": 1,
+  "rows": [
     {
       "textbook_id": 1001,
       "user_id": 24306010534,
@@ -534,6 +530,7 @@ SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
       "updated_at": "2025-11-07T10:53:26"
     }
   ],
+  "code": 200,
   "msg": "查询成功"
 }
 ```
@@ -542,9 +539,10 @@ SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
 
 ```json
 {
-  "code": 501,
-  "data": "",
-  "msg":"教材列表查询失败"    
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
 }
 ```
 
@@ -679,11 +677,9 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 ```json
 {
-  "code": 200,
-  "data": {
-    "textbook_id": 1001
-  },
-  "msg": "插入成功"
+  "msg": "操作成功",
+  "textbookId": 1007,
+  "code": 200
 }
 ```
 
@@ -691,9 +687,9 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 ```json
 {
-  "code": 501,
-  "data": "",
-  "msg":"教材信息插入失败"    
+  "msg": "教材信息插入失败",
+  "textbookId": null,
+  "code": 200
 }
 ```
 
@@ -760,9 +756,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 200,
-  "data": {
-    "textbook_id": 1001
-  },
+  "textbookId": 1001,
   "msg": "更新成功"
 }
 ```
@@ -771,13 +765,13 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 ```json
 {
-  "code": 501,
-  "data": "",
-  "msg":"教材信息更新失败"    
+  "code": 200,
+  "textbookId": null,
+  "msg": "教材信息更新失败"
 }
 ```
 
-#### 删除教材记录
+### 删除教材记录
 
 `POST /api/deleteTextbooks`
 
@@ -789,7 +783,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `textbookIds`: `Array`类型，删除的教材记录ID
+- `textbookIds`: `Long[]`类型，删除的教材记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -814,9 +808,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 200,
-  "data": {
-    "textbook_id": 1001
-  },
+  "textbookId": 1001,
   "msg": "删除成功"
 }
 ```
@@ -826,7 +818,8 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 501,
-  "data": null,
+  "textbookId": null,
   "msg":"教材信息删除失败"    
 }
 ```
+

@@ -3,7 +3,9 @@ package com.ruoyi.textbook.controller;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
+import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.AchievementsCompetition;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +31,26 @@ public class AchievementsTextbookController extends BaseController
 {
     @Autowired
     private IAchievementsTextbookService achievementsTextbookService;
-
+    @Autowired
+    private ContestFeignClient contestFeignClient;
     /**
      * 查询教材著作列表
      */
     @PreAuthorize("@ss.hasPermi('textbook:textbook:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsTextbook achievementsTextbook)
+    public AjaxResult list(AchievementsTextbook achievementsTextbook)
     {
-        startPage();
-        List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(achievementsTextbook);
-        return getDataTable(list);
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getTextbookList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     /**
@@ -54,8 +65,6 @@ public class AchievementsTextbookController extends BaseController
         AchievementsTextbook queryParams = exportRequestDTO.getData();
         List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(queryParams);
         ExcelUtil<AchievementsTextbook> util = new ExcelUtil<AchievementsTextbook>(AchievementsTextbook.class);
-        System.out.println("util");
-        System.out.println(list);
         if(hiddenColumns != null && !hiddenColumns.isEmpty())
         {
             util.showColumn(hiddenColumns.toArray(new String[0]));
@@ -69,7 +78,15 @@ public class AchievementsTextbookController extends BaseController
     @GetMapping(value = "/{textbookId}")
     public AjaxResult getInfo(@PathVariable("textbookId") Long textbookId)
     {
-        return success(achievementsTextbookService.selectAchievementsTextbookByTextbookId(textbookId));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getTextbookById(getUserId(), getDeptId(),textbookId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     /**
@@ -80,8 +97,15 @@ public class AchievementsTextbookController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsTextbook achievementsTextbook)
     {
-        int rows = achievementsTextbookService.insertAchievementsTextbook(achievementsTextbook);
-        return toAjax(rows).put("textbookId",achievementsTextbook.getTextbookId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.insertTextbook(achievementsTextbook);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     /**
@@ -92,9 +116,15 @@ public class AchievementsTextbookController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsTextbook achievementsTextbook)
     {
-        int ajax = achievementsTextbookService.updateAchievementsTextbook(achievementsTextbook);
-        System.out.println(achievementsTextbook.toString());
-        return toAjax(ajax).put("textbookId",achievementsTextbook.getTextbookId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.updateTextbook(achievementsTextbook);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     /**
@@ -105,6 +135,14 @@ public class AchievementsTextbookController extends BaseController
 	@DeleteMapping("/{textbookIds}")
     public AjaxResult remove(@PathVariable Long[] textbookIds)
     {
-        return toAjax(achievementsTextbookService.deleteAchievementsTextbookByTextbookIds(textbookIds));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.deleteTextbooks(getUserId(),getDeptId(),textbookIds);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 }

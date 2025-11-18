@@ -1,5 +1,6 @@
 package com.ruoyi.competition.controller;
 
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
@@ -42,22 +43,18 @@ public class AchievementsCompetitionController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('competition:competition:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsCompetition achievementsCompetition) {
-        // pageNum 分页页码
+    public AjaxResult list(AchievementsCompetition achievementsCompetition) {
         Integer pageNum = ServletUtils.getParameterToInt("pageNum");
-        // pageSize 分页大小
         Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        startPage();
-        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(achievementsCompetition);
-
-
-        System.out.println("----------");
-        System.out.println(list);
-        TableDataInfo dataTable = getDataTable(list);
-        System.out.println("----------");
-        System.out.println(dataTable.toString());
-        return dataTable;
+        return res;
     }
 
     /**
@@ -87,7 +84,15 @@ public class AchievementsCompetitionController extends BaseController
     @GetMapping(value = "/{competitionId}")
     public AjaxResult getInfo(@PathVariable("competitionId") Long competitionId)
     {
-        return success(achievementsCompetitionService.selectAchievementsCompetitionByCompetitionId(competitionId));
+//        return success(achievementsCompetitionService.selectAchievementsCompetitionByCompetitionId(competitionId));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getContestById(getUserId(),getDeptId(),competitionId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -98,8 +103,17 @@ public class AchievementsCompetitionController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-        int achievementsCompetition1 = achievementsCompetitionService.insertAchievementsCompetition(achievementsCompetition);
-        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+//        int achievementsCompetition1 = achievementsCompetitionService.insertAchievementsCompetition(achievementsCompetition);
+//        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.insertContest(achievementsCompetition);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -110,8 +124,16 @@ public class AchievementsCompetitionController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-        int achievementsCompetition1 = achievementsCompetitionService.updateAchievementsCompetition(achievementsCompetition);
-        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+//        int achievementsCompetition1 = achievementsCompetitionService.updateAchievementsCompetition(achievementsCompetition);
+//        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.updateContest(achievementsCompetition);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -122,6 +144,14 @@ public class AchievementsCompetitionController extends BaseController
 	@DeleteMapping("/{competitionIds}")
     public AjaxResult remove(@PathVariable Long[] competitionIds)
     {
-        return toAjax(achievementsCompetitionService.deleteAchievementsCompetitionByCompetitionIds(competitionIds));
+//        return toAjax(achievementsCompetitionService.deleteAchievementsCompetitionByCompetitionIds(competitionIds));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.deleteContests(getUserId(),getDeptId(),competitionIds);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 }
