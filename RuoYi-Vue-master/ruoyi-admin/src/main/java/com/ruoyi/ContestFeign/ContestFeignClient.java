@@ -1,5 +1,6 @@
 package com.ruoyi.ContestFeign;
 
+import com.ruoyi.award.domain.AchievementsAward;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.competition.domain.AchievementsCompetition;
 import com.ruoyi.competition.domain.demo;
@@ -12,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-//@FeignClient(value = "gateway-service", url = "http://172.16.46.77:1234")
-@FeignClient(value = "gateway-service", url = "http://localhost:1234")
+@FeignClient(value = "gateway-service", url = "http://172.16.46.77:1234")
+//@FeignClient(value = "gateway-service", url = "http://localhost:1234")
 public interface ContestFeignClient {
     /**
      * 查询竞赛列表
@@ -54,7 +55,9 @@ public interface ContestFeignClient {
     @PostMapping("/api/deleteContests")
     AjaxResult deleteContests( @RequestParam("userId") Long userId,
                                @RequestParam("deptId") Long deptId,
-                               @RequestParam("competitionIds") Long[] competitionIds); /**
+                               @RequestParam("competitionIds") Long[] competitionIds);
+//    ---------------------------------------------------------------------------------
+    /**
      * 查询教材列表
      */
     @GetMapping("/api/selectTextbookList")
@@ -94,4 +97,46 @@ public interface ContestFeignClient {
     AjaxResult deleteTextbooks( @RequestParam("userId") Long userId,
                                @RequestParam("deptId") Long deptId,
                                @RequestParam("textbookIds") Long[] textbookIds);
+//    ---------------------------------------------------------------------------------
+    /**
+     * 查询教材列表
+     */
+    @GetMapping("/api/selectAwardkList")
+    AjaxResult getAwardList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+        );
+
+    /**
+     * 查询教材记录详细信息
+     */
+    @GetMapping("/api/selectAwardById")
+    AjaxResult getAwardById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("awardId") Long textbookId
+    );
+
+    /**
+     * 新增教材成果
+     */
+    @PostMapping("/api/insertAward")
+    AjaxResult insertAward(@RequestBody AchievementsAward achievementsAward);
+
+    /**
+     * 更新教材记录
+     */
+    @PostMapping("/api/updateTextbook")
+    AjaxResult updateAward(@RequestBody  AchievementsAward achievementsAward);
+
+    /**
+     * 删除竞赛记录
+     */
+    @PostMapping("/api/deleteAwardIds")
+    AjaxResult deleteAward( @RequestParam("userId") Long userId,
+                               @RequestParam("deptId") Long deptId,
+                               @RequestParam("awardId") Long[] textbookIds);
+//    ---------------------------------------------------------------------------------
 }

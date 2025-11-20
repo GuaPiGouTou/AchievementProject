@@ -61,7 +61,7 @@ public class AchievementsTextbookController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsTextbook> exportRequestDTO )
     {
-        List<String> hiddenColumns = exportRequestDTO.getHiddenColumns();
+        List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         AchievementsTextbook queryParams = exportRequestDTO.getData();
         List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(queryParams);
         ExcelUtil<AchievementsTextbook> util = new ExcelUtil<AchievementsTextbook>(AchievementsTextbook.class);

@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class ExportRequestDTO<T> {
-    private List<String> hiddenColumns;
+    private List<String> showColumns;
     private T data;
 }

@@ -823,3 +823,386 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 }
 ```
 
+## 获奖管理接口文档
+
+### 查询获奖列表
+
+`GET /api/selectAwardkList`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`:`Long `类型，分页页码
+- `pageSize`:`Long `类型, 分页大小
+
+#### 查询数据字段
+
+数据库ry-vue中achievements_award的全部字段
+
+#### 请求参数示例
+
+```
+GET /api/selectAwardList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+#### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```sql
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```sql
+SELECT * FROM achievements_textbook;  (data_scope = "1")
+
+SELECT * FROM achievements_textbook WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_textbook WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_textbook WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，教材列表
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+        {
+        "awardId": 1,
+        "userId": 1001,
+        "deptId": 2001,
+        "awardName": "优秀项目奖",
+        "awardWinner": "张三",
+        "awardUnit": "技术部",
+        "awardDate": "2025-11-20",
+        "awardLevel": "国家级",
+        "awardCategory": "科学技术奖",
+        "awardRanking": "一等奖",
+        "awardCeremonyDate": "2025-12-10",
+        "awardCeremonyPlace": "北京国家会议中心",
+        "auditStatus": "0",
+        "createdAt": "2025-11-20T10:00:00",
+        "updatedAt": "2025-11-20T10:00:00"
+        }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询获奖记录详细信息
+
+`GET /api/selectAwardById`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `awardId: `Long`类型，获奖ID（用于查询教材表的具体记录）
+
+#### 查询数据字段
+
+数据库ry-vue中achievements_award的指定ID记录
+
+#### 请求参数示例
+
+```
+GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
+```
+
+需要进行权限检查原理同**查询教材列表**
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，教材详细信息
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data":{
+    "awardId": 1,
+    "userId": 1001,
+    "deptId": 2001,
+    "awardName": "优秀项目奖",
+    "awardWinner": "张三",
+    "awardUnit": "技术部",
+    "awardDate": "2025-11-20",
+    "awardLevel": "国家级",
+    "awardCategory": "科学技术奖",
+    "awardRanking": "一等奖",
+    "awardCeremonyDate": "2025-12-10",
+    "awardCeremonyPlace": "北京国家会议中心",
+    "auditStatus": "0",
+    "createdAt": "2025-11-20T10:00:00",
+    "updatedAt": "2025-11-20T10:00:00"
+    },
+  "msg": "查询成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增获奖记录
+
+`POST /api/insertAward`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+| 字段名            | 类型 (Java) | 是否必填 | 描述                                                 | 示例值                    |
+| ----------------- | ----------- | -------- | ---------------------------------------------------- | ------------------------- |
+| **userId**        | `Long`      | 是       | 用户ID                                               | `2143`                    |
+| **deptId**        | `Long`      | 是       | 部门ID（用于部门权限隔离）                           | `103`                     |
+| **awardId**       | `Long`      | 是       | 奖项唯一标识（主键），建议设置为自增或使用UUID。     | `1`                       |
+| **awardName**     | `String`    | 是       | 奖项或成果的具体名称。                               | `"优秀项目奖"`            |
+| **awardWinner**   | `String`    | 是       | 获奖个人或团队名称。                                 | `"张三"`或 `"创新项目组"` |
+| **awardUnit**     | `String`    | 是       | 颁奖单位或机构。                                     | `"教育部"`                |
+| **awardDate**     | `Date`      | 是       | 获奖日期。                                           | `"2025-11-20"`            |
+| **awardLevel**    | `String`    | 是       | 奖项级别（如校级、市级、国家级、国际级等）。         | `"国家级"`                |
+| **awardCategory** | `String`    | 是       | 奖项类别（如科学技术奖、学科竞赛、管理成果等）。     | `"科学技术奖"`            |
+| **awardRanking**  | `String`    | 否       | 获奖等次（如一等奖、金奖）。                         | `"一等奖"`                |
+| **userId**        | `Long`      | 是       | 提交或关联的用户ID，用于权限控制。                   | `1001`                    |
+| **deptId**        | `Long`      | 是       | 所属部门ID，用于数据权限隔离。                       | `2001`                    |
+| **auditStatus**   | `String`    | 是       | 审核状态（如：0-待审核, 1-审核通过, 2-审核不通过）。 | `"1"`                     |
+| **createdAt**     | `Date`      | 是       | 记录创建时间。                                       | `"2025-11-20 10:00:00"`   |
+| **updatedAt**     | `Date`      | 是       | 记录最后更新时间。                                   | `"2025-11-20 10:00:00"`   |
+
+创建时间，更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "awardId": 1,
+  "userId": 1001,
+  "deptId": 2001,
+  "awardName": "优秀项目奖",
+  "awardWinner": "张三",
+  "awardUnit": "技术部",
+  "awardDate": "2025-11-20",
+  "awardLevel": "国家级",
+  "awardCategory": "科学技术奖",
+  "awardRanking": "一等奖",
+  "awardCeremonyDate": "2025-12-10",
+  "awardCeremonyPlace": "北京国家会议中心",
+  "auditStatus": "0",
+  "createdAt": "2025-11-20T10:00:00",
+  "updatedAt": "2025-11-20T10:00:00"
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "awardId": 1007,
+  "code": 200
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "msg": "教材信息插入失败",
+  "awardId": null,
+  "code": 200
+}
+```
+
+### 更新获奖记录
+
+`POST /api/updateTextbook`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+| 字段名            | 类型 (Java) | 是否必填 | 描述                                                 | 示例值                    |
+| ----------------- | ----------- | -------- | ---------------------------------------------------- | ------------------------- |
+| **userId**        | `Long`      | 是       | 用户ID                                               | `2143`                    |
+| **deptId**        | `Long`      | 是       | 部门ID（用于部门权限隔离）                           | `103`                     |
+| **awardId**       | `Long`      | 是       | 奖项唯一标识（主键），建议设置为自增或使用UUID。     | `1`                       |
+| **awardName**     | `String`    | 是       | 奖项或成果的具体名称。                               | `"优秀项目奖"`            |
+| **awardWinner**   | `String`    | 是       | 获奖个人或团队名称。                                 | `"张三"`或 `"创新项目组"` |
+| **awardUnit**     | `String`    | 是       | 颁奖单位或机构。                                     | `"教育部"`                |
+| **awardDate**     | `Date`      | 是       | 获奖日期。                                           | `"2025-11-20"`            |
+| **awardLevel**    | `String`    | 是       | 奖项级别（如校级、市级、国家级、国际级等）。         | `"国家级"`                |
+| **awardCategory** | `String`    | 是       | 奖项类别（如科学技术奖、学科竞赛、管理成果等）。     | `"科学技术奖"`            |
+| **awardRanking**  | `String`    | 否       | 获奖等次（如一等奖、金奖）。                         | `"一等奖"`                |
+| **userId**        | `Long`      | 是       | 提交或关联的用户ID，用于权限控制。                   | `1001`                    |
+| **deptId**        | `Long`      | 是       | 所属部门ID，用于数据权限隔离。                       | `2001`                    |
+| **auditStatus**   | `String`    | 是       | 审核状态（如：0-待审核, 1-审核通过, 2-审核不通过）。 | `"1"`                     |
+| **createdAt**     | `Date`      | 是       | 记录创建时间。                                       | `"2025-11-20 10:00:00"`   |
+| **updatedAt**     | `Date`      | 是       | 记录最后更新时间。                                   | `"2025-11-20 10:00:00"`   |
+
+更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "userId": 24306010534,
+  "deptId": 100,
+  "textbookId": 1001,
+  "textbookName": "人工智能导论（第二版）",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-2",
+  "publishDate": "2025-05-20",
+  "textbookType": "国家级规划",
+  "edition": "第二版",
+  "wordCount": 55,
+  "usingInstitutions": "[\"清华大学\", \"北京大学\", \"浙江大学\"]",
+  "applicableMajor": "计算机科学与技术,人工智能,软件工程",
+  "textbookLevel": "本科",
+  "approvalNumber": "JY2025001",
+  "auditStatus": "待审核"
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "awardId": 1001,
+  "msg": "更新成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 200,
+  "awardId": null,
+  "msg": "教材信息更新失败"
+}
+```
+
+### 删除获奖记录
+
+`POST /api/deleteAwardIds`
+
+#### 请求头
+
+- `Content-Type`: `application/json`
+
+#### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `textbookIds`: `Long[]`类型，删除的教材记录ID
+
+更新时间后端在接收参数后自行插入
+
+#### 请求参数示例
+
+```json
+{
+  "userId": 24306010534,
+  "deptId": 100,
+  "awardIds": [1001, 1002, 1003]
+}
+```
+
+#### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的教材记录ID
+- `msg`: `String`类型，提示信息
+
+#### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "awardId": 1001,
+  "msg": "删除成功"
+}
+```
+
+#### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "awardId": null,
+  "msg":"教材信息删除失败"    
+}
+```
+

@@ -36,8 +36,6 @@ public class AchievementsCompetitionController extends BaseController
     private IAchievementsCompetitionService achievementsCompetitionService;
     @Autowired
     private ContestFeignClient contestFeignClient;
-    @Autowired
-    private ObjectMapper objectMapper;
     /**
      * 查询竞赛成果列表
      */
@@ -65,14 +63,14 @@ public class AchievementsCompetitionController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
     {
-        System.out.println(exportRequestDTO.getHiddenColumns().toString());
-        List<String> hiddenColumns = exportRequestDTO.getHiddenColumns();
+        System.out.println(exportRequestDTO.getShowColumns().toString());
+        List<String> ShowColumns = exportRequestDTO.getShowColumns();
         AchievementsCompetition queryParams = exportRequestDTO.getData();
         List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
-        if(hiddenColumns != null && !hiddenColumns.isEmpty())
+        if(ShowColumns != null && !ShowColumns.isEmpty())
         {
-            util.showColumn(hiddenColumns.toArray(new String[0]));
+            util.showColumn(ShowColumns.toArray(new String[0]));
         }
         util.exportExcel(response, list, "竞赛成果数据");
     }
