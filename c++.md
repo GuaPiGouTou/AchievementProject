@@ -1,3 +1,785 @@
+## 论文成果管理接口文档
+
+### 查询论文列表
+
+```
+GET /api/selectPaperList
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`: `Long`类型，分页页码
+- `pageSize`: `Long`类型，分页大小
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_paper的全部字段
+
+##### 请求参数示例
+
+复制
+
+```
+GET /api/selectPaperList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+##### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+sql
+
+复制
+
+```
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+sql
+
+```
+SELECT * FROM achievements_paper;  (data_scope = "1")
+
+SELECT * FROM achievements_paper WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_paper WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_paper WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_paper WHERE user_id = userId;(data_scope = "5")
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，论文列表
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "paperId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "paperTitle": "人工智能在教育领域的应用研究",
+      "paperCategory": "期刊论文",
+      "researchDirection": "人工智能",
+      "authorInformation": "第一作者",
+      "journal": "计算机科学",
+      "publishDate": "2024-10-15",
+      "volume": "50",
+      "issue": "10",
+      "pageRange": "100-110",
+      "doi": "10.1234/abc.2024.10.001",
+      "auditStatus": "待审核",
+      "createdAt": "2025-11-07",
+      "updatedAt": "2025-11-10"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询论文记录详细信息
+
+```
+GET /api/selectPaperById
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `paperId`: `Long`类型，论文ID（用于查询论文表的具体记录）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_paper的指定ID记录
+
+##### 请求参数示例
+
+复制
+
+```
+GET /api/selectPaperById?userId=1&deptId=100&paperId=1
+```
+
+需要进行权限检查原理同**查询论文列表**
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，论文详细信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "paperId": 1001,
+    "userId": 1,
+    "deptId": 101,
+    "paperTitle": "人工智能在教育领域的应用研究",
+    "paperCategory": "期刊论文",
+    "researchDirection": "人工智能",
+    "authorInformation": "第一作者",
+    "journal": "计算机科学",
+    "publishDate": "2024-10-15",
+    "volume": "50",
+    "issue": "10",
+    "pageRange": "100-110",
+    "doi": "10.1234/abc.2024.10.001",
+    "auditStatus": "待审核",
+    "createdAt": "2025-11-07",
+    "updatedAt": "2025-11-10"
+  },
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增论文成果
+
+```
+POST /api/insertPaper
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `paperTitle`: `String`类型，论文标题
+- `paperCategory`: `String`类型，论文类别
+- `researchDirection`: `String`类型，研究方向
+- `authorInformation`: `String`类型，作者信息（1:第一作者,2:第二作者等）
+- `journal`: `String`类型，期刊名称
+- `publishDate`: `Date`类型，发表时间
+- `volume`: `String`类型，卷号
+- `issue`: `String`类型，期号
+- `pageRange`: `String`类型，页码范围
+- `doi`: `String`类型，DOI号
+- `auditStatus`: `String`类型，审核状态
+
+创建时间，更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "paperTitle": "人工智能在教育领域的应用研究",
+  "paperCategory": "期刊论文",
+  "researchDirection": "人工智能",
+  "authorInformation": "第一作者",
+  "journal": "计算机科学",
+  "publishDate": "2024-10-15",
+  "volume": "50",
+  "issue": "10",
+  "pageRange": "100-110",
+  "doi": "10.1234/abc.2024.10.001",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的论文记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "paperId": 1007,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "paperId": null,
+  "msg":"论文信息插入失败"    
+}
+```
+
+### 更新论文记录
+
+```
+POST /api/updatePaper
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `paperId`: `Long`类型，论文ID
+- `paperTitle`: `String`类型，论文标题
+- `paperCategory`: `String`类型，论文类别
+- `researchDirection`: `String`类型，研究方向
+- `authorInformation`: `String`类型，作者信息（1:第一作者,2:第二作者等）
+- `journal`: `String`类型，期刊名称
+- `publishDate`: `Date`类型，发表时间
+- `volume`: `String`类型，卷号
+- `issue`: `String`类型，期号
+- `pageRange`: `String`类型，页码范围
+- `doi`: `String`类型，DOI号
+- `auditStatus`: `String`类型，审核状态
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "paperId": 1001,
+  "paperTitle": "人工智能在教育领域的应用研究（修订版）",
+  "paperCategory": "期刊论文",
+  "researchDirection": "人工智能",
+  "authorInformation": "第一作者",
+  "journal": "计算机科学",
+  "publishDate": "2024-10-15",
+  "volume": "50",
+  "issue": "10",
+  "pageRange": "100-110",
+  "doi": "10.1234/abc.2024.10.001",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的论文记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "paperId": 1001,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "paperId": null,
+  "msg":"论文信息更新失败"    
+}
+```
+
+### 删除论文记录
+
+```
+POST /api/deletePapers
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `paperIds`: `Long[]`类型，删除的论文记录ID
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "paperIds": [1001, 1002, 1003]
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的论文记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "删除成功",
+  "paperId": 1001,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "msg": "删除失败",
+  "paperId": null,
+  "code": 200
+}
+```
+
+## 成果附件管理接口文档
+
+### 查询附件列表
+
+```
+GET /api/selectAttachmentList
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`: `Long`类型，分页页码
+- `pageSize`: `Long`类型，分页大小
+- `resourceId`: `Long`类型，关联的子表ID（可选，用于筛选特定成果的附件）
+- `attachmentType`: `String`类型，附件类型（可选，用于筛选特定类型的附件）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_attachment的全部字段
+
+##### 请求参数示例
+
+```
+GET /api/selectAttachmentList?userId=1&deptId=100&pageNum=1&pageSize=10&resourceId=1001&attachmentType=paper
+```
+
+##### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+sql
+
+```sql
+----------------------------示例----------------------------
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+----------------------------示例----------------------------
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+sql
+
+```sql
+----------------------------示例----------------------------
+SELECT * FROM achievements_attachment;  (data_scope = "1")
+
+SELECT * FROM achievements_attachment WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_attachment WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_attachment WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_attachment WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
+```
+
+注意：如果提供了`resourceId`和`attachmentType`，则需要在SQL中添加条件：`WHERE resource_id = #{resourceId} AND attachment_type = #{attachmentType}`
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，附件列表
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "attachmentId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "attachmentType": "paper",
+      "fileName": "论文原文.pdf",
+      "filePath": "/uploads/2025/11/26/abc.pdf",
+      "fileSize": 2048,
+      "fileExtension": "pdf",
+      "fileCategory": "文档",
+      "description": "论文原文",
+      "uploadTime": "2025-11-26 10:00:00",
+      "uploadUserId": "1",
+      "downloadCount": 10,
+      "resourceId": 1001
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询附件记录详细信息
+
+```
+GET /api/selectAttachmentById
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `attachmentId`: `Long`类型，附件ID（用于查询附件表的具体记录）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_attachment的指定ID记录
+
+##### 请求参数示例
+
+```
+GET /api/selectAttachmentById?userId=1&deptId=100&attachmentId=1
+```
+
+需要进行权限检查原理同**查询附件列表**
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，附件详细信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+    "attachmentId": 1001,
+    "userId": 1,
+    "deptId": 101,
+    "attachmentType": "paper",
+    "fileName": "论文原文.pdf",
+    "filePath": "/uploads/2025/11/26/abc.pdf",
+    "fileSize": 2048,
+    "fileExtension": "pdf",
+    "fileCategory": "文档",
+    "description": "论文原文",
+    "uploadTime": "2025-11-26 10:00:00",
+    "uploadUserId": "1",
+    "downloadCount": 10,
+    "resourceId": 1001
+  },
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+json
+
+复制
+
+```
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增附件记录
+
+```
+POST /api/insertAttachment
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `attachmentType`: `String`类型，附件类型（例如：paper、contest、textbook等）
+- `fileName`: `String`类型，文件名称
+- `filePath`: `String`类型，文件路径
+- `fileSize`: `Long`类型，文件大小（字节）
+- `fileExtension`: `String`类型，文件扩展名
+- `fileCategory`: `String`类型，文件分类
+- `description`: `String`类型，文件描述
+- `uploadUserId`: `String`类型，上传用户ID
+- `resourceId`: `Long`类型，关联的子表ID
+
+上传时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "attachmentType": "paper",
+  "fileName": "论文原文.pdf",
+  "filePath": "/uploads/2025/11/26/abc.pdf",
+  "fileSize": 2048,
+  "fileExtension": "pdf",
+  "fileCategory": "文档",
+  "description": "论文原文",
+  "uploadUserId": "1",
+  "resourceId": 1001
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的附件记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "attachmentId": 1007,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "msg": "附件信息插入失败",
+  "attachmentId": null,
+  "code": 200
+}
+```
+
+### 更新附件记录
+
+```
+POST /api/updateAttachment
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `attachmentId`: `Long`类型，附件ID
+- `attachmentType`: `String`类型，附件类型（例如：paper、contest、textbook等）
+- `fileName`: `String`类型，文件名称
+- `filePath`: `String`类型，文件路径
+- `fileSize`: `Long`类型，文件大小（字节）
+- `fileExtension`: `String`类型，文件扩展名
+- `fileCategory`: `String`类型，文件分类
+- `description`: `String`类型，文件描述
+- `uploadUserId`: `String`类型，上传用户ID
+- `resourceId`: `Long`类型，关联的子表ID
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "attachmentId": 1001,
+  "attachmentType": "paper",
+  "fileName": "论文原文（修订版）.pdf",
+  "filePath": "/uploads/2025/11/26/abc.pdf",
+  "fileSize": 2048,
+  "fileExtension": "pdf",
+  "fileCategory": "文档",
+  "description": "论文原文",
+  "uploadUserId": "1",
+  "resourceId": 1001
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的附件记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "attachmentId": 1001,
+  "msg": "更新成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 200,
+  "attachmentId": null,
+  "msg": "附件信息更新失败"
+}
+```
+
+### 删除附件记录
+
+```
+POST /api/deleteAttachments
+```
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `attachmentIds`: `Long[]`类型，删除的附件记录ID
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "attachmentIds": [1001, 1002, 1003]
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的附件记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "attachmentId": 1001,
+  "msg": "删除成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "attachmentId": null,
+  "msg":"附件信息删除失败"    
+}
+```
+
 ## 竞赛管理接口文档
 
 ### 查询竞赛列表
@@ -469,6 +1251,7 @@ GET /api/selectTextbookList?userId=1&deptId=100&pageNum=1&pageSize=10
 根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
 
 ```sql
+----------------------------示例----------------------------
 SELECT 
     r.data_scope
 FROM sys_user u
@@ -479,11 +1262,14 @@ AND u.del_flag = '0'
 AND u.status = '0'
 AND r.del_flag = '0'
 AND r.status = '0';
+----------------------------示例----------------------------
 ```
 
 - `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
 
 ```sql
+
+----------------------------示例----------------------------
 SELECT * FROM achievements_textbook;  (data_scope = "1")
 
 SELECT * FROM achievements_textbook WHERE dept_id IN
@@ -495,6 +1281,7 @@ SELECT * FROM achievements_textbook WHERE dept_id = deptId;  (data_scope = "3")
 SELECT * FROM achievements_textbook WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
 
 SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
 ```
 
 #### 响应结果
@@ -510,25 +1297,25 @@ SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
   "total": 1,
   "rows": [
     {
-      "textbook_id": 1001,
-      "user_id": 24306010534,
-      "dept_id": 101,
-      "textbook_name": "人工智能导论",
-      "author_role": "主编",
-      "press_name": "高等教育出版社",
-      "isbn_number": "978-7-04-060000-1",
-      "publish_date": "2024-05-20",
-      "textbook_type": "规划教材",
-      "edition": "第一版",
-      "word_count": null,
-      "using_institutions": null,
-      "applicable_major": null,
-      "textbook_level": "本科",
-      "approval_number": null,
-      "audit_status": "待审核",
-      "created_at": "2025-11-07T10:53:26",
-      "updated_at": "2025-11-07T10:53:26"
-    }
+  "textbookId": 1001,
+  "userId": 24306010534,
+  "deptId": 101,
+  "textbookName": "人工智能导论",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-1",
+  "publishDate": "2024-05-20",
+  "textbookType": "规划教材",
+  "edition": "第一版",
+  "wordCount": null,
+  "usingInstitutions": null,
+  "applicableMajor": null,
+  "textbookLevel": "本科",
+  "approvalNumber": null,
+  "auditStatus": "待审核",
+  "createdAt": "2025-11-07T10:53:26",
+  "updatedAt": "2025-11-07T10:53:26"
+}
   ],
   "code": 200,
   "msg": "查询成功"
@@ -584,25 +1371,25 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 {
   "code": 200,
   "data": {
-    "textbook_id": 1001,
-    "user_id": 24306010534,
-    "dept_id": 101,
-    "textbook_name": "人工智能导论",
-    "author_role": "主编",
-    "press_name": "高等教育出版社",
-    "isbn_number": "978-7-04-060000-1",
-    "publish_date": "2024-05-20",
-    "textbook_type": "规划教材",
-    "edition": "第一版",
-    "word_count": null,
-    "using_institutions": null,
-    "applicable_major": null,
-    "textbook_level": "本科",
-    "approval_number": null,
-    "audit_status": "待审核",
-    "created_at": "2025-11-07T10:53:26",
-    "updated_at": "2025-11-07T10:53:26"
-  },
+  "textbookId": 1001,
+  "userId": 24306010534,
+  "deptId": 101,
+  "textbookName": "人工智能导论",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-1",
+  "publishDate": "2024-05-20",
+  "textbookType": "规划教材",
+  "edition": "第一版",
+  "wordCount": null,
+  "usingInstitutions": null,
+  "applicableMajor": null,
+  "textbookLevel": "本科",
+  "approvalNumber": null,
+  "auditStatus": "待审核",
+  "createdAt": "2025-11-07T10:53:26",
+  "updatedAt": "2025-11-07T10:53:26"
+},
   "msg": "查询成功"
 }
 ```
@@ -827,7 +1614,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 ### 查询获奖列表
 
-`GET /api/selectAwardkList`
+`GET /api/selectAwardList`
 
 #### 请求头
 
@@ -870,6 +1657,7 @@ AND r.status = '0';
 - `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
 
 ```sql
+----------------------------示例----------------------------
 SELECT * FROM achievements_textbook;  (data_scope = "1")
 
 SELECT * FROM achievements_textbook WHERE dept_id IN
@@ -881,6 +1669,7 @@ SELECT * FROM achievements_textbook WHERE dept_id = deptId;  (data_scope = "3")
 SELECT * FROM achievements_textbook WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
 
 SELECT * FROM achievements_textbook WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
 ```
 
 #### 响应结果
@@ -1077,7 +1866,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 
 ### 更新获奖记录
 
-`POST /api/updateTextbook`
+`POST /api/updateAward`
 
 #### 请求头
 
