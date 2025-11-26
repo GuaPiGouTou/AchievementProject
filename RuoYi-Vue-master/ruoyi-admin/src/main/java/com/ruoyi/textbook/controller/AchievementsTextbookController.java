@@ -133,7 +133,7 @@ public class AchievementsTextbookController extends BaseController
     @PreAuthorize("@ss.hasPermi('textbook:textbook:remove')")
     @Log(title = "教材著作", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{textbookIds}")
-    public AjaxResult remove(@PathVariable Long[] textbookIds)
+    public AjaxResult remove(@RequestBody Long[] textbookIds)
     {
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务

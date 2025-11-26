@@ -11,22 +11,19 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * 论文成果对象 achievements_paper
  * 
  * @author xixia
- * @date 2025-11-05
+ * @date 2025-11-26
  */
 public class AchievementsPaper extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 论文id */
+    @Excel(name = "论文id")
     private Long paperId;
 
-
-    /** dept_id */
-    private Long deptId;
-
-    /** 用户ID */
-    @Excel(name = "用户ID")
-    private String userId;
+    /** 用户角色ID */
+    @Excel(name = "角色ID")
+    private Long userId;
 
     /** 论文标题 */
     @Excel(name = "论文标题")
@@ -83,162 +80,168 @@ public class AchievementsPaper extends BaseEntity
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date updatedAt;
 
-    public void setPaperId(Long paperId) 
+    /** 部门id */
+    @Excel(name = "部门id")
+    private Long deptId;
+
+    public void setPaperId(Long paperId)
     {
         this.paperId = paperId;
     }
 
-    public Long getPaperId() 
+    public Long getPaperId()
     {
         return paperId;
     }
 
-    public void setUserId(String userId) 
+    public void setUserId(Long userId)
     {
         this.userId = userId;
     }
 
-    public String getUserId() 
+    public Long getUserId()
     {
         return userId;
     }
 
-    public void setPaperTitle(String paperTitle) 
+    public void setPaperTitle(String paperTitle)
     {
         this.paperTitle = paperTitle;
     }
 
-    public String getPaperTitle() 
+    public String getPaperTitle()
     {
         return paperTitle;
     }
 
-    public void setPaperCategory(String paperCategory) 
+    public void setPaperCategory(String paperCategory)
     {
         this.paperCategory = paperCategory;
     }
 
-    public String getPaperCategory() 
+    public String getPaperCategory()
     {
         return paperCategory;
     }
 
-    public void setResearchDirection(String researchDirection) 
+    public void setResearchDirection(String researchDirection)
     {
         this.researchDirection = researchDirection;
     }
 
-    public String getResearchDirection() 
+    public String getResearchDirection()
     {
         return researchDirection;
     }
 
-    public void setAuthorInformation(String authorInformation) 
+    public void setAuthorInformation(String authorInformation)
     {
         this.authorInformation = authorInformation;
     }
 
-    public String getAuthorInformation() 
+    public String getAuthorInformation()
     {
         return authorInformation;
     }
 
-    public void setJournal(String journal) 
+    public void setJournal(String journal)
     {
         this.journal = journal;
     }
 
-    public String getJournal() 
+    public String getJournal()
     {
         return journal;
     }
 
-    public void setPublishDate(Date publishDate) 
+    public void setPublishDate(Date publishDate)
     {
         this.publishDate = publishDate;
     }
 
-    public Date getPublishDate() 
+    public Date getPublishDate()
     {
         return publishDate;
     }
 
-    public void setVolume(String volume) 
+    public void setVolume(String volume)
     {
         this.volume = volume;
     }
 
-    public String getVolume() 
+    public String getVolume()
     {
         return volume;
     }
 
-    public void setIssue(String issue) 
+    public void setIssue(String issue)
     {
         this.issue = issue;
     }
 
-    public String getIssue() 
+    public String getIssue()
     {
         return issue;
     }
 
-    public void setPageRange(String pageRange) 
+    public void setPageRange(String pageRange)
     {
         this.pageRange = pageRange;
     }
 
-    public String getPageRange() 
+    public String getPageRange()
     {
         return pageRange;
     }
 
-    public void setDoi(String doi) 
+    public void setDoi(String doi)
     {
         this.doi = doi;
     }
 
-    public String getDoi() 
+    public String getDoi()
     {
         return doi;
     }
 
-    public void setAuditStatus(String auditStatus) 
+    public void setAuditStatus(String auditStatus)
     {
         this.auditStatus = auditStatus;
     }
 
-    public String getAuditStatus() 
+    public String getAuditStatus()
     {
         return auditStatus;
     }
 
-    public void setCreatedAt(Date createdAt) 
+    public void setCreatedAt(Date createdAt)
     {
         this.createdAt = createdAt;
     }
 
-    public Date getCreatedAt() 
+    public Date getCreatedAt()
     {
         return createdAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) 
+    public void setUpdatedAt(Date updatedAt)
     {
         this.updatedAt = updatedAt;
     }
 
-    public Date getUpdatedAt() 
+    public Date getUpdatedAt()
     {
         return updatedAt;
     }
 
-    public Long getDeptId() {
-        return deptId;
+    public void setDeptId(Long deptId)
+    {
+        this.deptId = deptId;
     }
 
-    public void setDeptId(Long deptId) {
-        this.deptId = deptId;
+    public Long getDeptId()
+    {
+        return deptId;
     }
 
     @Override
@@ -259,6 +262,7 @@ public class AchievementsPaper extends BaseEntity
             .append("auditStatus", getAuditStatus())
             .append("createdAt", getCreatedAt())
             .append("updatedAt", getUpdatedAt())
+            .append("deptId", getDeptId())
             .toString();
     }
 }

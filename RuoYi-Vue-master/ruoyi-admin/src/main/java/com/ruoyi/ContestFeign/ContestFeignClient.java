@@ -49,13 +49,12 @@ public interface ContestFeignClient {
     @PostMapping("/api/updateContest")
     AjaxResult updateContest(@RequestBody AchievementsCompetition achievementsCompetition);
 
+
     /**
      * 删除竞赛记录
      */
     @PostMapping("/api/deleteContests")
-    AjaxResult deleteContests( @RequestParam("userId") Long userId,
-                               @RequestParam("deptId") Long deptId,
-                               @RequestParam("competitionIds") Long[] competitionIds);
+    AjaxResult deleteContests( @RequestBody DeleteRequest request);
 //    ---------------------------------------------------------------------------------
     /**
      * 查询教材列表

@@ -4,8 +4,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-import com.ruoyi.competition.domain.AchievementsCompetition;
-import com.ruoyi.textbook.domain.AchievementsTextbook;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +20,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * 论文成果Controller
  * 
  * @author xixia
- * @date 2025-11-05
+ * @date 2025-11-26
  */
 @RestController
 @RequestMapping("/paper/paper")
@@ -34,7 +32,6 @@ public class AchievementsPaperController extends BaseController
     /**
      * 查询论文成果列表
      */
-
     @PreAuthorize("@ss.hasPermi('paper:paper:list')")
     @GetMapping("/list")
     public TableDataInfo list(AchievementsPaper achievementsPaper)
@@ -50,10 +47,18 @@ public class AchievementsPaperController extends BaseController
     @PreAuthorize("@ss.hasPermi('paper:paper:export')")
     @Log(title = "论文成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, AchievementsPaper achievementsPaper)
+    public void export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsPaper> exportRequestDTO)
     {
+        List<String> showColumns = exportRequestDTO.getShowColumns();
+        AchievementsPaper achievementsPaper = exportRequestDTO.getData();
+        achievementsPaper.setUserId(getUserId());
+        achievementsPaper.setDeptId(getDeptId());
         List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(achievementsPaper);
         ExcelUtil<AchievementsPaper> util = new ExcelUtil<AchievementsPaper>(AchievementsPaper.class);
+        if(showColumns != null && !showColumns.isEmpty())
+        {
+            util.showColumn(showColumns.toArray(new String[0]));
+        }
         util.exportExcel(response, list, "论文成果数据");
     }
 
@@ -75,9 +80,11 @@ public class AchievementsPaperController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPaper achievementsPaper)
     {
-        int rows =achievementsPaperService.insertAchievementsPaper(achievementsPaper);
-        return toAjax(rows).put("paperId",achievementsPaper.getPaperId());
+        achievementsPaper.setUserId(getUserId());
+        achievementsPaper.setDeptId(getDeptId());
+        int i = achievementsPaperService.insertAchievementsPaper(achievementsPaper);
 
+        return toAjax(i).put("paperId", achievementsPaper.getPaperId());
     }
 
     /**
@@ -88,8 +95,10 @@ public class AchievementsPaperController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsPaper achievementsPaper)
     {
-        int rows = achievementsPaperService.updateAchievementsPaper(achievementsPaper);
-        return toAjax(rows).put("paperId",achievementsPaper.getPaperId());
+        achievementsPaper.setUserId(getUserId());
+        achievementsPaper.setDeptId(getDeptId());
+        int i = achievementsPaperService.updateAchievementsPaper(achievementsPaper);
+        return toAjax(i).put("paperId", achievementsPaper.getPaperId());
     }
 
     /**

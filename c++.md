@@ -344,7 +344,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
     "studentParticipants": "张三;李四;王五",
     "awardCertificateNo": "NCPC202410001",
     "competitionWebsite": "https://example.ncpc.org",
-    "auditStatus": "审核通过"
+    "auditStatus": "通过"
   }
 ```
 

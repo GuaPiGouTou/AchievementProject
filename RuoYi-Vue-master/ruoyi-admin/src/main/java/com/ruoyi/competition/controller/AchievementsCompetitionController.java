@@ -6,9 +6,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 
+import com.ruoyi.textbook.domain.AchievementsTextbook;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -61,18 +63,18 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:export')")
     @Log(title = "竞赛成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
+    public void export(HttpServletResponse response, ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
+//    public void export(HttpServletResponse response, AchievementsCompetition achievementsCompetition )
     {
-        System.out.println(exportRequestDTO.getShowColumns().toString());
-        List<String> ShowColumns = exportRequestDTO.getShowColumns();
+        List<String> hiddenColumns = exportRequestDTO .getShowColumns();
         AchievementsCompetition queryParams = exportRequestDTO.getData();
         List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
-        if(ShowColumns != null && !ShowColumns.isEmpty())
+        if(hiddenColumns != null && !hiddenColumns.isEmpty())
         {
-            util.showColumn(ShowColumns.toArray(new String[0]));
+            util.showColumn(hiddenColumns.toArray(new String[0]));
         }
-        util.exportExcel(response, list, "竞赛成果数据");
+        util.exportExcel(response, list, "竞赛数据");
     }
 
     /**
@@ -107,7 +109,12 @@ public class AchievementsCompetitionController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsCompetition.setUserId(getUserId());
+            achievementsCompetition.setDeptId(getDeptId());
+
+            System.out.println(achievementsCompetition);
             res = contestFeignClient.insertContest(achievementsCompetition);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -127,6 +134,9 @@ public class AchievementsCompetitionController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsCompetition.setUserId(getUserId());
+            achievementsCompetition.setDeptId(getDeptId());
+
             res = contestFeignClient.updateContest(achievementsCompetition);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -142,11 +152,15 @@ public class AchievementsCompetitionController extends BaseController
 	@DeleteMapping("/{competitionIds}")
     public AjaxResult remove(@PathVariable Long[] competitionIds)
     {
-//        return toAjax(achievementsCompetitionService.deleteAchievementsCompetitionByCompetitionIds(competitionIds));
+        for (int i = 0; i < competitionIds.length; i++) {
+            System.out.println(competitionIds[i]);
+        }
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),competitionIds);
         try {
-            res = contestFeignClient.deleteContests(getUserId(),getDeptId(),competitionIds);
+            res = contestFeignClient.deleteContests(deleteRequest);
+            System.out.println(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

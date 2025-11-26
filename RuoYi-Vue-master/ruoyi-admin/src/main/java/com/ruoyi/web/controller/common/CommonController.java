@@ -84,11 +84,6 @@ public class CommonController  extends BaseController
                                   @RequestParam("attachmenttype") String attachmenttype,
                                  @RequestParam("file") MultipartFile file) throws Exception
     {
-        System.out.println("上传文件开始");
-        System.out.println(paperId + "paperId");
-        System.out.println(file);
-        System.out.println(attachmenttype);
-
         try
         {
             // 上传文件路径
@@ -99,14 +94,15 @@ public class CommonController  extends BaseController
 
             // 构建成果附件对象
             AchievementsAttachment attachment = new AchievementsAttachment();
-
+            attachment.setUserId(getUserId());
+            attachment.setDeptId(getDeptId());
             // 设置关联ID - 将paperId转换为Long类型
             if (StringUtils.isNumeric(paperId)) {
-                attachment.setUserId(Long.parseLong(paperId));
+                attachment.setResourceId(Long.parseLong(paperId));
             } else {
                 // 如果paperId不是纯数字，可以根据业务需求处理
                 // 例如记录日志或使用默认值，这里先设置为null
-                attachment.setUserId(null);
+                attachment.setResourceId(null);
             }
 
             // 设置文件基本信息

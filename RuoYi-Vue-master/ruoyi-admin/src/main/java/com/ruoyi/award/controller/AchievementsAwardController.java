@@ -45,6 +45,9 @@ public class AchievementsAwardController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsAward.setUserId(getUserId());
+            achievementsAward.setDeptId(getDeptId());
+
             res = contestFeignClient.getAwardList(getUserId(), getDeptId(), pageNum, pageSize);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -65,6 +68,9 @@ public class AchievementsAwardController extends BaseController
         List<String> showColumns = exportRequestDTO.getShowColumns();
         System.out.println(showColumns);
         AchievementsAward achievementsAward = exportRequestDTO.getData();
+        achievementsAward.setUserId(getUserId());
+        achievementsAward.setDeptId(getDeptId());
+
         List<AchievementsAward> list = achievementsAwardService.selectAchievementsAwardList(achievementsAward);
         ExcelUtil<AchievementsAward> util = new ExcelUtil<AchievementsAward>(AchievementsAward.class);
         if(showColumns != null && !showColumns.isEmpty()){
@@ -102,6 +108,9 @@ public class AchievementsAwardController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsAward.setUserId(getUserId());
+            achievementsAward.setDeptId(getDeptId());
+
             res = contestFeignClient.insertAward(achievementsAward);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -120,6 +129,9 @@ public class AchievementsAwardController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsAward.setUserId(getUserId());
+            achievementsAward.setDeptId(getDeptId());
+
             res = contestFeignClient.updateAward(achievementsAward);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -138,7 +150,7 @@ public class AchievementsAwardController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.deleteContests(getUserId(),getDeptId(),awardIds);
+            res = contestFeignClient.deleteAward(getUserId(),getDeptId(),awardIds);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

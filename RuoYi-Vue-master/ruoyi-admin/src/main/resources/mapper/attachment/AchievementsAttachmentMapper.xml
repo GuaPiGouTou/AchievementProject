@@ -21,10 +21,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="resourceId"    column="resource_id"    />
+        <result property="deptId"    column="dept_id"    />
     </resultMap>
 
     <sql id="selectAchievementsAttachmentVo">
-        select attachment_id, user_id, attachment_type, file_name, file_path, file_size, file_extension, file_category, description, upload_time, upload_user_id, download_count, create_by, create_time, update_by, update_time from achievements_attachment
+        select attachment_id, user_id, attachment_type, file_name, file_path, file_size, file_extension, file_category, description, upload_time, upload_user_id, download_count, create_by, create_time, update_by, update_time, resource_id, dept_id from achievements_attachment
     </sql>
 
     <select id="selectAchievementsAttachmentList" parameterType="AchievementsAttachment" resultMap="AchievementsAttachmentResult">
@@ -41,6 +43,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="uploadTime != null "> and upload_time = #{uploadTime}</if>
             <if test="uploadUserId != null  and uploadUserId != ''"> and upload_user_id = #{uploadUserId}</if>
             <if test="downloadCount != null "> and download_count = #{downloadCount}</if>
+            <if test="resourceId != null "> and resource_id = #{resourceId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
         </where>
     </select>
     
@@ -67,6 +71,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
+            <if test="resourceId != null">resource_id,</if>
+            <if test="deptId != null">dept_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
@@ -84,6 +90,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
+            <if test="resourceId != null">#{resourceId},</if>
+            <if test="deptId != null">#{deptId},</if>
          </trim>
     </insert>
 
@@ -105,6 +113,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="resourceId != null">resource_id = #{resourceId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
         </trim>
         where attachment_id = #{attachmentId}
     </update>
@@ -123,8 +133,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAttachmentListByUserIdAndType" parameterType="map" resultMap="AchievementsAttachmentResult">
         <include refid="selectAchievementsAttachmentVo"/>
         <where>
-            <if test="userId != null">
-                and user_id = #{userId}
+            <if test="resourceId != null">
+                and user_id = #{resourceId}
             </if>
             <if test="attachmentType != null and attachmentType != ''">
                 and attachment_type = #{attachmentType}
