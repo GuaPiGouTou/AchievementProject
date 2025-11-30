@@ -3,7 +3,10 @@ package com.ruoyi.paper.controller;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
+import com.ruoyi.common.utils.ServletUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,17 +31,25 @@ public class AchievementsPaperController extends BaseController
 {
     @Autowired
     private IAchievementsPaperService achievementsPaperService;
-
+    @Autowired
+    private ContestFeignClient contestFeignClient;
     /**
      * 查询论文成果列表
      */
     @PreAuthorize("@ss.hasPermi('paper:paper:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsPaper achievementsPaper)
+    public AjaxResult list(AchievementsPaper achievementsPaper)
     {
-        startPage();
-        List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(achievementsPaper);
-        return getDataTable(list);
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getPaperList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -69,8 +80,14 @@ public class AchievementsPaperController extends BaseController
     @GetMapping(value = "/{paperId}")
     public AjaxResult getInfo(@PathVariable("paperId") Long paperId)
     {
-        return success(achievementsPaperService.selectAchievementsPaperByPaperId(paperId));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getPaperById(getUserId(),getDeptId(),paperId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 新增论文成果
@@ -80,11 +97,19 @@ public class AchievementsPaperController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPaper achievementsPaper)
     {
-        achievementsPaper.setUserId(getUserId());
-        achievementsPaper.setDeptId(getDeptId());
-        int i = achievementsPaperService.insertAchievementsPaper(achievementsPaper);
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsPaper.setUserId(getUserId());
+            achievementsPaper.setDeptId(getDeptId());
 
-        return toAjax(i).put("paperId", achievementsPaper.getPaperId());
+            System.out.println(achievementsPaper);
+            res = contestFeignClient.insertPaper(achievementsPaper);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -95,10 +120,17 @@ public class AchievementsPaperController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsPaper achievementsPaper)
     {
-        achievementsPaper.setUserId(getUserId());
-        achievementsPaper.setDeptId(getDeptId());
-        int i = achievementsPaperService.updateAchievementsPaper(achievementsPaper);
-        return toAjax(i).put("paperId", achievementsPaper.getPaperId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsPaper.setUserId(getUserId());
+            achievementsPaper.setDeptId(getDeptId());
+
+            res = contestFeignClient.updatePaper(achievementsPaper);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -109,6 +141,17 @@ public class AchievementsPaperController extends BaseController
 	@DeleteMapping("/{paperIds}")
     public AjaxResult remove(@PathVariable Long[] paperIds)
     {
-        return toAjax(achievementsPaperService.deleteAchievementsPaperByPaperIds(paperIds));
-    }
+        for (int i = 0; i < paperIds.length; i++) {
+            System.out.println(paperIds[i]);
+        }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),paperIds);
+        try {
+            res = contestFeignClient.deletePapers(deleteRequest);
+            System.out.println(res);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 }
