@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.competition.mapper.AchievementsCompetitionMapper">
+    
+    <resultMap type="AchievementsCompetition" id="AchievementsCompetitionResult">
+        <result property="competitionId"    column="competition_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="competitionName"    column="competition_name"    />
+        <result property="competitionLevel"    column="competition_level"    />
+        <result property="competitionType"    column="competition_type"    />
+        <result property="competitionTime"    column="competition_time"    />
+        <result property="roleType"    column="role_type"    />
+        <result property="awardLevel"    column="award_level"    />
+        <result property="awardDate"    column="award_date"    />
+        <result property="organizer"    column="organizer"    />
+        <result property="competitionCategory"    column="competition_category"    />
+        <result property="teamSize"    column="team_size"    />
+        <result property="teamName"    column="team_name"    />
+        <result property="studentParticipants"    column="student_participants"    />
+        <result property="awardCertificateNo"    column="award_certificate_no"    />
+        <result property="competitionWebsite"    column="competition_website"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsCompetitionVo">
+        select competition_id, user_id, dept_id, competition_name, competition_level, competition_type, competition_time, role_type, award_level, award_date, organizer, competition_category, team_size, team_name, student_participants, award_certificate_no, competition_website, audit_status, created_at, updated_at from achievements_competition
+    </sql>
+
+    <select id="selectAchievementsCompetitionList" parameterType="AchievementsCompetition" resultMap="AchievementsCompetitionResult">
+        <include refid="selectAchievementsCompetitionVo"/>
+        <where>  
+            <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
+            <if test="competitionLevel != null  and competitionLevel != ''"> and competition_level = #{competitionLevel}</if>
+            <if test="competitionType != null  and competitionType != ''"> and competition_type = #{competitionType}</if>
+            <if test="competitionTime != null "> and competition_time = #{competitionTime}</if>
+            <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
+            <if test="awardDate != null "> and award_date = #{awardDate}</if>
+            <if test="competitionCategory != null  and competitionCategory != ''"> and competition_category = #{competitionCategory}</if>
+            <if test="teamName != null  and teamName != ''"> and team_name like concat('%', #{teamName}, '%')</if>
+            <if test="studentParticipants != null  and studentParticipants != ''"> and student_participants = #{studentParticipants}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsCompetitionByCompetitionId" parameterType="Long" resultMap="AchievementsCompetitionResult">
+        <include refid="selectAchievementsCompetitionVo"/>
+        where competition_id = #{competitionId}
+    </select>
+
+    <insert id="insertAchievementsCompetition" parameterType="AchievementsCompetition" useGeneratedKeys="true" keyProperty="competitionId">
+        insert into achievements_competition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="competitionName != null and competitionName != ''">competition_name,</if>
+            <if test="competitionLevel != null and competitionLevel != ''">competition_level,</if>
+            <if test="competitionType != null">competition_type,</if>
+            <if test="competitionTime != null">competition_time,</if>
+            <if test="roleType != null">role_type,</if>
+            <if test="awardLevel != null">award_level,</if>
+            <if test="awardDate != null">award_date,</if>
+            <if test="organizer != null and organizer != ''">organizer,</if>
+            <if test="competitionCategory != null and competitionCategory != ''">competition_category,</if>
+            <if test="teamSize != null">team_size,</if>
+            <if test="teamName != null">team_name,</if>
+            <if test="studentParticipants != null">student_participants,</if>
+            <if test="awardCertificateNo != null">award_certificate_no,</if>
+            <if test="competitionWebsite != null">competition_website,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="competitionName != null and competitionName != ''">#{competitionName},</if>
+            <if test="competitionLevel != null and competitionLevel != ''">#{competitionLevel},</if>
+            <if test="competitionType != null">#{competitionType},</if>
+            <if test="competitionTime != null">#{competitionTime},</if>
+            <if test="roleType != null">#{roleType},</if>
+            <if test="awardLevel != null">#{awardLevel},</if>
+            <if test="awardDate != null">#{awardDate},</if>
+            <if test="organizer != null and organizer != ''">#{organizer},</if>
+            <if test="competitionCategory != null and competitionCategory != ''">#{competitionCategory},</if>
+            <if test="teamSize != null">#{teamSize},</if>
+            <if test="teamName != null">#{teamName},</if>
+            <if test="studentParticipants != null">#{studentParticipants},</if>
+            <if test="awardCertificateNo != null">#{awardCertificateNo},</if>
+            <if test="competitionWebsite != null">#{competitionWebsite},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsCompetition" parameterType="AchievementsCompetition">
+        update achievements_competition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="competitionName != null and competitionName != ''">competition_name = #{competitionName},</if>
+            <if test="competitionLevel != null and competitionLevel != ''">competition_level = #{competitionLevel},</if>
+            <if test="competitionType != null">competition_type = #{competitionType},</if>
+            <if test="competitionTime != null">competition_time = #{competitionTime},</if>
+            <if test="roleType != null">role_type = #{roleType},</if>
+            <if test="awardLevel != null">award_level = #{awardLevel},</if>
+            <if test="awardDate != null">award_date = #{awardDate},</if>
+            <if test="organizer != null and organizer != ''">organizer = #{organizer},</if>
+            <if test="competitionCategory != null and competitionCategory != ''">competition_category = #{competitionCategory},</if>
+            <if test="teamSize != null">team_size = #{teamSize},</if>
+            <if test="teamName != null">team_name = #{teamName},</if>
+            <if test="studentParticipants != null">student_participants = #{studentParticipants},</if>
+            <if test="awardCertificateNo != null">award_certificate_no = #{awardCertificateNo},</if>
+            <if test="competitionWebsite != null">competition_website = #{competitionWebsite},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where competition_id = #{competitionId}
+    </update>
+
+    <delete id="deleteAchievementsCompetitionByCompetitionId" parameterType="Long">
+        delete from achievements_competition where competition_id = #{competitionId}
+    </delete>
+
+    <delete id="deleteAchievementsCompetitionByCompetitionIds" parameterType="String">
+        delete from achievements_competition where competition_id in 
+        <foreach item="competitionId" collection="array" open="(" separator="," close=")">
+            #{competitionId}
+        </foreach>
+    </delete>
+</mapper>
