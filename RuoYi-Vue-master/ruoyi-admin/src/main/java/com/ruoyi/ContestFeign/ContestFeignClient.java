@@ -1,9 +1,11 @@
 package com.ruoyi.ContestFeign;
 
+import com.ruoyi.attachment.domain.AchievementsAttachment;
 import com.ruoyi.award.domain.AchievementsAward;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.competition.domain.AchievementsCompetition;
 import com.ruoyi.competition.domain.demo;
+import com.ruoyi.paper.domain.AchievementsPaper;
 import com.ruoyi.textbook.domain.AchievementsTextbook;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -90,12 +92,10 @@ public interface ContestFeignClient {
     AjaxResult updateTextbook(@RequestBody AchievementsTextbook achievementsTextbook);
 
     /**
-     * 删除竞赛记录
+     * 删除教材记录
      */
     @PostMapping("/api/deleteTextbooks")
-    AjaxResult deleteTextbooks( @RequestParam("userId") Long userId,
-                               @RequestParam("deptId") Long deptId,
-                               @RequestParam("textbookIds") Long[] textbookIds);
+    AjaxResult deleteTextbooks(@RequestBody DeleteRequest request);
 //    ---------------------------------------------------------------------------------
     /**
      * 查询教材列表
@@ -131,11 +131,89 @@ public interface ContestFeignClient {
     AjaxResult updateAward(@RequestBody  AchievementsAward achievementsAward);
 
     /**
-     * 删除竞赛记录
+     * 删除获奖记录
      */
     @PostMapping("/api/deleteAwardIds")
-    AjaxResult deleteAward( @RequestParam("userId") Long userId,
-                               @RequestParam("deptId") Long deptId,
-                               @RequestParam("awardId") Long[] textbookIds);
+    AjaxResult deleteAward( @RequestBody DeleteRequest request);
+//    ---------------------------------------------------------------------------------
+    /**
+     * 查询论文列表
+     */
+    @GetMapping("/api/selectPaperList")
+    AjaxResult getPaperList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+    );
+
+    /**
+     * 查询论文记录详细信息
+     */
+    @GetMapping("/api/selectPaperById")
+    AjaxResult getPaperById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("competitionId") Long competitionId
+    );
+
+    /**
+     * 新增论文成果
+     */
+    @PostMapping("/api/insertPaper")
+    AjaxResult insertPaper(@RequestBody AchievementsPaper achievementsPaper);
+
+    /**
+     * 更新论文记录
+     */
+    @PostMapping("/api/updatePaper")
+    AjaxResult updatePaper(@RequestBody AchievementsPaper achievementsPaper);
+
+
+    /**
+     * 删除论文记录
+     */
+    @PostMapping("/api/deletePapers")
+    AjaxResult deletePapers( @RequestBody DeleteRequest request);
+//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
+    /**
+     * 查询附件列表
+     */
+    @GetMapping("/api/selectAttachmentList")
+    AjaxResult selectAttachmentList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+    );
+
+    /**
+     * 查询附件记录详细信息
+     */
+    @GetMapping("/api/selectAttachmentById")
+    AjaxResult selectAttachmentById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("competitionId") Long competitionId
+    );
+
+    /**
+     * 新增附件记录
+     */
+    @PostMapping("/api/insertAttachment")
+    AjaxResult insertAttachment(@RequestBody AchievementsAttachment AchievementsAttachment);
+
+    /**
+     * 更新附件记录
+     */
+    @PostMapping("/api/updateAttachment")
+    AjaxResult updateAttachment(@RequestBody AchievementsAttachment AchievementsAttachment);
+
+
+    /**
+     * 删除附件记录
+     */
+    @PostMapping("/api/deleteAttachments")
+    AjaxResult deleteAttachments( @RequestBody DeleteRequest request);
 //    ---------------------------------------------------------------------------------
 }

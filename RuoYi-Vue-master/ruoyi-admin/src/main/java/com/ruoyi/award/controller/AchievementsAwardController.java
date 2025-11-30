@@ -4,6 +4,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.AchievementsCompetition;
@@ -147,10 +148,15 @@ public class AchievementsAwardController extends BaseController
 	@DeleteMapping("/{awardIds}")
     public AjaxResult remove(@PathVariable Long[] awardIds)
     {
+        for (int i = 0; i < awardIds.length; i++) {
+            System.out.println(awardIds[i]);
+        }
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),awardIds);
         try {
-            res = contestFeignClient.deleteAward(getUserId(),getDeptId(),awardIds);
+            res = contestFeignClient.deleteAward(deleteRequest);
+            System.out.println(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

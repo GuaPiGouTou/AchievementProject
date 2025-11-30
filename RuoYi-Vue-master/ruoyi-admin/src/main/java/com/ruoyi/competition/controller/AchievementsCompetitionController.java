@@ -53,7 +53,6 @@ public class AchievementsCompetitionController extends BaseController
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return res;
     }
 
@@ -84,7 +83,6 @@ public class AchievementsCompetitionController extends BaseController
     @GetMapping(value = "/{competitionId}")
     public AjaxResult getInfo(@PathVariable("competitionId") Long competitionId)
     {
-//        return success(achievementsCompetitionService.selectAchievementsCompetitionByCompetitionId(competitionId));
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
@@ -103,9 +101,6 @@ public class AchievementsCompetitionController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-//        int achievementsCompetition1 = achievementsCompetitionService.insertAchievementsCompetition(achievementsCompetition);
-//        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
-
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
@@ -129,8 +124,6 @@ public class AchievementsCompetitionController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-//        int achievementsCompetition1 = achievementsCompetitionService.updateAchievementsCompetition(achievementsCompetition);
-//        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {

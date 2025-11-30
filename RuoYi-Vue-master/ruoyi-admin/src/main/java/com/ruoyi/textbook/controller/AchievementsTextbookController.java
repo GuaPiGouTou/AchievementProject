@@ -4,6 +4,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.AchievementsCompetition;
@@ -133,16 +134,20 @@ public class AchievementsTextbookController extends BaseController
     @PreAuthorize("@ss.hasPermi('textbook:textbook:remove')")
     @Log(title = "教材著作", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{textbookIds}")
-    public AjaxResult remove(@RequestBody Long[] textbookIds)
+    public AjaxResult remove(@PathVariable  Long[] textbookIds)
     {
+        for (int i = 0; i < textbookIds.length; i++) {
+            System.out.println(textbookIds[i]);
+        }
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),textbookIds);
         try {
-            res = contestFeignClient.deleteTextbooks(getUserId(),getDeptId(),textbookIds);
+            res = contestFeignClient.deleteTextbooks(deleteRequest);
+            System.out.println(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return res;
     }
 }
