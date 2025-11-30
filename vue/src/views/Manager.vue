@@ -129,7 +129,7 @@ const handleLogout = () => {
 
 .el-sub-menu__title,
 .el-menu-item {
-  color: #ddd;
+  color: #ffffff;
   padding-left: 20px !important;
 }
 
