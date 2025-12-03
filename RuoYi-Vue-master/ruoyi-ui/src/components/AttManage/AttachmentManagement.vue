@@ -154,7 +154,9 @@ export default {
       this.loading = true
       try {
         const params = {
-          userId: this.resourceId,
+
+          // userId: this.resourceId,
+          resourceId: this.resourceId,
           attachmentType: this.attachmentType
         }
 

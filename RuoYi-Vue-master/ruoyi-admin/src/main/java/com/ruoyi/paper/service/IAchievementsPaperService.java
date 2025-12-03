@@ -7,7 +7,7 @@ import com.ruoyi.paper.domain.AchievementsPaper;
  * 论文成果Service接口
  * 
  * @author xixia
- * @date 2025-11-26
+ * @date 2025-11-05
  */
 public interface IAchievementsPaperService 
 {

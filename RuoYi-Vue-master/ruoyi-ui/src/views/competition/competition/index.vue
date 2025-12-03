@@ -526,22 +526,22 @@ export default {
   },
   methods: {
     /**/
-    DowExcel(){
-      console.log('查询条件:', this.queryParams);
-       console.log('隐藏列:', this.selectClist);
-       const requestData = {
-         hiddenColumns: this.selectClist || [],
-         queryParams: {
+    /*导出*/
+    async DowExcel(){
+        const requestData = {
+         showColumns: this.selectClist || [],
+         data: {
            ...this.queryParams
          }
-       };
-       // 4. 使用修正后的 download 方法
-       this.download('competition/competition/export', requestData, `competition_${new Date().getTime()}.xlsx`);
-    },
+        };
+         const jsonRequestBody = JSON.stringify(requestData);
+         this.exceldownload('competition/competition/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
+     },
     /** 查询竞赛成果列表 */
     getList() {
       this.loading = true
       listCompetition(this.queryParams).then(response => {
+
         this.competitionList = response.rows
         this.total = response.total
         this.loading = false
@@ -605,6 +605,8 @@ export default {
       this.reset()
       const competitionId = row.competitionId || this.ids
       getCompetition(competitionId).then(response => {
+          console.log("竞赛详细信息")
+          console.log(response.data[0])
         this.form = response.data
         this.open = true
         this.title = "修改竞赛成果"
@@ -613,13 +615,12 @@ export default {
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
+
         if (valid) {
           if (this.form.competitionId != null) {
             updateCompetition(this.form).then(response => {
               if(response.competitionId!=null)
               {
-                console.log(response.competitionId)
-                console.log("response.competitionId")
                  this.$refs.file.submitUpload(response.competitionId,"competition");
               }else{
                   this.$modal.msgSuccess("上传文件失败")
@@ -629,7 +630,10 @@ export default {
               this.getList()
             })
           } else {
+            console.log("竞赛新增")
+            console.log(this.form)
             addCompetition(this.form).then(response => {
+
               this.$modal.msgSuccess("新增成功")
               if(response.competitionId!=null)
               {
@@ -651,9 +655,12 @@ export default {
       const competitionIds = row.competitionId || this.ids
       this.$modal.confirm('是否确认删除竞赛成果编号为"' + competitionIds + '"的数据项？').then(function() {
         return delCompetition(competitionIds)
-      }).then(() => {
-        this.getList()
+      }).then((res) => {
+        console.log("竞赛删除")
+        console.log(res)
         this.$modal.msgSuccess("删除成功")
+        this.getList()
+
       }).catch(() => {})
     },
     /** 导出按钮操作 */
@@ -661,12 +668,15 @@ export default {
       this.Excelopen = true
 
     },
-    handleAttachment(row) {
-        this.currentPaperId = row.competitionId
-        this.currentPaper = row
-        this.attachmentTitle = `附件管理 - ${row.competitionName || '竞赛'}`
-        this.attachmentVisible = true
-      },
+    /*
+    附件弹窗方法
+    */
+      handleAttachment(row) {
+          this.currentPaperId = row.competitionId
+          this.currentPaper = row
+          this.attachmentTitle = `附件管理 - ${row.competitionName || '竞赛'}`
+          this.attachmentVisible = true
+        },
 
       /** 附件弹窗关闭 */
       handleAttachmentClose() {

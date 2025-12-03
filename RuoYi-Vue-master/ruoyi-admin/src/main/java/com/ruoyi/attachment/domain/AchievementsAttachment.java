@@ -10,15 +10,14 @@ import com.ruoyi.common.core.domain.BaseEntity;
 /**
  * 成果附件对象 achievements_attachment
  * 
- * @author ruoyi
- * @date 2025-11-26
+ * @author xixia
+ * @date 2025-11-08
  */
 public class AchievementsAttachment extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 附件ID */
-    @Excel(name = "附件ID")
     private Long attachmentId;
 
     /** 关联子表ID */
@@ -65,14 +64,6 @@ public class AchievementsAttachment extends BaseEntity
     /** 下载次数 */
     @Excel(name = "下载次数")
     private Long downloadCount;
-
-    /** 关联子表id */
-    @Excel(name = "关联子表id")
-    private Long resourceId;
-
-    /** 部门id */
-    @Excel(name = "部门id")
-    private Long deptId;
 
     public void setAttachmentId(Long attachmentId) 
     {
@@ -194,26 +185,6 @@ public class AchievementsAttachment extends BaseEntity
         return downloadCount;
     }
 
-    public void setResourceId(Long resourceId) 
-    {
-        this.resourceId = resourceId;
-    }
-
-    public Long getResourceId() 
-    {
-        return resourceId;
-    }
-
-    public void setDeptId(Long deptId) 
-    {
-        this.deptId = deptId;
-    }
-
-    public Long getDeptId() 
-    {
-        return deptId;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -233,8 +204,6 @@ public class AchievementsAttachment extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
-            .append("resourceId", getResourceId())
-            .append("deptId", getDeptId())
             .toString();
     }
 }

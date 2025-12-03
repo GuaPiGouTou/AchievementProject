@@ -1995,3 +1995,747 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 }
 ```
 
+## 软著成果管理接口文档
+
+### 查询软著列表
+
+GET /api/selectSoftwareList
+
+- Content-Type: application/json
+
+- userId: Long类型，用户ID（用于查询角色权限）
+- deptId: Long类型，部门ID（用于部门权限隔离）
+- pageNum: Long类型，分页页码
+- pageSize: Long类型，分页大小
+
+数据库ry-vue中achievements_software的全部字段
+
+```
+GET /api/selectSoftwareList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```
+----------------------------示例----------------------------
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+----------------------------示例----------------------------
+```
+
+- data_scope: char类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```
+----------------------------示例----------------------------
+SELECT * FROM achievements_software;  (data_scope = "1")
+
+SELECT * FROM achievements_software WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_software WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_software WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_software WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
+```
+
+- code: number类型，状态码
+- data: Object类型，软著列表
+- msg: String类型，提示信息
+
+```
+{
+  "total": 1,
+  "rows": [
+    {
+      "softwareId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "softwareName": "智能教学辅助系统",
+      "softwareVersion": "V1.0.0",
+      "certificateNo": "2024SR0123456",
+      "publishDate": "2024-10-01",
+      "registerDate": "2024-11-15",
+      "developmentDate": "2024-09-30",
+      "programmingLanguage": "Java",
+      "softwareType": "应用软件",
+      "softwareCopyrightCertificateLevel": "普通",
+      "certificateType": "软著登记证书",
+      "mainFunction": "提供智能化的教学辅助功能，包括作业批改、学情分析等。",
+      "applicationField": "教育技术",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+```
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询软著记录详细信息
+
+GET /api/selectSoftwareById
+
+- Content-Type: application/json
+
+- userId: Long类型，用户ID（用于查询角色权限）
+- deptId: Long类型，部门ID（用于部门权限隔离）
+- softwareId: Long类型，软著ID（用于查询软著表的具体记录）
+
+数据库ry-vue中achievements_software的指定ID记录
+
+```
+GET /api/selectSoftwareById?userId=1&deptId=100&softwareId=1001
+```
+
+需要进行权限检查原理同**查询软著列表**
+
+- code: number类型，状态码
+- data: Object类型，软著详细信息
+- msg: String类型，提示信息
+
+```
+{
+  "code": 200,
+  "data": {
+      "softwareId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "softwareName": "智能教学辅助系统",
+      "softwareVersion": "V1.0.0",
+      "certificateNo": "2024SR0123456",
+      "publishDate": "2024-10-01",
+      "registerDate": "2024-11-15",
+      "developmentDate": "2024-09-30",
+      "programmingLanguage": "Java",
+      "softwareType": "应用软件",
+      "softwareCopyrightCertificateLevel": "普通",
+      "certificateType": "软著登记证书",
+      "mainFunction": "提供智能化的教学辅助功能，包括作业批改、学情分析等。",
+      "applicationField": "教育技术",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+  },
+  "msg": "查询成功"
+}
+```
+
+```
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增软著成果
+
+POST /api/insertSoftware
+
+- Content-Type: application/json
+
+- userId: Long类型，用户ID（用于查询角色权限）
+- deptId: Long类型，部门ID（用于部门权限隔离）
+- softwareName: String类型，软件名称
+- softwareVersion: String类型，软件版本
+- certificateNo: String类型，登记号
+- publishDate: Date类型，发表日期
+- registerDate: Date类型，登记日期
+- developmentDate: Date类型，开发完成日期
+- programmingLanguage: String类型，编程语言
+- softwareType: String类型，软件类型
+- softwareCopyrightCertificateLevel: String类型，软著等级
+- certificateType: String类型，证书类型
+- mainFunction: String类型，主要功能
+- applicationField: String类型，应用领域
+- auditStatus: String类型，审核状态
+
+创建时间，更新时间后端在接收参数后自行插入
+
+```
+{
+  "userId": 1,
+  "deptId": 100,
+  "softwareName": "智能教学辅助系统",
+  "softwareVersion": "V1.0.0",
+  "certificateNo": "2024SR0123456",
+  "publishDate": "2024-10-01",
+  "registerDate": "2024-11-15",
+  "developmentDate": "2024-09-30",
+  "programmingLanguage": "Java",
+  "softwareType": "应用软件",
+  "softwareCopyrightCertificateLevel": "普通",
+  "certificateType": "软著登记证书",
+  "mainFunction": "提供智能化的教学辅助功能。",
+  "applicationField": "教育技术",
+  "auditStatus": "待审核"
+}
+```
+
+- 
+- code: number类型，状态码
+- data: Object类型，上传后的软著记录ID
+- msg: String类型，提示信息
+
+```
+{
+  "msg": "操作成功",
+  "softwareId": 1007,
+  "code": 200
+}
+```
+
+```
+{
+  "msg": "软著信息插入失败",
+  "softwareId": null,
+  "code": 200
+}
+```
+
+### 更新软著记录
+
+POST /api/updateSoftware
+
+- Content-Type: application/json
+
+- userId: Long类型，用户ID（用于查询角色权限）
+- deptId: Long类型，部门ID（用于部门权限隔离）
+- softwareId: Long类型，软著ID
+- softwareName: String类型，软件名称
+- softwareVersion: String类型，软件版本
+- certificateNo: String类型，登记号
+- publishDate: Date类型，发表日期
+- registerDate: Date类型，登记日期
+- developmentDate: Date类型，开发完成日期
+- programmingLanguage: String类型，编程语言
+- softwareType: String类型，软件类型
+- softwareCopyrightCertificateLevel: String类型，软著等级
+- certificateType: String类型，证书类型
+- mainFunction: String类型，主要功能
+- applicationField: String类型，应用领域
+- auditStatus: String类型，审核状态
+
+更新时间后端在接收参数后自行插入
+
+```
+{
+  "userId": 1,
+  "deptId": 100,
+  "softwareId": 1001,
+  "softwareName": "智能教学辅助系统（升级版）",
+  "softwareVersion": "V2.0.0",
+  "certificateNo": "2024SR0123457",
+  "publishDate": "2025-01-01",
+  "registerDate": "2025-02-15",
+  "developmentDate": "2024-12-30",
+  "programmingLanguage": "Java/Python",
+  "softwareType": "应用软件",
+  "softwareCopyrightCertificateLevel": "高级",
+  "certificateType": "软著登记证书",
+  "mainFunction": "新增AI分析模块。",
+  "applicationField": "教育技术",
+  "auditStatus": "待审核"
+}
+```
+
+- code: number类型，状态码
+- data: Object类型，更新后的软著记录ID
+- msg: String类型，提示信息
+
+```
+{
+  "code": 200,
+  "softwareId": 1001,
+  "msg": "更新成功"
+}
+```
+
+```
+{
+  "code": 200,
+  "softwareId": null,
+  "msg": "软著信息更新失败"
+}
+```
+
+### 删除软著记录
+
+POST /api/deleteSoftwares
+
+- Content-Type: application/json
+
+- userId: Long类型，用户ID（用于查询角色权限）
+- deptId: Long类型，部门ID（用于部门权限隔离）
+- softwareIds: Long[]类型，删除的软著记录ID
+
+更新时间后端在接收参数后自行插入
+
+```
+{
+  "userId": 1,
+  "deptId": 100,
+  "softwareIds": [1001, 1002, 1003]
+}
+```
+
+- code: number类型，状态码
+- data: Object类型，删除的软著记录ID
+- msg: String类型，提示信息
+
+```
+{
+  "code": 200,
+  "softwareId": 1001,
+  "msg": "删除成功"
+}
+```
+
+```
+{
+  "code": 501,
+  "softwareId": null,
+  "msg":"软著信息删除失败"    
+}
+```
+
+## 专著管理接口文档
+
+### 查询专著列表
+
+`GET /api/selectMonographList`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`: `Long`类型，分页页码
+- `pageSize`: `Long`类型，分页大小
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_monograph的全部字段
+
+##### 请求参数示例
+
+```
+GET /api/selectMonographList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+##### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```sql
+----------------------------示例----------------------------
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+----------------------------示例----------------------------
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```sql
+----------------------------示例----------------------------
+SELECT * FROM achievements_monograph;  (data_scope = "1")
+
+SELECT * FROM achievements_monograph WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_monograph WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_monograph WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_monograph WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，专著列表
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "monographId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "monographTitle": "大数据挖掘技术与应用",
+      "authorRole": "第一作者",
+      "pressName": "清华大学出版社",
+      "isbnNumber": "978-7-302-12345-6",
+      "publishDate": "2024-05-15",
+      "monographType": "学术专著",
+      "edition": "第一版",
+      "wordCount": 35,
+      "pageCount": 420,
+      "language": "中文",
+      "subjectCategory": "计算机科学与技术",
+      "isIncluded": 1,
+      "includedDatabase": "CSCD",
+      "awardSituation": "校级优秀学术著作一等奖",
+      "coAuthors": "[{\"name\":\"李四\",\"unit\":\"计算机学院\"}]",
+      "internationalStandardBookNumber": "978-7-302-12345-6",
+      "chinaClassificationNumber": "TP311",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询专著记录详细信息
+
+`GET /api/selectMonographById`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `monographId`: `Long`类型，专著ID（用于查询专著表的具体记录）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_monograph的指定ID记录
+
+##### 请求参数示例
+
+```
+GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
+```
+
+需要进行权限检查原理同**查询专著列表**
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，专著详细信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+      "monographId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "monographTitle": "大数据挖掘技术与应用",
+      "authorRole": "第一作者",
+      "pressName": "清华大学出版社",
+      "isbnNumber": "978-7-302-12345-6",
+      "publishDate": "2024-05-15",
+      "monographType": "学术专著",
+      "edition": "第一版",
+      "wordCount": 35,
+      "pageCount": 420,
+      "language": "中文",
+      "subjectCategory": "计算机科学与技术",
+      "isIncluded": 1,
+      "includedDatabase": "CSCD",
+      "awardSituation": "校级优秀学术著作一等奖",
+      "coAuthors": "[{\"name\":\"李四\",\"unit\":\"计算机学院\"}]",
+      "internationalStandardBookNumber": "978-7-302-12345-6",
+      "chinaClassificationNumber": "TP311",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+  },
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增专著成果
+
+`POST /api/insertMonograph`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `monographTitle`: `String`类型，专著名称
+- `authorRole`: `String`类型，作者角色
+- `pressName`: `String`类型，出版社
+- `isbnNumber`: `String`类型，ISBN号
+- `publishDate`: `Date`类型，出版时间
+- `monographType`: `String`类型，专著类型
+- `edition`: `String`类型，版次
+- `wordCount`: `Long`类型，字数（万字）
+- `pageCount`: `Long`类型，页数
+- `language`: `String`类型，著作语言
+- `subjectCategory`: `String`类型，学科分类
+- `isIncluded`: `Integer`类型，是否被收录（1:是, 0:否）
+- `includedDatabase`: `String`类型，收录数据库
+- `awardSituation`: `String`类型，获奖情况
+- `coAuthors`: `String`类型，合著者信息
+- `internationalStandardBookNumber`: `String`类型，国际标准书号
+- `chinaClassificationNumber`: `String`类型，中国分类号
+- `auditStatus`: `String`类型，审核状态
+
+创建时间，更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "monographTitle": "大数据挖掘技术与应用",
+  "authorRole": "第一作者",
+  "pressName": "清华大学出版社",
+  "isbnNumber": "978-7-302-12345-6",
+  "publishDate": "2024-05-15",
+  "monographType": "学术专著",
+  "edition": "第一版",
+  "wordCount": 35,
+  "pageCount": 420,
+  "language": "中文",
+  "subjectCategory": "计算机科学与技术",
+  "isIncluded": 1,
+  "includedDatabase": "CSCD",
+  "awardSituation": "暂无",
+  "coAuthors": "[{\"name\":\"李四\",\"unit\":\"计算机学院\"}]",
+  "internationalStandardBookNumber": "978-7-302-12345-6",
+  "chinaClassificationNumber": "TP311",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的专著记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "monographId": 1007,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "msg": "专著信息插入失败",
+  "monographId": null,
+  "code": 200
+}
+```
+
+### 更新专著记录
+
+`POST /api/updateMonograph`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `monographId`: `Long`类型，专著ID
+- `monographTitle`: `String`类型，专著名称
+- `authorRole`: `String`类型，作者角色
+- `pressName`: `String`类型，出版社
+- `isbnNumber`: `String`类型，ISBN号
+- `publishDate`: `Date`类型，出版时间
+- `monographType`: `String`类型，专著类型
+- `edition`: `String`类型，版次
+- `wordCount`: `Long`类型，字数（万字）
+- `pageCount`: `Long`类型，页数
+- `language`: `String`类型，著作语言
+- `subjectCategory`: `String`类型，学科分类
+- `isIncluded`: `Integer`类型，是否被收录
+- `includedDatabase`: `String`类型，收录数据库
+- `awardSituation`: `String`类型，获奖情况
+- `coAuthors`: `String`类型，合著者信息
+- `internationalStandardBookNumber`: `String`类型，国际标准书号
+- `chinaClassificationNumber`: `String`类型，中国分类号
+- `auditStatus`: `String`类型，审核状态
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "monographId": 1001,
+  "monographTitle": "大数据挖掘技术与应用（修订版）",
+  "authorRole": "独著",
+  "pressName": "清华大学出版社",
+  "isbnNumber": "978-7-302-12345-6",
+  "publishDate": "2025-06-01",
+  "monographType": "学术专著",
+  "edition": "第二版",
+  "wordCount": 40,
+  "pageCount": 450,
+  "language": "中文",
+  "subjectCategory": "人工智能",
+  "isIncluded": 1,
+  "includedDatabase": "SCI",
+  "awardSituation": "省级一等奖",
+  "coAuthors": "[]",
+  "internationalStandardBookNumber": "978-7-302-12345-6",
+  "chinaClassificationNumber": "TP311",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的专著记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "monographId": 1001,
+  "msg": "更新成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 200,
+  "monographId": null,
+  "msg": "专著信息更新失败"
+}
+```
+
+### 删除专著记录
+
+`POST /api/deleteMonographs`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `monographIds`: `Long[]`类型，删除的专著记录ID
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "monographIds": [1001, 1002, 1003]
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的专著记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "monographId": 1001,
+  "msg": "删除成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "monographId": null,
+  "msg":"专著信息删除失败"    
+}
+```

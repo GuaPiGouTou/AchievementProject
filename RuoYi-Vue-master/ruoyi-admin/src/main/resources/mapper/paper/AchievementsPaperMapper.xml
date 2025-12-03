@@ -20,22 +20,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="auditStatus"    column="audit_status"    />
         <result property="createdAt"    column="created_at"    />
         <result property="updatedAt"    column="updated_at"    />
-        <result property="deptId"    column="dept_id"    />
     </resultMap>
 
     <sql id="selectAchievementsPaperVo">
-        select paper_id, user_id, paper_title, paper_category, research_direction, author_information, journal, publish_date, volume, issue, page_range, doi, audit_status, created_at, updated_at, dept_id from achievements_paper
+        select paper_id, user_id, paper_title, paper_category, research_direction, author_information, journal, publish_date, volume, issue, page_range, doi, audit_status, created_at, updated_at from achievements_paper a
     </sql>
 
     <select id="selectAchievementsPaperList" parameterType="AchievementsPaper" resultMap="AchievementsPaperResult">
         <include refid="selectAchievementsPaperVo"/>
         <where>  
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="researchDirection != null  and researchDirection != ''"> and research_direction = #{researchDirection}</if>
+            <if test="authorInformation != null  and authorInformation != ''"> and author_information = #{authorInformation}</if>
+            <if test="journal != null  and journal != ''"> and journal = #{journal}</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="volume != null  and volume != ''"> and volume = #{volume}</if>
+            <if test="issue != null  and issue != ''"> and issue = #{issue}</if>
+            <if test="pageRange != null  and pageRange != ''"> and page_range = #{pageRange}</if>
+            <if test="doi != null  and doi != ''"> and doi = #{doi}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+
         </where>
+
     </select>
     
     <select id="selectAchievementsPaperByPaperId" parameterType="Long" resultMap="AchievementsPaperResult">
@@ -46,7 +56,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertAchievementsPaper" parameterType="AchievementsPaper" useGeneratedKeys="true" keyProperty="paperId">
         insert into achievements_paper
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="userId != null">user_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
             <if test="paperTitle != null and paperTitle != ''">paper_title,</if>
             <if test="paperCategory != null and paperCategory != ''">paper_category,</if>
             <if test="researchDirection != null">research_direction,</if>
@@ -60,10 +70,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">audit_status,</if>
             <if test="createdAt != null">created_at,</if>
             <if test="updatedAt != null">updated_at,</if>
-            <if test="deptId != null">dept_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="userId != null">#{userId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
             <if test="paperTitle != null and paperTitle != ''">#{paperTitle},</if>
             <if test="paperCategory != null and paperCategory != ''">#{paperCategory},</if>
             <if test="researchDirection != null">#{researchDirection},</if>
@@ -77,14 +86,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="createdAt != null">#{createdAt},</if>
             <if test="updatedAt != null">#{updatedAt},</if>
-            <if test="deptId != null">#{deptId},</if>
          </trim>
     </insert>
 
     <update id="updateAchievementsPaper" parameterType="AchievementsPaper">
         update achievements_paper
         <trim prefix="SET" suffixOverrides=",">
-            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
             <if test="paperTitle != null and paperTitle != ''">paper_title = #{paperTitle},</if>
             <if test="paperCategory != null and paperCategory != ''">paper_category = #{paperCategory},</if>
             <if test="researchDirection != null">research_direction = #{researchDirection},</if>
@@ -98,7 +106,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="createdAt != null">created_at = #{createdAt},</if>
             <if test="updatedAt != null">updated_at = #{updatedAt},</if>
-            <if test="deptId != null">dept_id = #{deptId},</if>
         </trim>
         where paper_id = #{paperId}
     </update>

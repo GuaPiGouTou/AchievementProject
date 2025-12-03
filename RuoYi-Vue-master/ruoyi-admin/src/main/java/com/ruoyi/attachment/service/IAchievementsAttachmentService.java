@@ -6,14 +6,14 @@ import com.ruoyi.attachment.domain.AchievementsAttachment;
 /**
  * 成果附件Service接口
  * 
- * @author ruoyi
- * @date 2025-11-26
+ * @author xixia
+ * @date 2025-11-08
  */
 public interface IAchievementsAttachmentService 
 {
     /**
      * 查询成果附件
-     * 
+     *
      * @param attachmentId 成果附件主键
      * @return 成果附件
      */
@@ -26,6 +26,13 @@ public interface IAchievementsAttachmentService
      * @return 成果附件集合
      */
     public List<AchievementsAttachment> selectAchievementsAttachmentList(AchievementsAttachment achievementsAttachment);
+/**
+     * 根据id，type查询成果附件列表
+     *
+     * @param achievementsAttachment 成果附件
+     * @return 成果附件集合
+     */
+    public List<AchievementsAttachment> selectAttachmentListByUserIdAndType(AchievementsAttachment achievementsAttachment);
 
     /**
      * 新增成果附件
@@ -58,13 +65,4 @@ public interface IAchievementsAttachmentService
      * @return 结果
      */
     public int deleteAchievementsAttachmentByAttachmentId(Long attachmentId);
-
-    /**
-     * 根据id，type查询成果附件列表
-     *
-     * @param achievementsAttachment 成果附件
-     * @return 成果附件集合
-     */
-    public List<AchievementsAttachment> selectAttachmentListByUserIdAndType(AchievementsAttachment achievementsAttachment);
-
 }

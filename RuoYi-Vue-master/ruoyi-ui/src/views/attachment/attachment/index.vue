@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="关联子表ID" prop="userId">
+      <el-form-item label="关联子表ID" prop="resourceId">
         <el-input
-          v-model="queryParams.userId"
+          v-model="queryParams.resourceId"
           placeholder="请输入关联子表ID"
           clearable
           @keyup.enter.native="handleQuery"
@@ -146,7 +146,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -196,6 +196,17 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      :title="Exceltitle"
+      :visible.sync="Excelopen"
+      width="600px"
+      append-to-body
+      :close-on-click-modal="false">
+       <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
+          <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.label}}</el-checkbox>
+        </el-checkbox-group>
+        <el-button @click="DowExcel()" >导出</el-button>
+    </el-dialog>
   </div>
 </template>
 
@@ -206,6 +217,64 @@ export default {
   name: "Attachment",
   data() {
     return {
+      //导出弹窗
+      Exceltitle:"选择导出的字段",
+      Excelopen:false,
+      // 论文成果选择字段数组
+      // 成果附件选择字段数组
+      checkList: [
+        {
+          value: 'attachmentId',
+          label: '附件ID'
+        }, {
+          value: 'resourceId',
+          label: '关联子表ID'
+        }, {
+          value: 'attachmentType',
+          label: '附件类型'
+        }, {
+          value: 'fileName',
+          label: '文件名称'
+        }, {
+          value: 'filePath',
+          label: '文件路径'
+        }, {
+          value: 'fileSize',
+          label: '文件大小'
+        }, {
+          value: 'fileExtension',
+          label: '文件扩展名'
+        }, {
+          value: 'fileCategory',
+          label: '文件分类'
+        }, {
+          value: 'description',
+          label: '文件描述'
+        }, {
+          value: 'uploadTime',
+          label: '上传时间'
+        }, {
+          value: 'uploadUserId',
+          label: '上传用户ID'
+        }, {
+          value: 'downloadCount',
+          label: '下载次数'
+        }, {
+          value: 'createBy',
+          label: '创建者'
+        }, {
+          value: 'createTime',
+          label: '创建时间'
+        }, {
+          value: 'updateBy',
+          label: '更新者'
+        }, {
+          value: 'updateTime',
+          label: '更新时间'
+        }
+      ],
+      //导出选择字段
+      selectClist:[],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -228,7 +297,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        userId: null,
+        resourceId: null,
         attachmentType: null,
         fileName: null,
         filePath: null,
@@ -244,7 +313,7 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        userId: [
+        resourceId: [
           { required: true, message: "关联子表ID不能为空", trigger: "blur" }
         ],
         attachmentType: [
@@ -302,7 +371,7 @@ export default {
     reset() {
       this.form = {
         attachmentId: null,
-        userId: null,
+        resourceId: null,
         attachmentType: null,
         fileName: null,
         filePath: null,
@@ -358,12 +427,14 @@ export default {
         if (valid) {
           if (this.form.attachmentId != null) {
             updateAttachment(this.form).then(response => {
+
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
             addAttachment(this.form).then(response => {
+
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -384,10 +455,54 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('attachment/attachment/export', {
-        ...this.queryParams
-      }, `attachment_${new Date().getTime()}.xlsx`)
-    }
+     this.Excelopen = true
+    },
+    /*导出*/
+    DowExcel(){
+       const requestData = {
+        showColumns: this.selectClist || [],
+        data: {
+          ...this.queryParams
+        }
+       };
+      const jsonRequestBody = JSON.stringify(requestData);
+      this.exceldownload('attachment/attachment/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
+    },
+    /*
+    附件弹窗方法
+    */
+      handleAttachment(row) {
+          this.currentPaperId = 1001
+          this.currentPaper = row
+          this.attachmentTitle = `附件管理 - ${row.textbookName || '附件'}`
+          this.attachmentVisible = true
+        },
+
+      /** 附件弹窗关闭 */
+      handleAttachmentClose() {
+        this.currentPaperId = null
+        this.currentPaper = null
+      },
+
+      /** 附件加载成功 */
+      handleAttachmentLoadSuccess(fileList) {
+        console.log(`加载了 ${fileList.length} 个附件`)
+        // 可以在这里更新论文的附件数量显示
+        if (this.currentPaper) {
+          this.$set(this.currentPaper, 'attachmentCount', fileList.length)
+        }
+      },
+
+      /** 下载成功 */
+      handleDownloadSuccess(file) {
+        this.$message.success(`文件"${file.fileName}"下载成功`)
+      },
+
+      /** 删除成功 */
+      handleDeleteSuccess(file) {
+        this.$message.success(`文件"${file.fileName}"删除成功`)
+      }
+
   }
 }
 </script>
