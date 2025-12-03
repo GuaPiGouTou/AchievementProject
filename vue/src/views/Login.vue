@@ -54,9 +54,9 @@
 			                  maxlength="4"
 			              />
 			              <div class="captcha-image-container">
-			                <img 
-			                  :src="captchaImageUrl" 
-			                  alt="验证码" 
+			                <img
+			                  :src="captchaImageUrl"
+			                  alt="验证码"
 			                  class="captcha-image"
 			                  @click="refreshCaptcha"
 			                  title="点击刷新验证码"
@@ -68,7 +68,7 @@
 			            </div>
 			          </el-form-item>
 
-			
+
           <!-- 记住密码选项 -->
           <el-form-item class="remember-item">
             <el-checkbox v-model="form.remember" :disabled="loading">
@@ -143,6 +143,8 @@ onMounted(() => {
       form.value.username = userInfo.username
       form.value.password = userInfo.password
       form.value.remember = true
+      // 恢复身份选择
+      form.value.isTeacherIdentity = userInfo.isTeacherIdentity || false
     } catch (e) {
       console.error('读取保存的用户信息失败:', e)
       localStorage.removeItem('savedUser')
@@ -165,8 +167,8 @@ const refreshCaptcha=async ()=>{
 		//TODO handle the exception
 		showErrorMsg("验证码刷新失败")
 	}
-	
-	
+
+
 }
 
 // 登录提交

@@ -232,12 +232,13 @@
             :show-file-list="false"
             :on-change="handleAvatarChange"
             :before-upload="beforeAvatarUpload"
+            :http-request="customAvatarUpload"
         >
-          <img v-if="tempAvatar" :src="tempAvatar" class="avatar-preview" />
-          <div v-else class="upload-placeholder">
-            <el-icon><Plus /></el-icon>
-            <div>点击上传头像</div>
-          </div>
+        <img v-if="tempAvatar" :src="tempAvatar" class="avatar-preview" />
+        <div v-else class="upload-placeholder">
+          <el-icon><Plus /></el-icon>
+          <div>点击上传头像</div>
+        </div>
         </el-upload>
         <p class="upload-tip">支持JPG、PNG格式，大小不超过2MB，建议尺寸200x200px</p>
       </div>
@@ -251,71 +252,95 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import { Edit, Plus } from '@element-plus/icons-vue'
-
-// 初始教师信息（可从接口获取）
-const teacherInfo = reactive({
-  // 不可修改字段
-  name: '李教授',
-  teacherId: 'T2023001',
-  idCard: '110101198005201234',
-  hireDate: '2005-09-01',
-
-  // 可修改字段
-  gender: '男',
-  title: '教授',
-  department: '计算机科学与技术学院',
-  researchArea: '人工智能、机器学习、计算机视觉',
-  officePhone: '010-12345678',
-  phone: '13987654321',
-  email: 'lijiaoshou@example.com',
-  officeLocation: '计算机楼305室',
-  birthDate: '1980-05-20',
-  educationBackground: '2000-2005 清华大学 计算机科学与技术 博士\n1996-2000 北京大学 计算机科学与技术 本科',
-  workExperience: '2005-至今 某某大学 计算机学院 教师\n2008-2010 美国斯坦福大学 访问学者',
-  academicAchievements: '主持国家自然科学基金项目3项，发表SCI论文30余篇，获省部级科技进步奖2项，授权发明专利10项。',
-  avatarUrl: '@/assets/imgs/njp9mnwLp9.png'
-})
-
-// 编辑表单数据
-const formData = reactive({ ...teacherInfo })
-const originalData = ref({ ...teacherInfo }) // 原始数据备份
+// 引入接口（需确保接口文件已按之前的文档封装）
+import { getUserInfo, updateUserInfo, uploadAvatar } from '@/utils/api.js'
 
 // 状态管理
-const isEditing = ref(false) // 是否处于编辑模式
-const showAvatarDialog = ref(false) // 更换头像弹窗显示状态
-const tempAvatar = ref('') // 临时头像地址
+const isEditing = ref(false)
+const showAvatarDialog = ref(false)
+const tempAvatar = ref('') // 临时头像预览
+const uploadAvatarUrl = ref('') // 上传后获取的服务器头像URL
+const teacherInfo = reactive({}) // 接口返回的教师信息
+const formData = reactive({}) // 编辑表单数据
+const originalData = ref({}) // 原始数据备份
+const loading = ref(false) // 加载状态
 
-onMounted(() => {
-  // 实际项目中可在此处调用接口获取教师信息
-  // 锁定不可修改字段
-  formData.name = teacherInfo.name
-  formData.teacherId = teacherInfo.teacherId
-  formData.idCard = teacherInfo.idCard
-  formData.hireDate = teacherInfo.hireDate
+// 页面挂载时获取教师信息
+onMounted(async () => {
+  await fetchTeacherInfo()
 })
 
-// 身份证号脱敏处理
+// 从接口获取教师信息（字段映射：接口字段 → 组件字段）
+const fetchTeacherInfo = async () => {
+  loading.value = true
+  try {
+    // 从本地存储获取登录态（登录时已存储）
+    const username = localStorage.getItem('username')
+    if (!username) {
+      ElMessage.error('未检测到登录状态，请重新登录')
+      return
+    }
+
+    // 调用接口获取教师信息（isTeacherIdentity固定为true）
+    const { data } = await getUserInfo({
+      username,
+      isTeacherIdentity: true
+    })
+
+    // 字段映射：接口返回字段 → 组件内使用的字段
+    Object.assign(teacherInfo, {
+      name: data.name,
+      teacherId: data.teacher_no, // 接口：teacher_no → 组件：teacherId
+      idCard: data.id_card, // 接口：id_card → 组件：idCard
+      hireDate: data.hire_date, // 接口：hire_date → 组件：hireDate
+      gender: data.gender,
+      title: data.title,
+      department: data.department,
+      researchArea: data.research_direction, // 接口：research_direction → 组件：researchArea
+      officePhone: data.phone, // 接口：phone → 组件：officePhone
+      phone: data.mobile, // 接口：mobile → 组件：phone（教师手机号）
+      email: data.email,
+      officeLocation: data.office_location, // 接口：office_location → 组件：officeLocation
+      birthDate: data.birth_date, // 接口：birth_date → 组件：birthDate
+      educationBackground: data.education_background, // 接口：education_background → 组件：educationBackground
+      workExperience: data.work_experience, // 接口：work_experience → 组件：workExperience
+      academicAchievements: data.academic_achievements, // 接口：academic_achievements → 组件：academicAchievements
+      avatarUrl: data.avatar || '@/assets/imgs/njp9mnwLp9.png' // 接口头像URL，默认备用图
+    })
+
+    // 初始化表单数据和原始备份
+    Object.assign(formData, teacherInfo)
+    Object.assign(originalData.value, teacherInfo)
+  } catch (error) {
+    console.error('获取教师信息失败：', error)
+    ElMessage.error('获取信息失败，请重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 身份证号脱敏处理（保留原有逻辑）
 const formatIdCard = (idCard) => {
   if (!idCard) return ''
   return idCard.replace(/(\d{6})(\d{8})(\d{4})/, '$1********$3')
 }
 
-// 进入编辑模式
+// 进入编辑模式（保留原有逻辑）
 const handleEdit = () => {
   isEditing.value = true
 }
 
-// 取消编辑
+// 取消编辑（保留原有逻辑）
 const cancelEdit = () => {
   Object.assign(formData, originalData.value)
   isEditing.value = false
 }
 
-// 保存编辑信息
-const saveInfo = () => {
-  // 表单验证
+// 保存编辑信息（核心：替换本地保存为接口提交）
+const saveInfo = async () => {
+  // 表单验证（保留原有逻辑）
   if (!formData.title) {
     ElMessage.error('请选择职称')
     return
@@ -333,15 +358,54 @@ const saveInfo = () => {
     return
   }
 
-  // 保存数据（实际项目中需调用接口提交）
-  Object.assign(teacherInfo, formData)
-  Object.assign(originalData.value, formData)
+  loading.value = true
+  try {
+    const username = localStorage.getItem('username')
+    if (!username) {
+      ElMessage.error('登录状态失效，请重新登录')
+      return
+    }
 
-  isEditing.value = false
-  ElMessage.success('信息修改成功')
+    // 构造接口要求的提交格式（组件字段 → 接口字段）
+    const submitData = {
+      username,
+      isTeacherIdentity: true,
+      updateData: {
+        // 通用字段
+        name: formData.name,
+        phone: formData.officePhone, // 组件：officePhone → 接口：phone（办公电话）
+        email: formData.email,
+        avatar: formData.avatarUrl, // 头像URL
+        gender: formData.gender,
+        birth_date: formData.birthDate, // 组件：birthDate → 接口：birth_date
+        // 教师特有字段
+        title: formData.title,
+        department: formData.department,
+        research_direction: formData.researchArea, // 组件：researchArea → 接口：research_direction
+        office_location: formData.officeLocation, // 组件：officeLocation → 接口：office_location
+        mobile: formData.phone, // 组件：phone → 接口：mobile（手机号）
+        education_background: formData.educationBackground, // 组件：educationBackground → 接口：education_background
+        work_experience: formData.workExperience, // 组件：workExperience → 接口：work_experience
+        academic_achievements: formData.academicAchievements // 组件：academicAchievements → 接口：academic_achievements
+      }
+    }
+
+    // 调用接口更新信息
+    await updateUserInfo(submitData)
+
+    // 刷新本地数据（确保与接口同步）
+    await fetchTeacherInfo()
+    isEditing.value = false
+    ElMessage.success('信息修改成功')
+  } catch (error) {
+    console.error('信息提交失败：', error)
+    ElMessage.error('修改失败，请重试')
+  } finally {
+    loading.value = false
+  }
 }
 
-// 处理头像上传预览
+// 头像上传预览（保留原有逻辑）
 const handleAvatarChange = (file) => {
   const reader = new FileReader()
   reader.onload = (e) => {
@@ -350,7 +414,7 @@ const handleAvatarChange = (file) => {
   reader.readAsDataURL(file.raw)
 }
 
-// 头像上传前验证
+// 头像上传前验证（保留原有逻辑）
 const beforeAvatarUpload = (file) => {
   const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
   const isLt2M = file.size / 1024 / 1024 < 2
@@ -364,18 +428,49 @@ const beforeAvatarUpload = (file) => {
   return isImage && isLt2M
 }
 
-// 保存头像修改
-const saveAvatar = () => {
-  if (tempAvatar.value) {
-    teacherInfo.avatarUrl = tempAvatar.value
+// 自定义头像上传（核心：对接头像上传接口）
+const customAvatarUpload = async (options) => {
+  const file = options.file
+  const formData = new FormData()
+  formData.append('avatarFile', file) // 接口接收的文件字段名
+
+  try {
+    // 调用头像上传接口（假设后端有专门的头像上传接口，返回URL）
+    const { data } = await uploadAvatar(formData)
+    uploadAvatarUrl.value = data.avatarUrl // 存储上传后的服务器URL
+    ElMessage.success('头像上传成功')
+  } catch (error) {
+    console.error('头像上传失败：', error)
+    ElMessage.error('头像上传失败，请重试')
+    options.onError() // 通知Element Plus上传失败
+  }
+}
+
+// 保存头像修改（核心：更新头像URL到用户信息）
+const saveAvatar = async () => {
+  if (!uploadAvatarUrl.value && !tempAvatar.value) return
+
+  // 若已上传到服务器，用服务器URL；否则用本地Base64（临时方案）
+  const avatarUrl = uploadAvatarUrl.value || tempAvatar.value
+
+  try {
+    // 直接更新表单的头像字段，调用保存接口同步
+    formData.avatarUrl = avatarUrl
+    await saveInfo() // 复用信息保存接口，同步更新头像
+
+    // 重置状态
     showAvatarDialog.value = false
     tempAvatar.value = ''
-    ElMessage.success('头像更换成功')
+    uploadAvatarUrl.value = ''
+  } catch (error) {
+    console.error('头像保存失败：', error)
+    ElMessage.error('头像更换失败，请重试')
   }
 }
 </script>
 
 <style scoped>
+/* 样式部分无需修改，保留原有逻辑 */
 .personal-center {
   padding: 20px;
   background-color: #e4edf1;
