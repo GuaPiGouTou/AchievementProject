@@ -6,8 +6,8 @@ import com.ruoyi.attachment.domain.AchievementsAttachment;
 /**
  * 成果附件Mapper接口
  * 
- * @author xixia
- * @date 2025-11-08
+ * @author ruoyi
+ * @date 2025-11-26
  */
 public interface AchievementsAttachmentMapper 
 {
@@ -26,13 +26,6 @@ public interface AchievementsAttachmentMapper
      * @return 成果附件集合
      */
     public List<AchievementsAttachment> selectAchievementsAttachmentList(AchievementsAttachment achievementsAttachment);
-  /**
-     * 根据id，type查询成果附件列表
-     *
-     * @param achievementsAttachment 成果附件
-     * @return 成果附件集合
-     */
-    public List<AchievementsAttachment> selectAttachmentListByUserIdAndType(AchievementsAttachment achievementsAttachment);
 
     /**
      * 新增成果附件
@@ -65,4 +58,11 @@ public interface AchievementsAttachmentMapper
      * @return 结果
      */
     public int deleteAchievementsAttachmentByAttachmentIds(Long[] attachmentIds);
+    /**
+     * 根据id，type查询成果附件列表
+     *
+     * @param achievementsAttachment 成果附件
+     * @return 成果附件集合
+     */
+    public List<AchievementsAttachment> selectAttachmentListByUserIdAndType(AchievementsAttachment achievementsAttachment);
 }

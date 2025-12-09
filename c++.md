@@ -352,7 +352,7 @@ POST /api/deletePapers
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `paperIds`: `Long[]`类型，删除的论文记录ID
+- `competitionIds`: `Long[]`类型，删除的论文记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -362,7 +362,7 @@ POST /api/deletePapers
 {
   "userId": 1,
   "deptId": 100,
-  "paperIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
@@ -1570,7 +1570,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `textbookIds`: `Long[]`类型，删除的教材记录ID
+- `attachmentIds`: `Long[]`类型，删除的教材记录ID
 
 更新时间后端在接收参数后自行插入
 

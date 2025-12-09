@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.monograph.mapper.AchievementsMonographMapper">
+    
+    <resultMap type="AchievementsMonograph" id="AchievementsMonographResult">
+        <result property="monographId"    column="monograph_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="monographTitle"    column="monograph_title"    />
+        <result property="authorRole"    column="author_role"    />
+        <result property="pressName"    column="press_name"    />
+        <result property="isbnNumber"    column="isbn_number"    />
+        <result property="publishDate"    column="publish_date"    />
+        <result property="monographType"    column="monograph_type"    />
+        <result property="edition"    column="edition"    />
+        <result property="wordCount"    column="word_count"    />
+        <result property="pageCount"    column="page_count"    />
+        <result property="language"    column="language"    />
+        <result property="subjectCategory"    column="subject_category"    />
+        <result property="isIncluded"    column="is_included"    />
+        <result property="includedDatabase"    column="included_database"    />
+        <result property="awardSituation"    column="award_situation"    />
+        <result property="coAuthors"    column="co_authors"    />
+        <result property="internationalStandardBookNumber"    column="international_standard_book_number"    />
+        <result property="chinaClassificationNumber"    column="china_classification_number"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsMonographVo">
+        select monograph_id, user_id, dept_id, monograph_title, author_role, press_name, isbn_number, publish_date, monograph_type, edition, word_count, page_count, language, subject_category, is_included, included_database, award_situation, co_authors, international_standard_book_number, china_classification_number, audit_status, created_at, updated_at from achievements_monograph
+    </sql>
+
+    <select id="selectAchievementsMonographList" parameterType="AchievementsMonograph" resultMap="AchievementsMonographResult">
+        <include refid="selectAchievementsMonographVo"/>
+        <where>  
+            <if test="monographTitle != null  and monographTitle != ''"> and monograph_title = #{monographTitle}</if>
+            <if test="authorRole != null  and authorRole != ''"> and author_role = #{authorRole}</if>
+            <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="monographType != null  and monographType != ''"> and monograph_type = #{monographType}</if>
+            <if test="subjectCategory != null  and subjectCategory != ''"> and subject_category = #{subjectCategory}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsMonographByMonographId" parameterType="Long" resultMap="AchievementsMonographResult">
+        <include refid="selectAchievementsMonographVo"/>
+        where monograph_id = #{monographId}
+    </select>
+
+    <insert id="insertAchievementsMonograph" parameterType="AchievementsMonograph" useGeneratedKeys="true" keyProperty="monographId">
+        insert into achievements_monograph
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="monographTitle != null and monographTitle != ''">monograph_title,</if>
+            <if test="authorRole != null and authorRole != ''">author_role,</if>
+            <if test="pressName != null and pressName != ''">press_name,</if>
+            <if test="isbnNumber != null and isbnNumber != ''">isbn_number,</if>
+            <if test="publishDate != null">publish_date,</if>
+            <if test="monographType != null and monographType != ''">monograph_type,</if>
+            <if test="edition != null">edition,</if>
+            <if test="wordCount != null">word_count,</if>
+            <if test="pageCount != null">page_count,</if>
+            <if test="language != null">language,</if>
+            <if test="subjectCategory != null">subject_category,</if>
+            <if test="isIncluded != null">is_included,</if>
+            <if test="includedDatabase != null and includedDatabase != ''">included_database,</if>
+            <if test="awardSituation != null">award_situation,</if>
+            <if test="coAuthors != null">co_authors,</if>
+            <if test="internationalStandardBookNumber != null">international_standard_book_number,</if>
+            <if test="chinaClassificationNumber != null">china_classification_number,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="monographTitle != null and monographTitle != ''">#{monographTitle},</if>
+            <if test="authorRole != null and authorRole != ''">#{authorRole},</if>
+            <if test="pressName != null and pressName != ''">#{pressName},</if>
+            <if test="isbnNumber != null and isbnNumber != ''">#{isbnNumber},</if>
+            <if test="publishDate != null">#{publishDate},</if>
+            <if test="monographType != null and monographType != ''">#{monographType},</if>
+            <if test="edition != null">#{edition},</if>
+            <if test="wordCount != null">#{wordCount},</if>
+            <if test="pageCount != null">#{pageCount},</if>
+            <if test="language != null">#{language},</if>
+            <if test="subjectCategory != null">#{subjectCategory},</if>
+            <if test="isIncluded != null">#{isIncluded},</if>
+            <if test="includedDatabase != null and includedDatabase != ''">#{includedDatabase},</if>
+            <if test="awardSituation != null">#{awardSituation},</if>
+            <if test="coAuthors != null">#{coAuthors},</if>
+            <if test="internationalStandardBookNumber != null">#{internationalStandardBookNumber},</if>
+            <if test="chinaClassificationNumber != null">#{chinaClassificationNumber},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsMonograph" parameterType="AchievementsMonograph">
+        update achievements_monograph
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="monographTitle != null and monographTitle != ''">monograph_title = #{monographTitle},</if>
+            <if test="authorRole != null and authorRole != ''">author_role = #{authorRole},</if>
+            <if test="pressName != null and pressName != ''">press_name = #{pressName},</if>
+            <if test="isbnNumber != null and isbnNumber != ''">isbn_number = #{isbnNumber},</if>
+            <if test="publishDate != null">publish_date = #{publishDate},</if>
+            <if test="monographType != null and monographType != ''">monograph_type = #{monographType},</if>
+            <if test="edition != null">edition = #{edition},</if>
+            <if test="wordCount != null">word_count = #{wordCount},</if>
+            <if test="pageCount != null">page_count = #{pageCount},</if>
+            <if test="language != null">language = #{language},</if>
+            <if test="subjectCategory != null">subject_category = #{subjectCategory},</if>
+            <if test="isIncluded != null">is_included = #{isIncluded},</if>
+            <if test="includedDatabase != null and includedDatabase != ''">included_database = #{includedDatabase},</if>
+            <if test="awardSituation != null">award_situation = #{awardSituation},</if>
+            <if test="coAuthors != null">co_authors = #{coAuthors},</if>
+            <if test="internationalStandardBookNumber != null">international_standard_book_number = #{internationalStandardBookNumber},</if>
+            <if test="chinaClassificationNumber != null">china_classification_number = #{chinaClassificationNumber},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where monograph_id = #{monographId}
+    </update>
+
+    <delete id="deleteAchievementsMonographByMonographId" parameterType="Long">
+        delete from achievements_monograph where monograph_id = #{monographId}
+    </delete>
+
+    <delete id="deleteAchievementsMonographByMonographIds" parameterType="String">
+        delete from achievements_monograph where monograph_id in 
+        <foreach item="monographId" collection="array" open="(" separator="," close=")">
+            #{monographId}
+        </foreach>
+    </delete>
+</mapper>

@@ -386,13 +386,22 @@ export default {
       // 表单校验
       rules: {
         awardName: [
-          { required: true, message: "奖项名称id不能为空", trigger: "blur" }
+          { required: true, message: "奖项名称不能为空", trigger: "blur" },
+          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+          // 允许中文、英文、数字、括号（中英文）、书名号、横杠、冒号、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\：:\s]+$/, message: "奖项名称包含非法字符", trigger: "blur" }
         ],
         awardWinner: [
-          { required: true, message: "获奖人不能为空", trigger: "blur" }
+          { required: true, message: "获奖人不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中文、英文、点（用于缩写）、空格、逗号/分号（用于分隔多人）
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "请只输入姓名，多人可用逗号或分号分隔", trigger: "blur" }
         ],
         awardUnit: [
-          { required: true, message: "颁奖单位不能为空", trigger: "blur" }
+          { required: true, message: "颁奖单位不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中文、英文、数字、括号、点
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "颁奖单位名称格式不正确", trigger: "blur" }
         ],
         awardDate: [
           { required: true, message: "获奖时间不能为空", trigger: "blur" }
@@ -401,8 +410,23 @@ export default {
           { required: true, message: "奖项级别不能为空", trigger: "change" }
         ],
         awardCategory: [
-          { required: true, message: "奖项类别不能为空", trigger: "blur" }
+          { required: true, message: "奖项类别不能为空", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          // 允许中英文、数字
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s]+$/, message: "奖项类别只能包含中英文及数字", trigger: "blur" }
         ],
+        awardRanking: [
+          { required: false, message: "请输入获奖等次", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          // 允许：特等奖, 一等奖, 1st, Gold, Top 10
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s]+$/, message: "获奖等次格式不正确", trigger: "blur" }
+        ],
+        awardCeremonyPlace: [
+          { required: false, message: "请输入颁奖地点", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许地址格式
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s,，]+$/, message: "颁奖地点包含非法字符", trigger: "blur" }
+        ]
       }
     }
   },

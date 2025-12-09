@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.attachment.domain.ExportRequestDTO;
+import com.ruoyi.attachment.service.IAchievementsAttachmentService;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.framework.config.ServerConfig;
+import com.ruoyi.paper.domain.AchievementsPaper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +25,6 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.attachment.domain.AchievementsAttachment;
-import com.ruoyi.attachment.service.IAchievementsAttachmentService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -38,16 +42,29 @@ public class AchievementsAttachmentController extends BaseController
     private IAchievementsAttachmentService achievementsAttachmentService;
     @Autowired
     private ServerConfig serverConfig;
+    @Autowired
+    private ContestFeignClient contestFeignClient;
     /**
      * 查询成果附件列表
      */
     @PreAuthorize("@ss.hasPermi('attachment:attachment:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsAttachment achievementsAttachment)
+    public AjaxResult list(AchievementsAttachment achievementsAttachment)
     {
-        startPage();
-        List<AchievementsAttachment> list = achievementsAttachmentService.selectAchievementsAttachmentList(achievementsAttachment);
-        return getDataTable(list);
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsAttachment.setUserId(getUserId());
+            achievementsAttachment.setDeptId(getDeptId());
+
+            res = contestFeignClient.selectAttachmentList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
     /**
@@ -56,11 +73,20 @@ public class AchievementsAttachmentController extends BaseController
     @PreAuthorize("@ss.hasPermi('attachment:attachment:export')")
     @Log(title = "成果附件", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, AchievementsAttachment achievementsAttachment)
+    public void export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsAttachment> exportRequestDTO)
     {
+        List<String> showColumns = exportRequestDTO.getShowColumns();
+        System.out.println(showColumns);
+        AchievementsAttachment achievementsAttachment = exportRequestDTO.getData();
+        achievementsAttachment.setUserId(getUserId());
+        achievementsAttachment.setDeptId(getDeptId());
         List<AchievementsAttachment> list = achievementsAttachmentService.selectAchievementsAttachmentList(achievementsAttachment);
         ExcelUtil<AchievementsAttachment> util = new ExcelUtil<AchievementsAttachment>(AchievementsAttachment.class);
-        util.exportExcel(response, list, "成果附件数据");
+        if(showColumns != null && !showColumns.isEmpty())
+        {
+            util.showColumn(showColumns.toArray(new String[0]));
+        }
+        util.exportExcel(response, list, "附件数据");
     }
 
     /**
@@ -70,7 +96,14 @@ public class AchievementsAttachmentController extends BaseController
     @GetMapping(value = "/{attachmentId}")
     public AjaxResult getInfo(@PathVariable("attachmentId") Long attachmentId)
     {
-        return success(achievementsAttachmentService.selectAchievementsAttachmentByAttachmentId(attachmentId));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.selectAttachmentById(getUserId(),getDeptId(),attachmentId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -81,10 +114,7 @@ public class AchievementsAttachmentController extends BaseController
     public AjaxResult getInfoByIdandType(AchievementsAttachment achievementsAttachment)
     {
         System.out.println(achievementsAttachment);
-        return success(achievementsAttachmentService.selectAttachmentListByUserIdAndType(achievementsAttachment ));
-
-//        return success();
-
+        return success(achievementsAttachmentService.selectAttachmentListByUserIdAndType(achievementsAttachment));
     }
 
     /**
@@ -95,8 +125,19 @@ public class AchievementsAttachmentController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsAttachment achievementsAttachment)
     {
-        return toAjax(achievementsAttachmentService.insertAchievementsAttachment(achievementsAttachment));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsAttachment.setUserId(getUserId());
+            achievementsAttachment.setDeptId(getDeptId());
+
+            System.out.println(achievementsAttachment);
+            res = contestFeignClient.insertAttachment(achievementsAttachment);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 修改成果附件
@@ -106,8 +147,17 @@ public class AchievementsAttachmentController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsAttachment achievementsAttachment)
     {
-        return toAjax(achievementsAttachmentService.updateAchievementsAttachment(achievementsAttachment));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsAttachment.setUserId(getUserId());
+            achievementsAttachment.setDeptId(getDeptId());
+
+            res = contestFeignClient.updateAttachment(achievementsAttachment);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 删除成果附件
@@ -117,8 +167,6 @@ public class AchievementsAttachmentController extends BaseController
 	@DeleteMapping("/{attachmentIds}")
     public AjaxResult remove(@PathVariable Long[] attachmentIds)
     {
-//        FileUtils.deleteFile(achievementsAttachmentService.selectAchievementsAttachmentByAttachmentId(attachmentIds).getFilePath());
-//        return toAjax(achievementsAttachmentService.deleteAchievementsAttachmentByAttachmentIds(attachmentIds));
         try {
             // 1. 参数验证
             if (attachmentIds == null || attachmentIds.length == 0) {

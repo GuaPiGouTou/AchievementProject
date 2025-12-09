@@ -1,25 +1,17 @@
 package com.ruoyi.competition.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
-import com.ruoyi.competition.domain.ExportRequestDTO;
+import com.ruoyi.ContestFeign.DeleteRequest;
+import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.attachment.domain.ExportRequestDTO;
 
-import com.ruoyi.competition.domain.demo;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import com.ruoyi.monograph.domain.AchievementsMonograph;
+import com.ruoyi.textbook.domain.AchievementsTextbook;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +23,7 @@ import com.ruoyi.competition.domain.AchievementsCompetition;
 import com.ruoyi.competition.service.IAchievementsCompetitionService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+
 
 /**
  * 竞赛成果Controller
@@ -51,23 +44,17 @@ public class AchievementsCompetitionController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('competition:competition:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsCompetition achievementsCompetition)
-    {
-
-// 使用Feign客户端调用远程服务
+    public AjaxResult list(AchievementsCompetition achievementsCompetition) {
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
         try {
-            List<demo> result = contestFeignClient.getContestList(1L, 8L);
-            System.out.println("result");
-            System.out.println(result);
+            res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        startPage();
-        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(achievementsCompetition);
-        System.out.println("list");
-        System.out.println(list);
-        return getDataTable(list);
+        return res;
     }
 
     /**
@@ -76,18 +63,19 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:export')")
     @Log(title = "竞赛成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO exportRequestDTO )
+    public void export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
     {
-        System.out.println(exportRequestDTO.getHiddenColumns().toString());
-        List<String> hiddenColumns = exportRequestDTO.getHiddenColumns();
-        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(exportRequestDTO.getAchievementsCompetition());
+        List<String> hiddenColumns = exportRequestDTO .getShowColumns();
+        AchievementsCompetition queryParams = exportRequestDTO.getData();
+        queryParams.setUserId(getUserId());
+        queryParams.setDeptId(getDeptId());
+        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
-       // 显示指定列
         if(hiddenColumns != null && !hiddenColumns.isEmpty())
         {
             util.showColumn(hiddenColumns.toArray(new String[0]));
         }
-        util.exportExcel(response, list, "竞赛成果数据");
+        util.exportExcel(response, list, "竞赛数据");
     }
 
     /**
@@ -97,7 +85,14 @@ public class AchievementsCompetitionController extends BaseController
     @GetMapping(value = "/{competitionId}")
     public AjaxResult getInfo(@PathVariable("competitionId") Long competitionId)
     {
-        return success(achievementsCompetitionService.selectAchievementsCompetitionByCompetitionId(competitionId));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.getContestById(getUserId(),getDeptId(),competitionId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -108,8 +103,19 @@ public class AchievementsCompetitionController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-        int achievementsCompetition1 = achievementsCompetitionService.insertAchievementsCompetition(achievementsCompetition);
-        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsCompetition.setUserId(getUserId());
+            achievementsCompetition.setDeptId(getDeptId());
+
+            System.out.println(achievementsCompetition);
+            res = contestFeignClient.insertContest(achievementsCompetition);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -120,8 +126,17 @@ public class AchievementsCompetitionController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-        int achievementsCompetition1 = achievementsCompetitionService.updateAchievementsCompetition(achievementsCompetition);
-        return toAjax(achievementsCompetition1).put("competitionId",achievementsCompetition.getCompetitionId());
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsCompetition.setUserId(getUserId());
+            achievementsCompetition.setDeptId(getDeptId());
+
+            res = contestFeignClient.updateContest(achievementsCompetition);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -132,6 +147,15 @@ public class AchievementsCompetitionController extends BaseController
 	@DeleteMapping("/{competitionIds}")
     public AjaxResult remove(@PathVariable Long[] competitionIds)
     {
-        return toAjax(achievementsCompetitionService.deleteAchievementsCompetitionByCompetitionIds(competitionIds));
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),competitionIds);
+        try {
+            res = contestFeignClient.deleteContests(deleteRequest);
+            System.out.println(res);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 }

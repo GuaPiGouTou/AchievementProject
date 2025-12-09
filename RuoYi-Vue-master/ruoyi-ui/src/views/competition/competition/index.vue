@@ -115,7 +115,7 @@
       <el-table-column label="竞赛类别" align="center" prop="competitionCategory" />
       <el-table-column label="团队人数" align="center" prop="teamSize" />
       <el-table-column label="团队名称" align="center" prop="teamName" />
-      <el-table-column label="指导的学生参赛" align="center" prop="studentParticipants" />
+      <el-table-column label="参赛队员" align="center" prop="studentParticipants" />
       <el-table-column label="获奖证书编号" align="center" prop="awardCertificateNo" />
       <el-table-column label="竞赛官网" align="center" prop="competitionWebsite" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
@@ -253,7 +253,7 @@
         <el-form-item label="团队名称" prop="teamName">
           <el-input v-model="form.teamName" placeholder="请输入团队名称" />
         </el-form-item>
-        <el-form-item label="指导的学生参赛" prop="studentParticipants">
+        <el-form-item label="参赛队员" prop="studentParticipants">
           <el-input v-model="form.studentParticipants" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="获奖证书编号" prop="awardCertificateNo">
@@ -498,10 +498,21 @@ export default {
       // 表单校验
       rules: {
         competitionName: [
-          { required: true, message: "竞赛名称不能为空", trigger: "blur" }
+          { required: true, message: "竞赛名称不能为空", trigger: "blur" },
+          { min: 1, max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中文、英文、数字、括号（中英文）、横杠、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\-\s]+$/, message: "竞赛名称只能包含中英文、数字、括号及横杠", trigger: "blur" }
         ],
         competitionLevel: [
           { required: true, message: "竞赛级别不能为空", trigger: "change" }
+        ],
+        competitionType: [
+          { required: false, message: "请输入竞赛类型", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]+$/, message: "只能包含中英文和数字", trigger: "blur" }
+        ],
+        competitionTime: [
+          { required: true, message: "竞赛时间不能为空", trigger: "blur" }
         ],
         roleType: [
           { required: true, message: "角色类型不能为空", trigger: "change" }
@@ -509,15 +520,47 @@ export default {
         awardLevel: [
           { required: true, message: "获奖等级不能为空", trigger: "change" }
         ],
-        competitionTime: [
-          { required: true, message: "竞赛时间不能为空", trigger: "blur" }
+        awardDate: [
+          { required: false, message: "请选择获奖日期", trigger: "blur" }
         ],
         organizer: [
-          { required: true, message: "主办单位不能为空", trigger: "blur" }
+          { required: true, message: "主办单位不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中英文、数字、括号、点（用于公司/学校名）
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "主办单位名称格式不正确", trigger: "blur" }
         ],
         competitionCategory: [
           { required: true, message: "竞赛类别不能为空", trigger: "change" }
         ],
+        teamSize: [
+          { required: false, message: "请输入团队人数", trigger: "blur" },
+          // 纯数字校验，且不能以0开头（如 05），限制 1-999
+          { pattern: /^[1-9]\d{0,2}$/, message: "请输入有效的团队人数（1-999之间的整数）", trigger: "blur" }
+        ],
+        teamName: [
+          { required: false, message: "请输入团队名称", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中英文、数字、下划线、横杠
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\_\s]+$/, message: "团队名称包含非法字符", trigger: "blur" }
+        ],
+        studentParticipants: [
+          { required: false, message: "请输入参赛队员", trigger: "blur" },
+          { max: 500, message: "内容过长，请精简", trigger: "blur" },
+          // 校验姓名列表：允许中文、英文、空格、逗号、分号（用于分隔多个名字）
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；]+$/, message: "请只输入姓名，多个姓名请用逗号分隔", trigger: "blur" }
+        ],
+        awardCertificateNo: [
+          { required: false, message: "请输入获奖证书编号", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 证书编号通常由字母、数字、横杠组成
+          { pattern: /^[a-zA-Z0-9\-\_]+$/, message: "证书编号只能包含字母、数字、横杠或下划线", trigger: "blur" }
+        ],
+        competitionWebsite: [
+          { required: false, message: "请输入竞赛官网", trigger: "blur" },
+          { max: 255, message: "网址长度不能超过 255 个字符", trigger: "blur" },
+          // 网址校验：http/https 开头 (简单的网址校验)
+          { pattern: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/, message: "请输入正确的网址格式，如 https://www.example.com", trigger: "blur" }
+        ]
       }
     }
   },
@@ -526,17 +569,7 @@ export default {
   },
   methods: {
     /**/
-    /*导出*/
-    async DowExcel(){
-        const requestData = {
-         showColumns: this.selectClist || [],
-         data: {
-           ...this.queryParams
-         }
-        };
-         const jsonRequestBody = JSON.stringify(requestData);
-         this.exceldownload('competition/competition/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
-     },
+
     /** 查询竞赛成果列表 */
     getList() {
       this.loading = true
@@ -701,7 +734,18 @@ export default {
       /** 删除成功 */
       handleDeleteSuccess(file) {
         this.$message.success(`文件"${file.fileName}"删除成功`)
-      }
+      },
+      /*导出*/
+      async DowExcel(){
+          const requestData = {
+           showColumns: this.selectClist || [],
+           data: {
+             ...this.queryParams
+           }
+          };
+           const jsonRequestBody = JSON.stringify(requestData);
+           this.exceldownload('competition/competition/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
+       }
   }
 }
 </script>

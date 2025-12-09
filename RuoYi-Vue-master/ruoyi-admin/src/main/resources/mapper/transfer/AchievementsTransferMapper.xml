@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.transfer.mapper.AchievementsTransferMapper">
+    
+    <resultMap type="AchievementsTransfer" id="AchievementsTransferResult">
+        <result property="transferId"    column="transfer_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="achievementName"    column="achievement_name"    />
+        <result property="achievementType"    column="achievement_type"    />
+        <result property="achievementNumber"    column="achievement_number"    />
+        <result property="transferMethod"    column="transfer_method"    />
+        <result property="partnerEnterprise"    column="partner_enterprise"    />
+        <result property="transferAmount"    column="transfer_amount"    />
+        <result property="transferDate"    column="transfer_date"    />
+        <result property="transferDescription"    column="transfer_description"    />
+        <result property="validityPeriod"    column="validity_period"    />
+        <result property="territoryRange"    column="territory_range"    />
+        <result property="paymentMethod"    column="payment_method"    />
+        <result property="transferStatus"    column="transfer_status"    />
+        <result property="isExclusive"    column="is_exclusive"    />
+        <result property="economicBenefits"    column="economic_benefits"    />
+        <result property="socialBenefits"    column="social_benefits"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsTransferVo">
+        select transfer_id, user_id, dept_id, achievement_name, achievement_type, achievement_number, transfer_method, partner_enterprise, transfer_amount, transfer_date, transfer_description, validity_period, territory_range, payment_method, transfer_status, is_exclusive, economic_benefits, social_benefits, contact_person, contact_phone, audit_status, created_at, updated_at from achievements_transfer
+    </sql>
+
+    <select id="selectAchievementsTransferList" parameterType="AchievementsTransfer" resultMap="AchievementsTransferResult">
+        <include refid="selectAchievementsTransferVo"/>
+        <where>  
+            <if test="achievementName != null  and achievementName != ''"> and achievement_name like concat('%', #{achievementName}, '%')</if>
+            <if test="achievementType != null  and achievementType != ''"> and achievement_type = #{achievementType}</if>
+            <if test="transferAmount != null "> and transfer_amount = #{transferAmount}</if>
+            <if test="transferStatus != null  and transferStatus != ''"> and transfer_status = #{transferStatus}</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and contact_person = #{contactPerson}</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsTransferByTransferId" parameterType="Long" resultMap="AchievementsTransferResult">
+        <include refid="selectAchievementsTransferVo"/>
+        where transfer_id = #{transferId}
+    </select>
+
+    <insert id="insertAchievementsTransfer" parameterType="AchievementsTransfer">
+        insert into achievements_transfer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="transferId != null">transfer_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="achievementName != null and achievementName != ''">achievement_name,</if>
+            <if test="achievementType != null and achievementType != ''">achievement_type,</if>
+            <if test="achievementNumber != null">achievement_number,</if>
+            <if test="transferMethod != null and transferMethod != ''">transfer_method,</if>
+            <if test="partnerEnterprise != null and partnerEnterprise != ''">partner_enterprise,</if>
+            <if test="transferAmount != null">transfer_amount,</if>
+            <if test="transferDate != null">transfer_date,</if>
+            <if test="transferDescription != null">transfer_description,</if>
+            <if test="validityPeriod != null">validity_period,</if>
+            <if test="territoryRange != null">territory_range,</if>
+            <if test="paymentMethod != null">payment_method,</if>
+            <if test="transferStatus != null">transfer_status,</if>
+            <if test="isExclusive != null">is_exclusive,</if>
+            <if test="economicBenefits != null">economic_benefits,</if>
+            <if test="socialBenefits != null">social_benefits,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="transferId != null">#{transferId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="achievementName != null and achievementName != ''">#{achievementName},</if>
+            <if test="achievementType != null and achievementType != ''">#{achievementType},</if>
+            <if test="achievementNumber != null">#{achievementNumber},</if>
+            <if test="transferMethod != null and transferMethod != ''">#{transferMethod},</if>
+            <if test="partnerEnterprise != null and partnerEnterprise != ''">#{partnerEnterprise},</if>
+            <if test="transferAmount != null">#{transferAmount},</if>
+            <if test="transferDate != null">#{transferDate},</if>
+            <if test="transferDescription != null">#{transferDescription},</if>
+            <if test="validityPeriod != null">#{validityPeriod},</if>
+            <if test="territoryRange != null">#{territoryRange},</if>
+            <if test="paymentMethod != null">#{paymentMethod},</if>
+            <if test="transferStatus != null">#{transferStatus},</if>
+            <if test="isExclusive != null">#{isExclusive},</if>
+            <if test="economicBenefits != null">#{economicBenefits},</if>
+            <if test="socialBenefits != null">#{socialBenefits},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsTransfer" parameterType="AchievementsTransfer">
+        update achievements_transfer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="achievementName != null and achievementName != ''">achievement_name = #{achievementName},</if>
+            <if test="achievementType != null and achievementType != ''">achievement_type = #{achievementType},</if>
+            <if test="achievementNumber != null">achievement_number = #{achievementNumber},</if>
+            <if test="transferMethod != null and transferMethod != ''">transfer_method = #{transferMethod},</if>
+            <if test="partnerEnterprise != null and partnerEnterprise != ''">partner_enterprise = #{partnerEnterprise},</if>
+            <if test="transferAmount != null">transfer_amount = #{transferAmount},</if>
+            <if test="transferDate != null">transfer_date = #{transferDate},</if>
+            <if test="transferDescription != null">transfer_description = #{transferDescription},</if>
+            <if test="validityPeriod != null">validity_period = #{validityPeriod},</if>
+            <if test="territoryRange != null">territory_range = #{territoryRange},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="transferStatus != null">transfer_status = #{transferStatus},</if>
+            <if test="isExclusive != null">is_exclusive = #{isExclusive},</if>
+            <if test="economicBenefits != null">economic_benefits = #{economicBenefits},</if>
+            <if test="socialBenefits != null">social_benefits = #{socialBenefits},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where transfer_id = #{transferId}
+    </update>
+
+    <delete id="deleteAchievementsTransferByTransferId" parameterType="Long">
+        delete from achievements_transfer where transfer_id = #{transferId}
+    </delete>
+
+    <delete id="deleteAchievementsTransferByTransferIds" parameterType="String">
+        delete from achievements_transfer where transfer_id in 
+        <foreach item="transferId" collection="array" open="(" separator="," close=")">
+            #{transferId}
+        </foreach>
+    </delete>
+</mapper>

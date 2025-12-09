@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.software.mapper.AchievementsSoftwareMapper">
+    
+    <resultMap type="AchievementsSoftware" id="AchievementsSoftwareResult">
+        <result property="softwareId"    column="software_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="softwareName"    column="software_name"    />
+        <result property="softwareVersion"    column="software_version"    />
+        <result property="certificateNo"    column="certificate_no"    />
+        <result property="publishDate"    column="publish_date"    />
+        <result property="registerDate"    column="register_date"    />
+        <result property="developmentDate"    column="development_date"    />
+        <result property="programmingLanguage"    column="programming_language"    />
+        <result property="softwareType"    column="software_type"    />
+        <result property="softwareCopyrightCertificateLevel"    column="software_copyright_certificate_level"    />
+        <result property="certificateType"    column="certificate_type"    />
+        <result property="mainFunction"    column="main_function"    />
+        <result property="applicationField"    column="application_field"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsSoftwareVo">
+        select software_id, user_id, dept_id, software_name, software_version, certificate_no, publish_date, register_date, development_date, programming_language, software_type, software_copyright_certificate_level, certificate_type, main_function, application_field, audit_status, created_at, updated_at from achievements_software
+    </sql>
+
+    <select id="selectAchievementsSoftwareList" parameterType="AchievementsSoftware" resultMap="AchievementsSoftwareResult">
+        <include refid="selectAchievementsSoftwareVo"/>
+        <where>  
+            <if test="softwareName != null  and softwareName != ''"> and software_name like concat('%', #{softwareName}, '%')</if>
+            <if test="softwareVersion != null  and softwareVersion != ''"> and software_version = #{softwareVersion}</if>
+            <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="programmingLanguage != null  and programmingLanguage != ''"> and programming_language = #{programmingLanguage}</if>
+            <if test="softwareType != null  and softwareType != ''"> and software_type = #{softwareType}</if>
+            <if test="softwareCopyrightCertificateLevel != null  and softwareCopyrightCertificateLevel != ''"> and software_copyright_certificate_level = #{softwareCopyrightCertificateLevel}</if>
+            <if test="certificateType != null  and certificateType != ''"> and certificate_type = #{certificateType}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsSoftwareBySoftwareId" parameterType="Long" resultMap="AchievementsSoftwareResult">
+        <include refid="selectAchievementsSoftwareVo"/>
+        where software_id = #{softwareId}
+    </select>
+
+    <insert id="insertAchievementsSoftware" parameterType="AchievementsSoftware" useGeneratedKeys="true" keyProperty="softwareId">
+        insert into achievements_software
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="softwareName != null and softwareName != ''">software_name,</if>
+            <if test="softwareVersion != null and softwareVersion != ''">software_version,</if>
+            <if test="certificateNo != null and certificateNo != ''">certificate_no,</if>
+            <if test="publishDate != null">publish_date,</if>
+            <if test="registerDate != null">register_date,</if>
+            <if test="developmentDate != null">development_date,</if>
+            <if test="programmingLanguage != null">programming_language,</if>
+            <if test="softwareType != null and softwareType != ''">software_type,</if>
+            <if test="softwareCopyrightCertificateLevel != null and softwareCopyrightCertificateLevel != ''">software_copyright_certificate_level,</if>
+            <if test="certificateType != null and certificateType != ''">certificate_type,</if>
+            <if test="mainFunction != null">main_function,</if>
+            <if test="applicationField != null">application_field,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="softwareName != null and softwareName != ''">#{softwareName},</if>
+            <if test="softwareVersion != null and softwareVersion != ''">#{softwareVersion},</if>
+            <if test="certificateNo != null and certificateNo != ''">#{certificateNo},</if>
+            <if test="publishDate != null">#{publishDate},</if>
+            <if test="registerDate != null">#{registerDate},</if>
+            <if test="developmentDate != null">#{developmentDate},</if>
+            <if test="programmingLanguage != null">#{programmingLanguage},</if>
+            <if test="softwareType != null and softwareType != ''">#{softwareType},</if>
+            <if test="softwareCopyrightCertificateLevel != null and softwareCopyrightCertificateLevel != ''">#{softwareCopyrightCertificateLevel},</if>
+            <if test="certificateType != null and certificateType != ''">#{certificateType},</if>
+            <if test="mainFunction != null">#{mainFunction},</if>
+            <if test="applicationField != null">#{applicationField},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsSoftware" parameterType="AchievementsSoftware">
+        update achievements_software
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="softwareName != null and softwareName != ''">software_name = #{softwareName},</if>
+            <if test="softwareVersion != null and softwareVersion != ''">software_version = #{softwareVersion},</if>
+            <if test="certificateNo != null and certificateNo != ''">certificate_no = #{certificateNo},</if>
+            <if test="publishDate != null">publish_date = #{publishDate},</if>
+            <if test="registerDate != null">register_date = #{registerDate},</if>
+            <if test="developmentDate != null">development_date = #{developmentDate},</if>
+            <if test="programmingLanguage != null">programming_language = #{programmingLanguage},</if>
+            <if test="softwareType != null and softwareType != ''">software_type = #{softwareType},</if>
+            <if test="softwareCopyrightCertificateLevel != null and softwareCopyrightCertificateLevel != ''">software_copyright_certificate_level = #{softwareCopyrightCertificateLevel},</if>
+            <if test="certificateType != null and certificateType != ''">certificate_type = #{certificateType},</if>
+            <if test="mainFunction != null">main_function = #{mainFunction},</if>
+            <if test="applicationField != null">application_field = #{applicationField},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where software_id = #{softwareId}
+    </update>
+
+    <delete id="deleteAchievementsSoftwareBySoftwareId" parameterType="Long">
+        delete from achievements_software where software_id = #{softwareId}
+    </delete>
+
+    <delete id="deleteAchievementsSoftwareBySoftwareIds" parameterType="String">
+        delete from achievements_software where software_id in 
+        <foreach item="softwareId" collection="array" open="(" separator="," close=")">
+            #{softwareId}
+        </foreach>
+    </delete>
+</mapper>

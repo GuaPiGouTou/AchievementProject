@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.patent.mapper.AchievementsPatentMapper">
+    
+    <resultMap type="AchievementsPatent" id="AchievementsPatentResult">
+        <result property="patentId"    column="patent_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="patentName"    column="patent_name"    />
+        <result property="patentNo"    column="patent_no"    />
+        <result property="patentType"    column="patent_type"    />
+        <result property="authorOrder"    column="author_order"    />
+        <result property="applicationDate"    column="application_date"    />
+        <result property="authorizationDate"    column="authorization_date"    />
+        <result property="publicationDate"    column="publication_date"    />
+        <result property="publicationNo"    column="publication_no"    />
+        <result property="patentValidity"    column="patent_validity"    />
+        <result property="patentSubject"    column="patent_subject"    />
+        <result property="patentStatus"    column="patent_status"    />
+        <result property="patentOffice"    column="patent_office"    />
+        <result property="technicalField"    column="technical_field"    />
+        <result property="legalStatus"    column="legal_status"    />
+        <result property="certificateType"    column="certificate_type"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsPatentVo">
+        select patent_id, user_id, dept_id, patent_name, patent_no, patent_type, author_order, application_date, authorization_date, publication_date, publication_no, patent_validity, patent_subject, patent_status, patent_office, technical_field, legal_status, certificate_type, audit_status, created_at, updated_at from achievements_patent
+    </sql>
+
+    <select id="selectAchievementsPatentList" parameterType="AchievementsPatent" resultMap="AchievementsPatentResult">
+        <include refid="selectAchievementsPatentVo"/>
+        <where>  
+            <if test="patentName != null  and patentName != ''"> and patent_name like concat('%', #{patentName}, '%')</if>
+            <if test="patentType != null  and patentType != ''"> and patent_type = #{patentType}</if>
+            <if test="patentStatus != null  and patentStatus != ''"> and patent_status = #{patentStatus}</if>
+            <if test="patentOffice != null  and patentOffice != ''"> and patent_office = #{patentOffice}</if>
+            <if test="technicalField != null  and technicalField != ''"> and technical_field = #{technicalField}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsPatentByPatentId" parameterType="Long" resultMap="AchievementsPatentResult">
+        <include refid="selectAchievementsPatentVo"/>
+        where patent_id = #{patentId}
+    </select>
+
+    <insert id="insertAchievementsPatent" parameterType="AchievementsPatent">
+        insert into achievements_patent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patentId != null">patent_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="patentName != null and patentName != ''">patent_name,</if>
+            <if test="patentNo != null and patentNo != ''">patent_no,</if>
+            <if test="patentType != null and patentType != ''">patent_type,</if>
+            <if test="authorOrder != null">author_order,</if>
+            <if test="applicationDate != null">application_date,</if>
+            <if test="authorizationDate != null">authorization_date,</if>
+            <if test="publicationDate != null">publication_date,</if>
+            <if test="publicationNo != null">publication_no,</if>
+            <if test="patentValidity != null">patent_validity,</if>
+            <if test="patentSubject != null">patent_subject,</if>
+            <if test="patentStatus != null">patent_status,</if>
+            <if test="patentOffice != null and patentOffice != ''">patent_office,</if>
+            <if test="technicalField != null">technical_field,</if>
+            <if test="legalStatus != null">legal_status,</if>
+            <if test="certificateType != null and certificateType != ''">certificate_type,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patentId != null">#{patentId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="patentName != null and patentName != ''">#{patentName},</if>
+            <if test="patentNo != null and patentNo != ''">#{patentNo},</if>
+            <if test="patentType != null and patentType != ''">#{patentType},</if>
+            <if test="authorOrder != null">#{authorOrder},</if>
+            <if test="applicationDate != null">#{applicationDate},</if>
+            <if test="authorizationDate != null">#{authorizationDate},</if>
+            <if test="publicationDate != null">#{publicationDate},</if>
+            <if test="publicationNo != null">#{publicationNo},</if>
+            <if test="patentValidity != null">#{patentValidity},</if>
+            <if test="patentSubject != null">#{patentSubject},</if>
+            <if test="patentStatus != null">#{patentStatus},</if>
+            <if test="patentOffice != null and patentOffice != ''">#{patentOffice},</if>
+            <if test="technicalField != null">#{technicalField},</if>
+            <if test="legalStatus != null">#{legalStatus},</if>
+            <if test="certificateType != null and certificateType != ''">#{certificateType},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsPatent" parameterType="AchievementsPatent">
+        update achievements_patent
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="patentName != null and patentName != ''">patent_name = #{patentName},</if>
+            <if test="patentNo != null and patentNo != ''">patent_no = #{patentNo},</if>
+            <if test="patentType != null and patentType != ''">patent_type = #{patentType},</if>
+            <if test="authorOrder != null">author_order = #{authorOrder},</if>
+            <if test="applicationDate != null">application_date = #{applicationDate},</if>
+            <if test="authorizationDate != null">authorization_date = #{authorizationDate},</if>
+            <if test="publicationDate != null">publication_date = #{publicationDate},</if>
+            <if test="publicationNo != null">publication_no = #{publicationNo},</if>
+            <if test="patentValidity != null">patent_validity = #{patentValidity},</if>
+            <if test="patentSubject != null">patent_subject = #{patentSubject},</if>
+            <if test="patentStatus != null">patent_status = #{patentStatus},</if>
+            <if test="patentOffice != null and patentOffice != ''">patent_office = #{patentOffice},</if>
+            <if test="technicalField != null">technical_field = #{technicalField},</if>
+            <if test="legalStatus != null">legal_status = #{legalStatus},</if>
+            <if test="certificateType != null and certificateType != ''">certificate_type = #{certificateType},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where patent_id = #{patentId}
+    </update>
+
+    <delete id="deleteAchievementsPatentByPatentId" parameterType="Long">
+        delete from achievements_patent where patent_id = #{patentId}
+    </delete>
+
+    <delete id="deleteAchievementsPatentByPatentIds" parameterType="String">
+        delete from achievements_patent where patent_id in 
+        <foreach item="patentId" collection="array" open="(" separator="," close=")">
+            #{patentId}
+        </foreach>
+    </delete>
+</mapper>

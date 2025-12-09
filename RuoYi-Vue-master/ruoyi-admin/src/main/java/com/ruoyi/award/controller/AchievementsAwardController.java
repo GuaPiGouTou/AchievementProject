@@ -63,7 +63,7 @@ public class AchievementsAwardController extends BaseController
     @PreAuthorize("@ss.hasPermi('award:award:export')")
     @Log(title = "获奖成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsAward> exportRequestDTO)
+    public void export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsAward> exportRequestDTO)
     {
 
         List<String> showColumns = exportRequestDTO.getShowColumns();

@@ -419,16 +419,24 @@ export default {
       // 表单校验
       rules: {
         textbookName: [
-          { required: true, message: "教材名称不能为空", trigger: "blur" }
+          { required: true, message: "教材名称不能为空", trigger: "blur" },
+          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
+          // 教材名称通常不限制特殊字符，因为可能包含化学式、数学符号等，这里主要限制长度
         ],
         authorRole: [
           { required: true, message: "作者角色不能为空", trigger: "change" }
         ],
         pressName: [
-          { required: true, message: "出版社不能为空", trigger: "blur" }
+          { required: true, message: "出版社不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中英文、数字、括号、点、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "出版社名称格式不正确", trigger: "blur" }
         ],
         isbnNumber: [
-          { required: true, message: "ISBN号不能为空", trigger: "blur" }
+          { required: true, message: "ISBN号不能为空", trigger: "blur" },
+          // ISBN 校验：允许 10位或13位数字，中间允许横杠(-)或空格，结尾允许X（针对ISBN-10）
+          // 示例: 978-7-121-38272-1 或 9787121382721
+          { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "ISBN格式不正确 (如: 978-7-111-12345-6)", trigger: "blur" }
         ],
         publishDate: [
           { required: true, message: "出版时间不能为空", trigger: "blur" }
@@ -436,6 +444,34 @@ export default {
         textbookType: [
           { required: true, message: "教材类型不能为空", trigger: "change" }
         ],
+        edition: [
+          { required: false, message: "请输入版次", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          // 允许输入 "第1版", "1", "First Edition", "revised" 等
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.]+$/, message: "版次格式不正确", trigger: "blur" }
+        ],
+        wordCount: [
+          { required: false, message: "请输入字数", trigger: "blur" },
+          // 校验数字：可以是整数或小数（如 20.5 万字）
+          { pattern: /^\d+(\.\d{1,4})?$/, message: "请输入有效的数字", trigger: "blur" }
+        ],
+        usingInstitutions: [
+          { required: false, message: "请输入使用院校", trigger: "blur" },
+          { max: 500, message: "内容过长，请精简", trigger: "blur" }
+        ],
+        applicableMajor: [
+          { required: false, message: "请输入适用专业", trigger: "blur" },
+          { max: 200, message: "内容过长，请精简", trigger: "blur" }
+        ],
+        textbookLevel: [
+          { required: false, message: "请选择教材层次", trigger: "change" }
+        ],
+        approvalNumber: [
+          { required: false, message: "请输入批准文号", trigger: "blur" },
+          // 批准文号通常由字母、数字、中括号、括号、横杠、年份组成
+          // 例如: 国教材〔2023〕1号
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\[\]〔〕\-\s\.]+$/, message: "批准文号格式不正确", trigger: "blur" }
+        ]
       }
     }
   },

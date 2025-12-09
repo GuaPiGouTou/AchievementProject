@@ -314,38 +314,52 @@ export default {
       // 表单校验
       rules: {
         resourceId: [
-          { required: true, message: "关联子表ID不能为空", trigger: "blur" }
-        ],
-        attachmentType: [
-          { required: true, message: "附件类型不能为空", trigger: "change" }
+          { required: true, message: "关联子表ID不能为空", trigger: "blur" },
+          // ID 通常是纯数字
+          { pattern: /^[0-9]+$/, message: "ID必须为纯数字", trigger: "blur" }
         ],
         fileName: [
-          { required: true, message: "文件名称不能为空", trigger: "blur" }
+          { required: true, message: "文件名称不能为空", trigger: "blur" },
+          { max: 255, message: "文件名称长度不能超过 255 个字符", trigger: "blur" },
+          // 核心校验：禁止文件名包含 Windows/Linux 系统非法字符 (\ / : * ? " < > |)
+          { pattern: /^[^\\/:*?"<>|]+$/, message: "文件名不能包含 \\ / : * ? \" < > | 等特殊字符", trigger: "blur" }
         ],
         filePath: [
-          { required: true, message: "文件路径不能为空", trigger: "blur" }
+          { required: true, message: "文件路径不能为空", trigger: "blur" },
+          { max: 500, message: "路径长度不能超过 500 个字符", trigger: "blur" }
+          // 路径通常由系统生成，如果允许手动输入，建议不做过严的正则限制，防止误杀合法URL或绝对路径
         ],
         fileSize: [
-          { required: true, message: "文件大小不能为空", trigger: "blur" }
+          { required: true, message: "文件大小不能为空", trigger: "blur" },
+          // 假设数据库存的是字节数(Byte)，校验是否为纯数字
+          { pattern: /^[0-9]+$/, message: "文件大小必须为纯数字（单位：字节）", trigger: "blur" }
         ],
         fileExtension: [
-          { required: true, message: "文件扩展名不能为空", trigger: "blur" }
+          { required: true, message: "文件扩展名不能为空", trigger: "blur" },
+          // 允许带点或不带点，纯字母数字。例如: .pdf, png, docx
+          { pattern: /^\.?[a-zA-Z0-9]+$/, message: "格式错误，请填写如: pdf, .jpg, docx", trigger: "blur" },
+          { max: 10, message: "扩展名过长", trigger: "blur" }
         ],
         fileCategory: [
-          { required: true, message: "文件分类不能为空", trigger: "blur" }
+          { required: true, message: "文件分类不能为空", trigger: "blur" },
+          { max: 50, message: "分类名称不能超过 50 个字符", trigger: "blur" }
+        ],
+        description: [
+          { required: false, message: "请输入文件描述", trigger: "blur" },
+          { max: 500, message: "描述内容不能超过 500 个字符", trigger: "blur" }
         ],
         uploadTime: [
-          { required: true, message: "上传时间不能为空", trigger: "blur" }
+          { required: true, message: "上传时间不能为空", trigger: "change" }
         ],
         uploadUserId: [
-          { required: true, message: "上传用户ID不能为空", trigger: "blur" }
+          { required: true, message: "上传用户ID不能为空", trigger: "blur" },
+          { pattern: /^[0-9]+$/, message: "用户ID必须为纯数字", trigger: "blur" }
         ],
         downloadCount: [
-          { required: true, message: "下载次数不能为空", trigger: "blur" }
-        ],
-        createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
-        ],
+          { required: true, message: "下载次数不能为空", trigger: "blur" },
+          // 必须是非负整数
+          { pattern: /^(0|[1-9][0-9]*)$/, message: "下载次数必须为非负整数", trigger: "blur" }
+        ]
       }
     }
   },

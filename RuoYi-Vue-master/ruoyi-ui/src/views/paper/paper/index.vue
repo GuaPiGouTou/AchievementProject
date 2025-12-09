@@ -349,20 +349,50 @@ export default {
       // 表单校验
       rules: {
         paperTitle: [
-          { required: true, message: "论文标题不能为空", trigger: "blur" }
+          { required: true, message: "论文标题不能为空", trigger: "blur" },
+          { min: 1, max: 300, message: "标题长度不能超过 300 个字符", trigger: "blur" }
         ],
         paperCategory: [
           { required: true, message: "论文类别不能为空", trigger: "change" }
         ],
+        researchDirection: [
+          { required: false, message: "请输入研究方向", trigger: "blur" },
+          // 允许中文、英文、数字、逗号、分号、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；]+$/, message: "只能包含中英文、数字及分隔符", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
         authorInformation: [
-          { required: true, message: "作者信息不能为空", trigger: "blur" }
+          { required: true, message: "作者信息不能为空", trigger: "blur" },
+          // 允许中文、英文、点（用于缩写）、逗号、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "格式不正确，请使用逗号分隔多个作者", trigger: "blur" },
+          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
         ],
         journal: [
-          { required: true, message: "期刊名称不能为空", trigger: "blur" }
+          { required: true, message: "期刊名称不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         publishDate: [
           { required: true, message: "发表时间不能为空", trigger: "blur" }
         ],
+        volume: [
+          // 卷号通常是数字，或者是 "Vol.1" 这种格式，允许字母数字点和横杠
+          { pattern: /^[a-zA-Z0-9\-\.]+$/, message: "卷号只能包含数字、字母、点(.)或横杠(-)", trigger: "blur" },
+          { max: 20, message: "长度过长", trigger: "blur" }
+        ],
+        issue: [
+          // 期号通常是数字，或者是 "No.1" 或 "(1)"，允许括号
+          { pattern: /^[a-zA-Z0-9\-\(\)\.]+$/, message: "期号只能包含数字、字母、括号或横杠", trigger: "blur" },
+          { max: 20, message: "长度过长", trigger: "blur" }
+        ],
+        pageRange: [
+          // 严格校验页码范围，例如: "100", "100-120", "P100-120"
+          { pattern: /^[Pp]?[0-9]+(\-[Pp]?[0-9]+)?$/, message: "页码格式应为 '100-120' 或 '25'", trigger: "blur" },
+          { max: 20, message: "长度过长", trigger: "blur" }
+        ],
+        doi: [
+          // DOI 标准格式校验：必须以 10. 开头
+          { pattern: /^10\.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/, message: "请输入标准的DOI格式，例如 10.1000/xyz123", trigger: "blur" }
+        ]
       }
     }
   },

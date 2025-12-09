@@ -60,7 +60,7 @@ public class AchievementsTextbookController extends BaseController
     @PreAuthorize("@ss.hasPermi('textbook:textbook:export')")
     @Log(title = "教材著作", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @ModelAttribute ExportRequestDTO<AchievementsTextbook> exportRequestDTO )
+    public void export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsTextbook> exportRequestDTO )
     {
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         AchievementsTextbook queryParams = exportRequestDTO.getData();
