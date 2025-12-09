@@ -468,7 +468,10 @@ export default {
       // 表单校验
       rules: {
         achievementName: [
-          { required: true, message: "成果名称不能为空", trigger: "blur" }
+          { required: true, message: "成果名称不能为空", trigger: "blur" },
+          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+          // 允许：中文、英文、数字、中英文括号、书名号、横杠、下划线、空格
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s]+$/, message: "成果名称包含非法字符", trigger: "blur" }
         ],
         achievementType: [
           { required: true, message: "成果类型不能为空", trigger: "change" }
@@ -477,14 +480,35 @@ export default {
           { required: true, message: "转化方式不能为空", trigger: "change" }
         ],
         partnerEnterprise: [
-          { required: true, message: "合作企业不能为空", trigger: "blur" }
+          { required: true, message: "合作企业不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许：中文、英文、数字、括号（如：腾讯(深圳)有限公司）、点（如：Co., Ltd.）
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "企业名称格式不正确", trigger: "blur" }
         ],
         transferAmount: [
-          { required: true, message: "转化金额不能为空", trigger: "blur" }
+          { required: true, message: "转化金额不能为空", trigger: "blur" },
+          // 核心校验：必须是正数，允许整数或最多2位小数。防止输入 001 或 1.2.3
+          // 示例通过: 100, 100.5, 0.5, 100.55
+          { pattern: /^(([1-9]\d*)|\d)(\.\d{1,2})?$/, message: "请输入有效的金额（最多保留两位小数）", trigger: "blur" }
         ],
         transferDate: [
           { required: true, message: "转化时间不能为空", trigger: "blur" }
         ],
+        // --- 以下是基于您数据库字段补充的建议校验 ---
+        contactPerson: [
+          { required: false, message: "请输入联系人", trigger: "blur" },
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s\.]+$/, message: "联系人只能包含中英文或点", trigger: "blur" }
+        ],
+        contactPhone: [
+          { required: false, message: "请输入联系电话", trigger: "blur" },
+          // 兼容手机号(11位) 和 座机号(带区号)
+          { pattern: /^((0\d{2,3}-\d{7,8})|(1[3-9]\d{9}))$/, message: "请输入正确的手机号或座机号", trigger: "blur" }
+        ],
+        achievementNumber: [
+          { required: false, message: "请输入成果编号", trigger: "blur" },
+          // 编号通常只允许字母、数字、横杠、下划线
+          { pattern: /^[a-zA-Z0-9\-\_]+$/, message: "编号格式不正确", trigger: "blur" }
+        ]
       }
     }
   },
@@ -585,6 +609,12 @@ export default {
             })
           } else {
             addTransfer(this.form).then(response => {
+              if(response.transferId!=null)
+              {
+                 this.$refs.file.submitUpload(response.transferId,"transfer");
+              }else{
+                  this.$modal.msgSuccess("上传文件失败")
+              }
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -613,7 +643,7 @@ export default {
       handleAttachment(row) {
           this.currentPaperId = row.competitionId
           this.currentPaper = row
-          this.attachmentTitle = `附件管理 - ${row.competitionName || '软著'}`
+          this.attachmentTitle = `附件管理 - ${row.competitionName || '转化'}`
           this.attachmentVisible = true
         },
 

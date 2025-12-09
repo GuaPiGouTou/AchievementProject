@@ -377,7 +377,7 @@ POST /api/deletePapers
 ```json
 {
   "msg": "删除成功",
-  "paperId": 1001,
+  "competitionIds": [1001, 1002, 1003],
   "code": 200
 }
 ```
@@ -740,7 +740,7 @@ POST /api/deleteAttachments
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `attachmentIds`: `Long[]`类型，删除的附件记录ID
+- `competitionIds`: `Long[]`类型，删除的附件记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -750,7 +750,7 @@ POST /api/deleteAttachments
 {
   "userId": 1,
   "deptId": 100,
-  "attachmentIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
@@ -765,7 +765,7 @@ POST /api/deleteAttachments
 ```json
 {
   "code": 200,
-  "attachmentId": 1001,
+  "competitionIds": [1001, 1002, 1003],
   "msg": "删除成功"
 }
 ```
@@ -775,7 +775,7 @@ POST /api/deleteAttachments
 ```json
 {
   "code": 501,
-  "attachmentId": null,
+  "competitionIds": null,
   "msg":"附件信息删除失败"    
 }
 ```
@@ -1202,7 +1202,7 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 ```json
 {
   "msg": "删除成功",
-  "competitionId": 1001,
+  "competitionId": [1001, 1002, 1003],
   "code": 200
 }
 ```
@@ -1570,7 +1570,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `attachmentIds`: `Long[]`类型，删除的教材记录ID
+- `competitionIds`: `Long[]`类型，删除的教材记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -1580,7 +1580,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 {
   "userId": 24306010534,
   "deptId": 100,
-  "textbookIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
@@ -1595,7 +1595,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 200,
-  "textbookId": 1001,
+  "competitionIds": [1001, 1002, 1003],
   "msg": "删除成功"
 }
 ```
@@ -1605,7 +1605,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 501,
-  "textbookId": null,
+  "competitionIds": null,
   "msg":"教材信息删除失败"    
 }
 ```
@@ -1955,7 +1955,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `textbookIds`: `Long[]`类型，删除的教材记录ID
+- `competitionIds`: `Long[]`类型，删除的教材记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -1965,7 +1965,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 {
   "userId": 24306010534,
   "deptId": 100,
-  "awardIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
@@ -1980,7 +1980,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 200,
-  "awardId": 1001,
+  "competitionIds": [1001, 1002, 1003],
   "msg": "删除成功"
 }
 ```
@@ -1990,7 +1990,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
 ```json
 {
   "code": 501,
-  "awardId": null,
+  "competitionIds": null,
   "msg":"教材信息删除失败"    
 }
 ```
@@ -2286,17 +2286,17 @@ POST /api/deleteSoftwares
 
 - Content-Type: application/json
 
-- userId: Long类型，用户ID（用于查询角色权限）
-- deptId: Long类型，部门ID（用于部门权限隔离）
-- softwareIds: Long[]类型，删除的软著记录ID
+- `userId`: Long类型，用户ID（用于查询角色权限）
+- `deptId`: Long类型，部门ID（用于部门权限隔离）
+- `competitionIds`: Long[]类型，删除的软著记录ID
 
 更新时间后端在接收参数后自行插入
 
-```
+```java
 {
   "userId": 1,
   "deptId": 100,
-  "softwareIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
@@ -2304,15 +2304,15 @@ POST /api/deleteSoftwares
 - data: Object类型，删除的软著记录ID
 - msg: String类型，提示信息
 
-```
+```java
 {
   "code": 200,
-  "softwareId": 1001,
+  "competitionIds": [1001, 1002, 1003],
   "msg": "删除成功"
 }
 ```
 
-```
+```java
 {
   "code": 501,
   "softwareId": null,
@@ -2700,7 +2700,7 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `monographIds`: `Long[]`类型，删除的专著记录ID
+- `competitionIds`: `Long[]`类型，删除的专著记录ID
 
 更新时间后端在接收参数后自行插入
 
@@ -2710,14 +2710,14 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 {
   "userId": 1,
   "deptId": 100,
-  "monographIds": [1001, 1002, 1003]
+  "competitionIds": [1001, 1002, 1003]
 }
 ```
 
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，删除的专著记录ID
+- `competitionIds`: `Object`类型，删除的专著记录ID
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -2725,7 +2725,7 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 ```json
 {
   "code": 200,
-  "monographId": 1001,
+  "competitionIds": [1001],
   "msg": "删除成功"
 }
 ```
@@ -2735,7 +2735,410 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 ```json
 {
   "code": 501,
-  "monographId": null,
+  "competitionIds": null,
   "msg":"专著信息删除失败"    
+}
+```
+
+## 专利管理接口文档
+
+### 查询专利列表
+
+`GET /api/selectPatentList`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`: `Long`类型，分页页码
+- `pageSize`: `Long`类型，分页大小
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_patent的全部字段
+
+##### 请求参数示例
+
+```
+GET /api/selectPatentList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+##### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```sql
+----------------------------示例----------------------------
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+----------------------------示例----------------------------
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```sql
+----------------------------示例----------------------------
+SELECT * FROM achievements_patent;  (data_scope = "1")
+
+SELECT * FROM achievements_patent WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_patent WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_patent WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_patent WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，专利列表
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "patentId": 2001,
+      "userId": 1,
+      "deptId": 101,
+      "patentName": "一种智能数据处理装置",
+      "patentNo": "ZL202310123456.7",
+      "patentType": "发明专利",
+      "authorOrder": 1,
+      "applicationDate": "2023-01-15",
+      "authorizationDate": "2024-03-20",
+      "publicationDate": "2023-07-01",
+      "publicationNo": "CN116000000A",
+      "patentValidity": "2043-01-15",
+      "patentSubject": "计算机科学与技术",
+      "patentStatus": "已授权",
+      "patentOffice": "国家知识产权局",
+      "technicalField": "人工智能与大数据",
+      "legalStatus": "有效",
+      "certificateType": "authorization_certificate",
+      "auditStatus": "待审核",
+      "createdAt": "2024-03-25",
+      "updatedAt": "2024-03-25"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询专利记录详细信息
+
+`GET /api/selectPatentById`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `patentId`: `Long`类型，专利ID（用于查询专利表的具体记录）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_patent的指定ID记录
+
+##### 请求参数示例
+
+```
+GET /api/selectPatentById?userId=1&deptId=100&patentId=2001
+```
+
+需要进行权限检查原理同**查询专利列表**
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，专利详细信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+      "patentId": 2001,
+      "userId": 1,
+      "deptId": 101,
+      "patentName": "一种智能数据处理装置",
+      "patentNo": "ZL202310123456.7",
+      "patentType": "发明专利",
+      "authorOrder": 1,
+      "applicationDate": "2023-01-15",
+      "authorizationDate": "2024-03-20",
+      "publicationDate": "2023-07-01",
+      "publicationNo": "CN116000000A",
+      "patentValidity": "2043-01-15",
+      "patentSubject": "计算机科学与技术",
+      "patentStatus": "已授权",
+      "patentOffice": "国家知识产权局",
+      "technicalField": "人工智能与大数据",
+      "legalStatus": "有效",
+      "certificateType": "authorization_certificate",
+      "auditStatus": "待审核",
+      "createdAt": "2024-03-25",
+      "updatedAt": "2024-03-25"
+  },
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增专利成果
+
+`POST /api/insertPatent`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID
+- `deptId`: `Long`类型，部门ID
+- `patentName`: `String`类型，专利名称
+- `patentNo`: `String`类型，专利号
+- `patentType`: `String`类型，专利类型（发明专利/实用新型/外观设计）
+- `authorOrder`: `Long`类型，发明人顺序
+- `applicationDate`: `Date`类型，申请日期
+- `authorizationDate`: `Date`类型，授权日期（可选）
+- `publicationDate`: `Date`类型，公布日期（可选）
+- `publicationNo`: `String`类型，公布号（可选）
+- `patentValidity`: `Date`类型，专利有效期
+- `patentSubject`: `String`类型，专利所属学科
+- `patentStatus`: `String`类型，专利状态（申请中/已授权等）
+- `patentOffice`: `String`类型，专利局
+- `technicalField`: `String`类型，技术领域
+- `legalStatus`: `String`类型，专利法律状态
+- `certificateType`: `String`类型，证书类型
+- `auditStatus`: `String`类型，审核状态
+
+创建时间，更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "patentName": "一种高效的图像识别算法",
+  "patentNo": "202410123456.X",
+  "patentType": "发明专利",
+  "authorOrder": 1,
+  "applicationDate": "2024-01-10",
+  "patentValidity": "2044-01-10",
+  "patentSubject": "计算机视觉",
+  "patentStatus": "申请中",
+  "patentOffice": "国家知识产权局",
+  "technicalField": "人工智能",
+  "legalStatus": "申请中",
+  "certificateType": "application_notice",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的专利记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "patentId": 2007,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "msg": "专利信息插入失败",
+  "patentId": null,
+  "code": 200
+}
+```
+
+### 更新专利记录
+
+`POST /api/updatePatent`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID
+- `deptId`: `Long`类型，部门ID
+- `patentId`: `Long`类型，专利ID
+- `patentName`: `String`类型，专利名称
+- `patentNo`: `String`类型，专利号
+- `patentType`: `String`类型，专利类型
+- `authorOrder`: `Long`类型，发明人顺序
+- `applicationDate`: `Date`类型，申请日期
+- `authorizationDate`: `Date`类型，授权日期
+- `publicationDate`: `Date`类型，公布日期
+- `publicationNo`: `String`类型，公布号
+- `patentValidity`: `Date`类型，专利有效期
+- `patentSubject`: `String`类型，专利所属学科
+- `patentStatus`: `String`类型，专利状态
+- `patentOffice`: `String`类型，专利局
+- `technicalField`: `String`类型，技术领域
+- `legalStatus`: `String`类型，专利法律状态
+- `certificateType`: `String`类型，证书类型
+- `auditStatus`: `String`类型，审核状态
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "patentId": 2007,
+  "patentName": "一种高效的图像识别算法",
+  "patentNo": "ZL202410123456.X",
+  "patentType": "发明专利",
+  "authorOrder": 1,
+  "applicationDate": "2024-01-10",
+  "authorizationDate": "2025-02-15",
+  "publicationDate": "2024-07-10",
+  "publicationNo": "CN117000000A",
+  "patentValidity": "2044-01-10",
+  "patentSubject": "计算机视觉",
+  "patentStatus": "已授权",
+  "patentOffice": "国家知识产权局",
+  "technicalField": "人工智能",
+  "legalStatus": "有效",
+  "certificateType": "authorization_certificate",
+  "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的专利记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "patentId": 2007,
+  "msg": "更新成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 200,
+  "patentId": null,
+  "msg": "专利信息更新失败"
+}
+```
+
+### 删除专利记录
+
+`POST /api/deletePatents`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `competitionIds`: `Long[]`类型，删除的专利记录ID数组
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "competitionIds": [2001, 2002, 2003]
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的专利记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "competitionIds": [2001],
+  "msg": "删除成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "competitionIds": null,
+  "msg":"专利信息删除失败"    
 }
 ```

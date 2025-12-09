@@ -298,7 +298,7 @@
         :visible="attachmentVisible"
         :title="attachmentTitle"
         :resource-id="currentPaperId"
-        attachment-type="competition"
+        attachment-type="patent"
         @update:visible="attachmentVisible = $event"
         @close="handleAttachmentClose"
         @load-success="handleAttachmentLoadSuccess"
@@ -476,93 +476,56 @@ export default {
       },
       // 表单参数
       form: {},
-      // 导出选择字段
-      checkList: [
-        {
-          value: 'patentId',
-          label: '专利id'
-        },
-        {
-          value: 'userId',
-          label: '用户ID'
-        },
-        {
-          value: 'deptId',
-          label: '部门ID'
-        },
-        {
-          value: 'patentName',
-          label: '专利名称'
-        },
-        {
-          value: 'patentNo',
-          label: '专利号'
-        },
-        {
-          value: 'patentType',
-          label: '专利类型'
-        },
-        {
-          value: 'authorOrder',
-          label: '发明人顺序'
-        },
-        {
-          value: 'applicationDate',
-          label: '申请日期'
-        },
-        {
-          value: 'authorizationDate',
-          label: '授权日期'
-        },
-        {
-          value: 'publicationDate',
-          label: '公布日期'
-        },
-        {
-          value: 'publicationNo',
-          label: '公布号'
-        },
-        {
-          value: 'patentValidity',
-          label: '专利有效期'
-        },
-        {
-          value: 'patentSubject',
-          label: '专利所属学科'
-        },
-        {
-          value: 'patentStatus',
-          label: '专利状态'
-        },
-        {
-          value: 'patentOffice',
-          label: '专利局'
-        },
-        {
-          value: 'technicalField',
-          label: '技术领域'
-        },
-        {
-          value: 'legalStatus',
-          label: '专利法律状态'
-        },
-        {
-          value: 'certificateType',
-          label: '证书类型'
-        },
-        {
-          value: 'auditStatus',
-          label: '审核状态'
-        },
-        {
-          value: 'createdAt',
-          label: '创建时间'
-        },
-        {
-          value: 'updatedAt',
-          label: '更新时间'
-        }
-      ],
+      // 表单校验
+      rules: {
+        patentName: [
+          { required: true, message: "专利名称不能为空", trigger: "blur" },
+          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+          // 允许：中文、英文、数字、中英文括号、书名号、横杠、下划线、空格
+          // 专利名称中常包含化学式或括号说明，如 "一种...的方法(V2.0)"
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s\.]+$/, message: "专利名称包含非法字符", trigger: "blur" }
+        ],
+        patentNo: [
+          { required: true, message: "专利号不能为空", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          // 专利号核心校验：允许字母(ZL/CN)、数字、点(.)。
+          // 标准格式示例: ZL 2023 1 0123456.X 或 CN113548987B
+          { pattern: /^[a-zA-Z0-9\.\s]+$/, message: "专利号格式不正确 (仅允许字母、数字、点和空格)", trigger: "blur" }
+        ],
+        patentType: [
+          { required: true, message: "专利类型不能为空", trigger: "change" }
+        ],
+        authorOrder: [
+          { required: true, message: "发明人顺序不能为空", trigger: "blur" },
+          // 必须是正整数 (1, 2, 3...)，不能是 0 或小数
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
+        applicationDate: [
+          { required: true, message: "申请日期不能为空", trigger: "blur" }
+        ],
+        patentOffice: [
+          { required: true, message: "专利局不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          // 允许中英文、括号
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\s]+$/, message: "专利局名称格式不正确", trigger: "blur" }
+        ],
+        certificateType: [
+          { required: true, message: "证书类型不能为空", trigger: "change" }
+        ],
+        publicationNo: [
+          { required: false, message: "请输入公布号", trigger: "blur" },
+          // 公布号通常是 CN + 数字 + 字母后缀，如 CN101234567A
+          { pattern: /^[a-zA-Z0-9]+$/, message: "公布号只能包含字母和数字", trigger: "blur" }
+        ],
+        patentSubject: [
+          { required: false, message: "请输入专利所属学科", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
+        technicalField: [
+          { required: false, message: "请输入技术领域", trigger: "blur" },
+          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
+        ]
+      }
     }
   },
   created() {
@@ -648,12 +611,24 @@ export default {
         if (valid) {
           if (this.form.patentId != null) {
             updatePatent(this.form).then(response => {
+              if(response.patentId!=null)
+              {
+                 this.$refs.file.submitUpload(response.patentId,"patent");
+              }else{
+                  this.$modal.msgSuccess("上传文件失败")
+              }
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
             })
           } else {
             addPatent(this.form).then(response => {
+              if(response.patentId!=null)
+              {
+                 this.$refs.file.submitUpload(response.patentId,"patent");
+              }else{
+                  this.$modal.msgSuccess("上传文件失败")
+              }
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
@@ -682,7 +657,7 @@ export default {
       handleAttachment(row) {
           this.currentPaperId = row.competitionId
           this.currentPaper = row
-          this.attachmentTitle = `附件管理 - ${row.competitionName || '软著'}`
+          this.attachmentTitle = `附件管理 - ${row.competitionName || '专利'}`
           this.attachmentVisible = true
         },
 
