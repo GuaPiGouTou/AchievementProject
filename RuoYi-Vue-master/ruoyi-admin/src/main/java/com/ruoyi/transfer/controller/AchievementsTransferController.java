@@ -3,7 +3,10 @@ package com.ruoyi.transfer.controller;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
+import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.patent.domain.AchievementsPatent;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +39,25 @@ public class AchievementsTransferController extends BaseController
 {
     @Autowired
     private IAchievementsTransferService achievementsTransferService;
-
+    @Autowired
+    private ContestFeignClient contestFeignClient;
     /**
      * 查询成果转化列表
      */
     @PreAuthorize("@ss.hasPermi('transfer:transfer:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsTransfer achievementsTransfer)
+    public AjaxResult list(AchievementsTransfer achievementsTransfer)
     {
-        startPage();
-        List<AchievementsTransfer> list = achievementsTransferService.selectAchievementsTransferList(achievementsTransfer);
-        return getDataTable(list);
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.selectTransferList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -77,8 +88,14 @@ public class AchievementsTransferController extends BaseController
     @GetMapping(value = "/{transferId}")
     public AjaxResult getInfo(@PathVariable("transferId") Long transferId)
     {
-        return success(achievementsTransferService.selectAchievementsTransferByTransferId(transferId));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.selectTransferById(getUserId(),getDeptId(),transferId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 新增成果转化
@@ -88,8 +105,19 @@ public class AchievementsTransferController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsTransfer achievementsTransfer)
     {
-        return toAjax(achievementsTransferService.insertAchievementsTransfer(achievementsTransfer));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsTransfer.setUserId(getUserId());
+            achievementsTransfer.setDeptId(getDeptId());
+
+            System.out.println(achievementsTransfer);
+            res = contestFeignClient.insertTransfer(achievementsTransfer);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 修改成果转化
@@ -99,8 +127,17 @@ public class AchievementsTransferController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsTransfer achievementsTransfer)
     {
-        return toAjax(achievementsTransferService.updateAchievementsTransfer(achievementsTransfer));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsTransfer.setUserId(getUserId());
+            achievementsTransfer.setDeptId(getDeptId());
+
+            res = contestFeignClient.updateTransfer(achievementsTransfer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 删除成果转化
@@ -110,6 +147,13 @@ public class AchievementsTransferController extends BaseController
 	@DeleteMapping("/{transferIds}")
     public AjaxResult remove(@PathVariable Long[] transferIds)
     {
-        return toAjax(achievementsTransferService.deleteAchievementsTransferByTransferIds(transferIds));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),transferIds);
+        try {
+            res = contestFeignClient.deleteTransfers(deleteRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 }

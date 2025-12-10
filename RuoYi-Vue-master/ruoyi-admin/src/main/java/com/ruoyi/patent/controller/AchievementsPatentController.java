@@ -3,7 +3,10 @@ package com.ruoyi.patent.controller;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.ContestFeign.ContestFeignClient;
+import com.ruoyi.ContestFeign.DeleteRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
+import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.paper.domain.AchievementsPaper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,17 +39,25 @@ public class AchievementsPatentController extends BaseController
 {
     @Autowired
     private IAchievementsPatentService achievementsPatentService;
-
+    @Autowired
+    private ContestFeignClient contestFeignClient;
     /**
      * 查询专利成果列表
      */
     @PreAuthorize("@ss.hasPermi('patent:patent:list')")
     @GetMapping("/list")
-    public TableDataInfo list(AchievementsPatent achievementsPatent)
+    public AjaxResult list(AchievementsPatent achievementsPatent)
     {
-        startPage();
-        List<AchievementsPatent> list = achievementsPatentService.selectAchievementsPatentList(achievementsPatent);
-        return getDataTable(list);
+        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
+        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.selectPatentList(getUserId(), getDeptId(), pageNum, pageSize);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;
     }
 
     /**
@@ -77,8 +88,14 @@ public class AchievementsPatentController extends BaseController
     @GetMapping(value = "/{patentId}")
     public AjaxResult getInfo(@PathVariable("patentId") Long patentId)
     {
-        return success(achievementsPatentService.selectAchievementsPatentByPatentId(patentId));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            res = contestFeignClient.selectPatentById(getUserId(),getDeptId(),patentId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 新增专利成果
@@ -88,8 +105,19 @@ public class AchievementsPatentController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPatent achievementsPatent)
     {
-        return toAjax(achievementsPatentService.insertAchievementsPatent(achievementsPatent));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsPatent.setUserId(getUserId());
+            achievementsPatent.setDeptId(getDeptId());
+
+            System.out.println(achievementsPatent);
+            res = contestFeignClient.insertPatent(achievementsPatent);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 修改专利成果
@@ -99,8 +127,17 @@ public class AchievementsPatentController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsPatent achievementsPatent)
     {
-        return toAjax(achievementsPatentService.updateAchievementsPatent(achievementsPatent));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        try {
+            achievementsPatent.setUserId(getUserId());
+            achievementsPatent.setDeptId(getDeptId());
+
+            res = contestFeignClient.updatePatent(achievementsPatent);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 
     /**
      * 删除专利成果
@@ -110,6 +147,14 @@ public class AchievementsPatentController extends BaseController
 	@DeleteMapping("/{patentIds}")
     public AjaxResult remove(@PathVariable Long[] patentIds)
     {
-        return toAjax(achievementsPatentService.deleteAchievementsPatentByPatentIds(patentIds));
-    }
+        AjaxResult res = new AjaxResult();
+        // 使用Feign客户端调用远程服务
+        DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),patentIds);
+        try {
+            res = contestFeignClient.deletePatents(deleteRequest);
+            System.out.println(res);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res;    }
 }

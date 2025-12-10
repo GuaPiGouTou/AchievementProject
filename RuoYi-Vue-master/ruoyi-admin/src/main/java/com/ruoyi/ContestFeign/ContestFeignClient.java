@@ -7,8 +7,10 @@ import com.ruoyi.competition.domain.AchievementsCompetition;
 import com.ruoyi.competition.domain.demo;
 import com.ruoyi.monograph.domain.AchievementsMonograph;
 import com.ruoyi.paper.domain.AchievementsPaper;
+import com.ruoyi.patent.domain.AchievementsPatent;
 import com.ruoyi.software.domain.AchievementsSoftware;
 import com.ruoyi.textbook.domain.AchievementsTextbook;
+import com.ruoyi.transfer.domain.AchievementsTransfer;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -300,5 +302,87 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteSoftwares")
     AjaxResult deleteSoftwares( @RequestBody DeleteRequest request);
+//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
+
+    /**
+     * 查询成果转化列表
+     */
+    @GetMapping("/api/selectTransferList")
+    AjaxResult selectTransferList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+    );
+
+    /**
+     * 查询成果转化记录详细信息
+     */
+    @GetMapping("/api/selectTransferById")
+    AjaxResult selectTransferById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("transferId") Long softwareId
+    );
+
+    /**
+     * 新增成果转化记录
+     */
+    @PostMapping("/api/insertTransfer")
+    AjaxResult insertTransfer(@RequestBody AchievementsTransfer achievementsTransfer);
+
+    /**
+     * 更新成果转化记录
+     */
+    @PostMapping("/api/updateTransfer")
+    AjaxResult updateTransfer(@RequestBody AchievementsTransfer achievementsTransfer);
+
+
+    /**
+     * 删除成果转化记录
+     */
+    @PostMapping("/api/deleteTransfers")
+    AjaxResult deleteTransfers( @RequestBody DeleteRequest request);
+//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
+
+    /**
+     * 查询专利列表
+     */
+    @GetMapping("/api/selectPatentList")
+    AjaxResult selectPatentList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+    );
+
+    /**
+     * 查询专利记录详细信息
+     */
+    @GetMapping("/api/selectPatentById")
+    AjaxResult selectPatentById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("patentId") Long patentId
+    );
+
+    /**
+     * 新增专利记录
+     */
+    @PostMapping("/api/insertPatent")
+    AjaxResult insertPatent(@RequestBody AchievementsPatent achievementsPatent);
+
+    /**
+     * 更新专利记录
+     */
+    @PostMapping("/api/updatePatent")
+    AjaxResult updatePatent(@RequestBody AchievementsPatent achievementsPatent);
+
+
+    /**
+     * 删除成果转化记录
+     */
+    @PostMapping("/api/deletePatents")
+    AjaxResult deletePatents( @RequestBody DeleteRequest request);
 //    ---------------------------------------------------------------------------------
 }

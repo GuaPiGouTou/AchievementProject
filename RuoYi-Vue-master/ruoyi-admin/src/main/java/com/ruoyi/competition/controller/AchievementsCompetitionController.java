@@ -152,7 +152,6 @@ public class AchievementsCompetitionController extends BaseController
         DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),competitionIds);
         try {
             res = contestFeignClient.deleteContests(deleteRequest);
-            System.out.println(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
