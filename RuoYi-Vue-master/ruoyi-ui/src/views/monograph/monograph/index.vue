@@ -155,94 +155,94 @@
       @delete-success="handleDeleteSuccess"
     />
     <!-- 添加或修改成果专著对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="专著名称" prop="monographTitle">
-          <el-input v-model="form.monographTitle" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="出版社" prop="pressName">
-          <el-input v-model="form.pressName" placeholder="请输入出版社" />
-        </el-form-item>
-        <el-form-item label="ISBN号" prop="isbnNumber">
-          <el-input v-model="form.isbnNumber" placeholder="请输入ISBN号" />
-        </el-form-item>
-		<el-form-item label="作者角色" prop="authorRole">
-		  <el-select v-model="form.authorRole" placeholder="请选择">
-		      <el-option
-		        v-for="item in authorRoles"
-		        :key="item.value"
-		        :label="item.label"
-		        :value="item.value">
-		      </el-option>
-		    </el-select>
-        </el-form-item>
-        <el-form-item label="出版时间" prop="publishDate">
-          <el-date-picker clearable
-            v-model="form.publishDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择出版时间">
-          </el-date-picker>
-        </el-form-item>
-		<el-form-item label="专著类型" prop="monographType">
-		  <el-select v-model="form.monographType" placeholder="请选择">
-		      <el-option
-		        v-for="item in monographTypes"
-		        :key="item.value"
-		        :label="item.label"
-		        :value="item.value">
-		      </el-option>
-		    </el-select>
-		</el-form-item>
-		<el-form-item label="著作语言" prop="language">
-		  <el-select v-model="form.language" placeholder="请选择">
-		      <el-option
-		        v-for="item in languages"
-		        :key="item.value"
-		        :label="item.label"
-		        :value="item.value">
-		      </el-option>
-		    </el-select>
-		</el-form-item>
-        <el-form-item label="版次" prop="edition">
-          <el-input v-model="form.edition" placeholder="请输入版次" />
-        </el-form-item>
-        <el-form-item label="字数" prop="wordCount">
-          <el-input v-model="form.wordCount" placeholder="请输入字数" />
-        </el-form-item>
-        <el-form-item label="页数" prop="pageCount">
-          <el-input v-model="form.pageCount" placeholder="请输入页数" />
-        </el-form-item>
-        <el-form-item label="学科分类" prop="subjectCategory">
-          <el-input v-model="form.subjectCategory" placeholder="请输入学科分类" />
-        </el-form-item>
-        <el-form-item label="是否被收录" prop="isIncluded">
-          <el-input v-model="form.isIncluded" placeholder="请输入是否被收录" />
-        </el-form-item>
-        <el-form-item label="收录数据库" prop="includedDatabase">
-          <el-input v-model="form.includedDatabase" placeholder="请输入收录数据库" />
-        </el-form-item>
-        <el-form-item label="获奖情况" prop="awardSituation">
-          <el-input v-model="form.awardSituation" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="合著者信息" prop="coAuthors">
-          <el-input v-model="form.coAuthors" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="国际标准书号" prop="internationalStandardBookNumber">
-          <el-input v-model="form.internationalStandardBookNumber" placeholder="请输入国际标准书号" />
-        </el-form-item>
-        <el-form-item label="中国分类号" prop="chinaClassificationNumber">
-          <el-input v-model="form.chinaClassificationNumber" placeholder="请输入中国分类号" />
-        </el-form-item>
-		<el-form-item label="上传文件" prop="updatedAt">
-			<file-upload ref="file" v-model="files"></file-upload>
-		</el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+        <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form-item label="专著名称" prop="monographTitle">
+              <el-input v-model="form.monographTitle" type="textarea" placeholder="请输入专著名称（支持书名号、括号、冒号及顿号）" />
+            </el-form-item>
+            <el-form-item label="出版社" prop="pressName">
+              <el-input v-model="form.pressName" placeholder="请输入出版社全称（支持中英文括号及点号）" />
+            </el-form-item>
+            <el-form-item label="ISBN号" prop="isbnNumber">
+              <el-input v-model="form.isbnNumber" placeholder="请输入ISBN号 (如: 978-7-123-45678-9)" />
+            </el-form-item>
+    		<el-form-item label="作者角色" prop="authorRole">
+    		  <el-select v-model="form.authorRole" placeholder="请选择作者角色">
+    		      <el-option
+    		        v-for="item in authorRoles"
+    		        :key="item.value"
+    		        :label="item.label"
+    		        :value="item.value">
+    		      </el-option>
+    		    </el-select>
+            </el-form-item>
+            <el-form-item label="出版时间" prop="publishDate">
+              <el-date-picker clearable
+                v-model="form.publishDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择出版时间">
+              </el-date-picker>
+            </el-form-item>
+    		<el-form-item label="专著类型" prop="monographType">
+    		  <el-select v-model="form.monographType" placeholder="请选择专著类型">
+    		      <el-option
+    		        v-for="item in monographTypes"
+    		        :key="item.value"
+    		        :label="item.label"
+    		        :value="item.value">
+    		      </el-option>
+    		    </el-select>
+    		</el-form-item>
+    		<el-form-item label="著作语言" prop="language">
+    		  <el-select v-model="form.language" placeholder="请选择著作语言">
+    		      <el-option
+    		        v-for="item in languages"
+    		        :key="item.value"
+    		        :label="item.label"
+    		        :value="item.value">
+    		      </el-option>
+    		    </el-select>
+    		</el-form-item>
+            <el-form-item label="版次" prop="edition">
+              <el-input v-model="form.edition" placeholder="请输入版次 (如: 第3版第2次印刷（2025年修订版）)" />
+            </el-form-item>
+            <el-form-item label="字数" prop="wordCount">
+              <el-input v-model="form.wordCount" placeholder="请输入字数 (万字，支持小数)" />
+            </el-form-item>
+            <el-form-item label="页数" prop="pageCount">
+              <el-input v-model="form.pageCount" placeholder="请输入页数 (正整数)" />
+            </el-form-item>
+            <el-form-item label="学科分类" prop="subjectCategory">
+              <el-input v-model="form.subjectCategory" placeholder="请输入学科分类" />
+            </el-form-item>
+            <el-form-item label="是否被收录" prop="isIncluded">
+              <el-input v-model="form.isIncluded" placeholder="请输入是否被收录" />
+            </el-form-item>
+            <el-form-item label="收录数据库" prop="includedDatabase">
+              <el-input v-model="form.includedDatabase" placeholder="请输入收录数据库" />
+            </el-form-item>
+            <el-form-item label="获奖情况" prop="awardSituation">
+              <el-input v-model="form.awardSituation" type="textarea" placeholder="请输入获奖情况描述" />
+            </el-form-item>
+            <el-form-item label="合著者信息" prop="coAuthors">
+              <el-input v-model="form.coAuthors" type="textarea" placeholder="请输入合著者姓名，多人请用逗号分隔" />
+            </el-form-item>
+            <el-form-item label="国际标准书号" prop="internationalStandardBookNumber">
+              <el-input v-model="form.internationalStandardBookNumber" placeholder="请输入国际标准书号" />
+            </el-form-item>
+            <el-form-item label="中国分类号" prop="chinaClassificationNumber">
+              <el-input v-model="form.chinaClassificationNumber" placeholder="请输入中国分类号 (如: TP311)" />
+            </el-form-item>
+    		<el-form-item label="上传文件" prop="updatedAt">
+    			<file-upload ref="file" v-model="files"></file-upload>
+    		</el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
     <el-dialog
       :title="Exceltitle"
       :visible.sync="Excelopen"
@@ -406,8 +406,11 @@ export default {
         monographTitle: [
           { required: true, message: "专著名称不能为空", trigger: "blur" },
           { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
-          // 允许中文、英文、数字、书名号、括号、冒号、横杠、空格
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9《》\(\)（）\：:\-\s]+$/, message: "专著名称包含非法字符", trigger: "blur" }
+          {
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9《》\(\)（）\：:\-\s、]+$/,
+            message: "专著名称格式错误（仅允许中英文、数字、书名号、括号、冒号、顿号及横杠）",
+            trigger: "blur"
+          }
         ],
         authorRole: [
           { required: true, message: "作者角色不能为空", trigger: "change" }
@@ -415,13 +418,11 @@ export default {
         pressName: [
           { required: true, message: "出版社不能为空", trigger: "blur" },
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许常规出版社名称格式
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "出版社名称格式不正确", trigger: "blur" }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "出版社名称格式错误（仅允许中英文、数字、括号及点号）", trigger: "blur" }
         ],
         isbnNumber: [
           { required: true, message: "ISBN号不能为空", trigger: "blur" },
-          // ISBN 10位或13位校验，允许横杠或空格分隔
-          { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "ISBN格式不正确 (如: 978-7-123-45678-9)", trigger: "blur" }
+          { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "ISBN格式错误，示例: 978-7-123-45678-9", trigger: "blur" }
         ],
         publishDate: [
           { required: true, message: "出版时间不能为空", trigger: "blur" }
@@ -432,17 +433,18 @@ export default {
         edition: [
           { required: false, message: "请输入版次", trigger: "blur" },
           { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          // 允许 "第1版", "First Edition", "revised" 等
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.]+$/, message: "版次格式不正确", trigger: "blur" }
+          {
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.\(\)（）]+$/,
+            message: "版次格式错误，示例：第3版第2次印刷（2025年修订版）",
+            trigger: "blur"
+          }
         ],
         wordCount: [
           { required: false, message: "请输入字数", trigger: "blur" },
-          // 允许整数或小数 (如 25.5 万字)
-          { pattern: /^\d+(\.\d{1,4})?$/, message: "请输入有效的数字", trigger: "blur" }
+          { pattern: /^\d+(\.\d{1,4})?$/, message: "请输入有效的数字（支持小数）", trigger: "blur" }
         ],
         pageCount: [
           { required: false, message: "请输入页数", trigger: "blur" },
-          // 必须是正整数
           { pattern: /^[1-9]\d*$/, message: "页数必须为正整数", trigger: "blur" }
         ],
         language: [
@@ -458,17 +460,14 @@ export default {
         ],
         coAuthors: [
           { required: false, message: "请输入合著者信息", trigger: "blur" },
-          // 允许输入多人姓名，用逗号或分号分隔
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "多个合著者请用逗号分隔", trigger: "blur" }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "格式错误，多个合著者请用逗号或分号分隔", trigger: "blur" }
         ],
         chinaClassificationNumber: [
           { required: false, message: "请输入中国分类号", trigger: "blur" },
-          // 中图分类号通常是 字母+数字/点，例如 TP311.5
           { pattern: /^[A-Z][A-Z0-9\.]*$/, message: "分类号格式错误 (例如: TP311)", trigger: "blur" }
         ],
         internationalStandardBookNumber: [
           { required: false, message: "请输入国际标准书号", trigger: "blur" },
-          // 如果与 isbnNumber 逻辑一致，使用相同的正则
           { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "标准书号格式不正确", trigger: "blur" }
         ]
       }

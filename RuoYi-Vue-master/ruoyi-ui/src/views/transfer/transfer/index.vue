@@ -161,110 +161,113 @@
     />
 
     <!-- 添加或修改成果转化对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="成果名称" prop="achievementName">
-          <el-input v-model="form.achievementName" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="成果类型" prop="achievementType">
-          <el-select v-model="form.achievementType" placeholder="请选择">
-              <el-option
-                v-for="item in achievementTypes"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="转化方式" prop="transferMethod">
-          <el-select v-model="form.transferMethod" placeholder="请选择">
-              <el-option
-                v-for="item in transferMethods"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="转化状态" prop="transferStatus">
-          <el-select v-model="form.transferStatus" placeholder="请选择">
-              <el-option
-                v-for="item in transferStatuss"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="成果编号" prop="achievementNumber">
-          <el-input v-model="form.achievementNumber" placeholder="请输入成果编号" />
-        </el-form-item>
-        <el-form-item label="合作企业" prop="partnerEnterprise">
-          <el-input v-model="form.partnerEnterprise" placeholder="请输入合作企业" />
-        </el-form-item>
-        <el-form-item label="转化金额" prop="transferAmount">
-          <el-input v-model="form.transferAmount" placeholder="请输入转化金额" />
-        </el-form-item>
-        <el-form-item label="转化时间" prop="transferDate">
-          <el-date-picker clearable
-            v-model="form.transferDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择转化时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="转化内容描述" prop="transferDescription">
-          <el-input v-model="form.transferDescription" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="有效期限" prop="validityPeriod">
-          <el-input v-model="form.validityPeriod" placeholder="请输入有效期限" />
-        </el-form-item>
-        <el-form-item label="地域范围" prop="territoryRange">
-          <el-input v-model="form.territoryRange" placeholder="请输入地域范围" />
-        </el-form-item>
-        <el-form-item label="支付方式" prop="paymentMethod">
-          <el-input v-model="form.paymentMethod" placeholder="请输入支付方式" />
-        </el-form-item>
-        <el-form-item label="是否独占许可" prop="isExclusive">
-          <el-input v-model="form.isExclusive" placeholder="请输入是否独占许可" />
-        </el-form-item>
-        <el-form-item label="经济效益" prop="economicBenefits">
-          <el-input v-model="form.economicBenefits" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="社会效益" prop="socialBenefits">
-          <el-input v-model="form.socialBenefits" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="联系人" prop="contactPerson">
-          <el-input v-model="form.contactPerson" placeholder="请输入联系人" />
-        </el-form-item>
-        <el-form-item label="联系电话" prop="contactPhone">
-          <el-input v-model="form.contactPhone" placeholder="请输入联系电话" />
-        </el-form-item>
-        <el-form-item label="创建时间" prop="createdAt">
-          <el-date-picker clearable
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedAt">
-          <el-date-picker clearable
-            v-model="form.updatedAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择更新时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="上传文件" prop="updatedAt">
-        	<file-upload ref="file" v-model="files"></file-upload>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+        <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form-item label="成果名称" prop="achievementName">
+              <el-input v-model="form.achievementName" type="textarea" placeholder="请输入成果名称（支持书名号《》及括号）" />
+            </el-form-item>
+            <el-form-item label="成果类型" prop="achievementType">
+              <el-select v-model="form.achievementType" placeholder="请选择成果类型">
+                  <el-option
+                    v-for="item in achievementTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="转化方式" prop="transferMethod">
+              <el-select v-model="form.transferMethod" placeholder="请选择转化方式">
+                  <el-option
+                    v-for="item in transferMethods"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="转化状态" prop="transferStatus">
+              <el-select v-model="form.transferStatus" placeholder="请选择转化状态">
+                  <el-option
+                    v-for="item in transferStatuss"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="成果编号" prop="achievementNumber">
+              <el-input v-model="form.achievementNumber" placeholder="请输入成果编号 (字母、数字、横杠)" />
+            </el-form-item>
+            <el-form-item label="合作企业" prop="partnerEnterprise">
+              <el-input v-model="form.partnerEnterprise" placeholder="请输入合作企业全称" />
+            </el-form-item>
+            <el-form-item label="转化金额" prop="transferAmount">
+              <el-input v-model="form.transferAmount" placeholder="请输入转化金额 (万元，支持两位小数)" />
+            </el-form-item>
+            <el-form-item label="转化时间" prop="transferDate">
+              <el-date-picker clearable
+                v-model="form.transferDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择转化时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="转化内容描述" prop="transferDescription">
+              <el-input v-model="form.transferDescription" type="textarea" placeholder="请输入转化内容描述" />
+            </el-form-item>
+            <el-form-item label="有效期限" prop="validityPeriod">
+              <el-input v-model="form.validityPeriod" placeholder="请输入有效期限 (如: 5年)" />
+            </el-form-item>
+            <el-form-item label="地域范围" prop="territoryRange">
+              <el-input v-model="form.territoryRange" placeholder="请输入地域范围" />
+            </el-form-item>
+            <el-form-item label="支付方式" prop="paymentMethod">
+              <el-input v-model="form.paymentMethod" placeholder="请输入支付方式" />
+            </el-form-item>
+            <el-form-item label="是否独占" prop="isExclusive">
+               <el-select v-model="form.isExclusive" placeholder="请选择 (1=独占, 0=非独占)">
+                  <el-option label="是 (独占许可)" :value="1"></el-option>
+                  <el-option label="否 (非独占许可)" :value="0"></el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item label="经济效益" prop="economicBenefits">
+              <el-input v-model="form.economicBenefits" type="textarea" placeholder="请输入预期经济效益" />
+            </el-form-item>
+            <el-form-item label="社会效益" prop="socialBenefits">
+              <el-input v-model="form.socialBenefits" type="textarea" placeholder="请输入预期社会效益" />
+            </el-form-item>
+            <el-form-item label="联系人" prop="contactPerson">
+              <el-input v-model="form.contactPerson" placeholder="请输入联系人姓名" />
+            </el-form-item>
+            <el-form-item label="联系电话" prop="contactPhone">
+              <el-input v-model="form.contactPhone" placeholder="请输入联系电话 (手机或座机)" />
+            </el-form-item>
+            <el-form-item label="创建时间" prop="createdAt">
+              <el-date-picker clearable
+                v-model="form.createdAt"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择创建时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="更新时间" prop="updatedAt">
+              <el-date-picker clearable
+                v-model="form.updatedAt"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择更新时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="上传文件" prop="updatedAt">
+            	<file-upload ref="file" v-model="files"></file-upload>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
     <el-dialog
       :title="Exceltitle"
       :visible.sync="Excelopen"
@@ -470,8 +473,12 @@ export default {
         achievementName: [
           { required: true, message: "成果名称不能为空", trigger: "blur" },
           { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
-          // 允许：中文、英文、数字、中英文括号、书名号、横杠、下划线、空格
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s]+$/, message: "成果名称包含非法字符", trigger: "blur" }
+          {
+            // 允许：中文、英文、数字、书名号《》、括号、横杠、下划线
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s]+$/,
+            message: "成果名称格式错误（仅允许中英文、数字、书名号《》、括号等）",
+            trigger: "blur"
+          }
         ],
         achievementType: [
           { required: true, message: "成果类型不能为空", trigger: "change" }
@@ -482,32 +489,29 @@ export default {
         partnerEnterprise: [
           { required: true, message: "合作企业不能为空", trigger: "blur" },
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许：中文、英文、数字、括号（如：腾讯(深圳)有限公司）、点（如：Co., Ltd.）
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "企业名称格式不正确", trigger: "blur" }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "企业名称格式错误（仅允许中英文、数字、括号及点号）", trigger: "blur" }
         ],
         transferAmount: [
           { required: true, message: "转化金额不能为空", trigger: "blur" },
-          // 核心校验：必须是正数，允许整数或最多2位小数。防止输入 001 或 1.2.3
-          // 示例通过: 100, 100.5, 0.5, 100.55
-          { pattern: /^(([1-9]\d*)|\d)(\.\d{1,2})?$/, message: "请输入有效的金额（最多保留两位小数）", trigger: "blur" }
+          { pattern: /^(([1-9]\d*)|\d)(\.\d{1,2})?$/, message: "金额格式错误，请输入有效的数字（最多保留两位小数）", trigger: "blur" }
         ],
         transferDate: [
           { required: true, message: "转化时间不能为空", trigger: "blur" }
         ],
-        // --- 以下是基于您数据库字段补充的建议校验 ---
+        isExclusive: [
+          { required: true, message: "请选择是否独占许可", trigger: "change" }
+        ],
         contactPerson: [
           { required: false, message: "请输入联系人", trigger: "blur" },
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s\.]+$/, message: "联系人只能包含中英文或点", trigger: "blur" }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s\.]+$/, message: "联系人格式错误（仅允许中英文或点号）", trigger: "blur" }
         ],
         contactPhone: [
           { required: false, message: "请输入联系电话", trigger: "blur" },
-          // 兼容手机号(11位) 和 座机号(带区号)
-          { pattern: /^((0\d{2,3}-\d{7,8})|(1[3-9]\d{9}))$/, message: "请输入正确的手机号或座机号", trigger: "blur" }
+          { pattern: /^((0\d{2,3}-\d{7,8})|(1[3-9]\d{9}))$/, message: "电话格式错误，请输入正确的手机号或座机号", trigger: "blur" }
         ],
         achievementNumber: [
           { required: false, message: "请输入成果编号", trigger: "blur" },
-          // 编号通常只允许字母、数字、横杠、下划线
-          { pattern: /^[a-zA-Z0-9\-\_]+$/, message: "编号格式不正确", trigger: "blur" }
+          { pattern: /^[a-zA-Z0-9\-\_]+$/, message: "编号格式错误（仅允许字母、数字、横杠及下划线）", trigger: "blur" }
         ]
       }
     }

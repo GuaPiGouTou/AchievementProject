@@ -171,81 +171,81 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改软著成果对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="软件名称" prop="softwareName">
-          <el-input v-model="form.softwareName" placeholder="请输入软件名称" />
-        </el-form-item>
-        <el-form-item label="软件版本" prop="softwareVersion">
-          <el-input v-model="form.softwareVersion" placeholder="请输入软件版本" />
-        </el-form-item>
-        <el-form-item label="登记号" prop="certificateNo">
-          <el-input v-model="form.certificateNo" placeholder="请输入登记号" />
-        </el-form-item>
-        <el-form-item label="发表日期" prop="publishDate">
-          <el-date-picker clearable
-            v-model="form.publishDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择发表日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="登记日期" prop="registerDate">
-          <el-date-picker clearable
-            v-model="form.registerDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择登记日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="开发完成日期" prop="developmentDate">
-          <el-date-picker clearable
-            v-model="form.developmentDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择开发完成日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="编程语言" prop="programmingLanguage">
-          <el-input v-model="form.programmingLanguage" placeholder="请输入编程语言" />
-        </el-form-item>
-        <el-form-item label="软件类型" prop="softwareType">
-          <el-select v-model="form.softwareType" placeholder="请选择">
-              <el-option
-                v-for="item in softwareTypes"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-        </el-form-item>
+   <!-- 添加或修改软著成果对话框 -->
+       <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+         <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+           <el-form-item label="软件名称" prop="softwareName">
+             <el-input v-model="form.softwareName" placeholder="请输入软件名称（支持中英文、数字、书名号及括号）" />
+           </el-form-item>
+           <el-form-item label="软件版本" prop="softwareVersion">
+             <el-input v-model="form.softwareVersion" placeholder="请输入软件版本 (如: V1.0.1)" />
+           </el-form-item>
+           <el-form-item label="登记号" prop="certificateNo">
+             <el-input v-model="form.certificateNo" placeholder="请输入登记号 (如: 2023SR123456)" />
+           </el-form-item>
+           <el-form-item label="发表日期" prop="publishDate">
+             <el-date-picker clearable
+               v-model="form.publishDate"
+               type="date"
+               value-format="yyyy-MM-dd"
+               placeholder="请选择发表日期">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item label="登记日期" prop="registerDate">
+             <el-date-picker clearable
+               v-model="form.registerDate"
+               type="date"
+               value-format="yyyy-MM-dd"
+               placeholder="请选择登记日期">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item label="开发完成日期" prop="developmentDate">
+             <el-date-picker clearable
+               v-model="form.developmentDate"
+               type="date"
+               value-format="yyyy-MM-dd"
+               placeholder="请选择开发完成日期">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item label="编程语言" prop="programmingLanguage">
+             <el-input v-model="form.programmingLanguage" placeholder="请输入编程语言 (如: Java, C++, Python)" />
+           </el-form-item>
+           <el-form-item label="软件类型" prop="softwareType">
+             <el-select v-model="form.softwareType" placeholder="请选择软件类型">
+                 <el-option
+                   v-for="item in softwareTypes"
+                   :key="item.value"
+                   :label="item.label"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+               </el-form-item>
 
-        <el-form-item label="软著等级" prop="softwareCopyrightCertificateLevel">
-          <el-select v-model="form.softwareCopyrightCertificateLevel" placeholder="请选择">
-              <el-option
-                v-for="item in softwareCopyrightCertificateLevels"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-            </el-form-item>
-        <el-form-item label="主要功能" prop="mainFunction">
-          <el-input v-model="form.mainFunction" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="应用领域" prop="applicationField">
-          <el-input v-model="form.applicationField" placeholder="请输入应用领域" />
-        </el-form-item>
-        <el-form-item label="上传文件" prop="updatedAt">
-        	<file-upload ref="file" v-model="files"></file-upload>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+           <el-form-item label="软著等级" prop="softwareCopyrightCertificateLevel">
+             <el-select v-model="form.softwareCopyrightCertificateLevel" placeholder="请选择软著等级">
+                 <el-option
+                   v-for="item in softwareCopyrightCertificateLevels"
+                   :key="item.value"
+                   :label="item.label"
+                   :value="item.value">
+                 </el-option>
+               </el-select>
+               </el-form-item>
+           <el-form-item label="主要功能" prop="mainFunction">
+             <el-input v-model="form.mainFunction" type="textarea" placeholder="请输入软件主要功能描述" />
+           </el-form-item>
+           <el-form-item label="应用领域" prop="applicationField">
+             <el-input v-model="form.applicationField" placeholder="请输入应用领域" />
+           </el-form-item>
+           <el-form-item label="上传文件" prop="updatedAt">
+           	<file-upload ref="file" v-model="files"></file-upload>
+           </el-form-item>
+         </el-form>
+         <div slot="footer" class="dialog-footer">
+           <el-button type="primary" @click="submitForm">确 定</el-button>
+           <el-button @click="cancel">取 消</el-button>
+         </div>
+       </el-dialog>
     <el-dialog
       :title="Exceltitle"
       :visible.sync="Excelopen"
@@ -255,7 +255,9 @@
        <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
           <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.label}}</el-checkbox>
         </el-checkbox-group>
-        <el-button @click="DowExcel()" >导出</el-button>
+     <el-badge :value="idsCount==0?softwareList.length:idsCount" class="item"  >
+         <el-button @click="DowExcel()" >导出</el-button>
+       </el-badge>
     </el-dialog>
     <AttachmentManagement
         :visible="attachmentVisible"
@@ -279,6 +281,8 @@ export default {
   name: "Software",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //上传文件组件
       files:[],
       //附件弹窗参数
@@ -398,58 +402,61 @@ export default {
       // 表单参数
       form: {},
       // 表单校验
-        rules: {
-          softwareName: [
-            { required: true, message: "软件名称不能为空", trigger: "blur" },
-            { min: 1, max: 100, message: "长度在 1 到 100 个字符", trigger: "blur" },
-            // 允许中文、英文、数字、括号（中英文）、横杠、下划线、空格
-            { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\-\_\s]+$/, message: "软件名称只能包含中英文、数字、括号、下划线及横杠", trigger: "blur" }
-          ],
-          softwareVersion: [
-            { required: true, message: "软件版本不能为空", trigger: "blur" },
-            { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-            // 允许 V/v 开头，包含数字、点、横杠、下划线。例如: V1.0, 1.0.1, 2023-Release
-            { pattern: /^[a-zA-Z0-9\.\-\_\s]+$/, message: "版本号格式不正确 (如: V1.0, 1.0.1)", trigger: "blur" }
-          ],
-          certificateNo: [
-            { required: true, message: "登记号不能为空", trigger: "blur" },
-            // 软著登记号通常是年份+SR+数字，如 2023SR123456，或者是纯数字/字母组合
-            { pattern: /^[a-zA-Z0-9]+$/, message: "登记号只能包含字母和数字", trigger: "blur" },
-            { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" }
-          ],
-          registerDate: [
-            { required: true, message: "登记日期不能为空", trigger: "blur" }
-          ],
-          developmentDate: [
-            { required: true, message: "开发完成日期不能为空", trigger: "blur" }
-          ],
-          programmingLanguage: [
-            // 虽然原代码没必填，但建议加上格式限制
-            { required: true, message: "编程语言不能为空", trigger: "blur" },
-            // 必须支持特殊字符：C++, C#, HTML/CSS, Node.js (需要支持 +, #, /, ., 空格)
-            { pattern: /^[a-zA-Z0-9\+\#\.\/\s,;]+$/, message: "格式不正确，请填写如: Java, C++, Python", trigger: "blur" },
-            { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" }
-          ],
-          softwareType: [
-            { required: true, message: "软件类型不能为空", trigger: "change" }
-          ],
-          softwareCopyrightCertificateLevel: [
-            { required: true, message: "软著等级不能为空", trigger: "change" }
-          ],
-          certificateType: [
-            { required: true, message: "证书类型不能为空", trigger: "change" }
-          ],
-          applicationField: [
-            { required: false, message: "请输入应用领域", trigger: "blur" },
-            // 允许中英文、数字、逗号分隔
-            { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；]+$/, message: "只能包含中英文、数字及分隔符", trigger: "blur" },
-            { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
-          ],
-          mainFunction: [
-            { required: false, message: "请输入主要功能", trigger: "blur" },
-            { max: 500, message: "主要功能描述不能超过 500 个字符", trigger: "blur" }
-          ]
-        }
+      rules: {
+        softwareName: [
+          { required: true, message: "软件名称不能为空", trigger: "blur" },
+          { min: 1, max: 100, message: "长度在 1 到 100 个字符", trigger: "blur" },
+          {
+            // 支持中英文、数字、书名号、括号、点、下划线及横杠
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s\.]+$/,
+            message: "软件名称格式错误（支持中英文、数字、书名号、括号、点、下划线及横杠）",
+            trigger: "blur"
+          }
+        ],
+        softwareVersion: [
+          { required: true, message: "软件版本不能为空", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+          // 允许 V/v 开头，包含数字、点、横杠、下划线
+          { pattern: /^[a-zA-Z0-9\.\-\_\s]+$/, message: "版本号格式错误，示例: V1.0.1", trigger: "blur" }
+        ],
+        certificateNo: [
+          { required: true, message: "登记号不能为空", trigger: "blur" },
+          // 软著登记号通常是年份+SR+数字，如 2023SR123456
+          { pattern: /^[a-zA-Z0-9]+$/, message: "登记号格式错误（仅允许字母和数字）", trigger: "blur" },
+          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" }
+        ],
+        registerDate: [
+          { required: true, message: "登记日期不能为空", trigger: "blur" }
+        ],
+        developmentDate: [
+          { required: true, message: "开发完成日期不能为空", trigger: "blur" }
+        ],
+        programmingLanguage: [
+          { required: true, message: "编程语言不能为空", trigger: "blur" },
+          // 支持特殊字符：C++, C#, HTML/CSS, Node.js (需要支持 +, #, /, ., 空格)
+          { pattern: /^[a-zA-Z0-9\+\#\.\/\s,;]+$/, message: "格式错误，示例: Java, C++, Python", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
+        softwareType: [
+          { required: true, message: "软件类型不能为空", trigger: "change" }
+        ],
+        softwareCopyrightCertificateLevel: [
+          { required: true, message: "软著等级不能为空", trigger: "change" }
+        ],
+        certificateType: [
+          { required: true, message: "证书类型不能为空", trigger: "change" }
+        ],
+        applicationField: [
+          { required: false, message: "请输入应用领域", trigger: "blur" },
+          // 允许中英文、数字、逗号分隔
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；]+$/, message: "格式错误，只能包含中英文、数字及分隔符", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
+        mainFunction: [
+          { required: false, message: "请输入主要功能", trigger: "blur" },
+          { max: 500, message: "主要功能描述不能超过 500 个字符", trigger: "blur" }
+        ]
+      }
     }
   },
   created() {
@@ -609,6 +616,7 @@ export default {
       /*导出*/
       async DowExcel(){
           const requestData = {
+           Ids:this.ids,
            showColumns: this.selectClist || [],
            data: {
              ...this.queryParams

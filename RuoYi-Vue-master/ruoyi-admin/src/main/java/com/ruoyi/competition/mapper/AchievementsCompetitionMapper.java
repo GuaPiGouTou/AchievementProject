@@ -2,6 +2,7 @@ package com.ruoyi.competition.mapper;
 
 import java.util.List;
 import com.ruoyi.competition.domain.AchievementsCompetition;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 竞赛成果Mapper接口
@@ -58,4 +59,15 @@ public interface AchievementsCompetitionMapper
      * @return 结果
      */
     public int deleteAchievementsCompetitionByCompetitionIds(Long[] competitionIds);
+
+    /**
+     * 根据ids查询
+     * @param ids
+     * @param permissionParams
+     * @return
+     */
+    public List<AchievementsCompetition> selectAchievementsCompetitionListByIds(
+            @Param("ids") List<Integer> ids,
+            @Param("permissionParams") AchievementsCompetition permissionParams
+    );
 }

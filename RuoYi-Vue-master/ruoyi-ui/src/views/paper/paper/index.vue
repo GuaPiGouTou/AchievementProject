@@ -136,61 +136,61 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改论文成果对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="论文标题" prop="paperTitle">
-          <el-input v-model="form.paperTitle" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="论文类别" prop="paperCategory">
-           <el-select v-model="form.paperCategory" placeholder="请选择论文类别"  style="width: 240px">
-               <el-option
-                 v-for="item in paperCategorys"
-                 :key="item.value"
-                 :label="item.label"
-                 :value="item.value"
-               />
-             </el-select>
-          </el-form-item>
+   <!-- 添加或修改论文成果对话框 -->
+       <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+         <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+           <el-form-item label="论文标题" prop="paperTitle">
+             <el-input v-model="form.paperTitle" type="textarea" placeholder="请输入论文完整标题" />
+           </el-form-item>
+           <el-form-item label="论文类别" prop="paperCategory">
+              <el-select v-model="form.paperCategory" placeholder="请选择论文类别"  style="width: 240px">
+                  <el-option
+                    v-for="item in paperCategorys"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+             </el-form-item>
 
-        <el-form-item label="研究方向" prop="researchDirection">
-          <el-input v-model="form.researchDirection" placeholder="请输入研究方向" />
-        </el-form-item>
-        <el-form-item label="作者信息" prop="authorInformation">
-          <el-input v-model="form.authorInformation" placeholder="请输入作者信息" />
-        </el-form-item>
-        <el-form-item label="期刊名称" prop="journal">
-          <el-input v-model="form.journal" placeholder="请输入期刊名称" />
-        </el-form-item>
-        <el-form-item label="发表时间" prop="publishDate">
-          <el-date-picker clearable
-            v-model="form.publishDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择发表时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="卷号" prop="volume">
-          <el-input v-model="form.volume" placeholder="请输入卷号" />
-        </el-form-item>
-        <el-form-item label="期号" prop="issue">
-          <el-input v-model="form.issue" placeholder="请输入期号" />
-        </el-form-item>
-        <el-form-item label="页码范围" prop="pageRange">
-          <el-input v-model="form.pageRange" placeholder="请输入页码范围" />
-        </el-form-item>
-        <el-form-item label="DOI号" prop="doi">
-          <el-input v-model="form.doi" placeholder="请输入DOI号" />
-        </el-form-item>
-        <el-form-item label="上传文件" prop="updatedAt">
-             <file-upload ref="file" v-model="files"></file-upload>
-          </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+           <el-form-item label="研究方向" prop="researchDirection">
+             <el-input v-model="form.researchDirection" placeholder="请输入研究方向（如：人工智能, 深度学习）" />
+           </el-form-item>
+           <el-form-item label="作者信息" prop="authorInformation">
+             <el-input v-model="form.authorInformation" placeholder="请输入作者姓名，多人请用逗号分隔 (如: 张三, 李四)" />
+           </el-form-item>
+           <el-form-item label="期刊名称" prop="journal">
+             <el-input v-model="form.journal" placeholder="请输入期刊/会议全称" />
+           </el-form-item>
+           <el-form-item label="发表时间" prop="publishDate">
+             <el-date-picker clearable
+               v-model="form.publishDate"
+               type="date"
+               value-format="yyyy-MM-dd"
+               placeholder="请选择发表时间">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item label="卷号" prop="volume">
+             <el-input v-model="form.volume" placeholder="请输入卷号 (如: Vol. 1)" />
+           </el-form-item>
+           <el-form-item label="期号" prop="issue">
+             <el-input v-model="form.issue" placeholder="请输入期号 (如: No. 2)" />
+           </el-form-item>
+           <el-form-item label="页码范围" prop="pageRange">
+             <el-input v-model="form.pageRange" placeholder="请输入页码范围 (如: 100-105)" />
+           </el-form-item>
+           <el-form-item label="DOI号" prop="doi">
+             <el-input v-model="form.doi" placeholder="请输入DOI号 (如: 10.1000/xyz123)" />
+           </el-form-item>
+           <el-form-item label="上传文件" prop="updatedAt">
+                <file-upload ref="file" v-model="files"></file-upload>
+             </el-form-item>
+         </el-form>
+         <div slot="footer" class="dialog-footer">
+           <el-button type="primary" @click="submitForm">确 定</el-button>
+           <el-button @click="cancel">取 消</el-button>
+         </div>
+       </el-dialog>
     <AttachmentManagement
         :visible="attachmentVisible"
         :title="attachmentTitle"
@@ -357,14 +357,13 @@ export default {
         ],
         researchDirection: [
           { required: false, message: "请输入研究方向", trigger: "blur" },
-          // 允许中文、英文、数字、逗号、分号、空格
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；]+$/, message: "只能包含中英文、数字及分隔符", trigger: "blur" },
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；]+$/, message: "仅允许中文、英文、数字及分隔符", trigger: "blur" },
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         authorInformation: [
           { required: true, message: "作者信息不能为空", trigger: "blur" },
           // 允许中文、英文、点（用于缩写）、逗号、空格
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "格式不正确，请使用逗号分隔多个作者", trigger: "blur" },
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s·\.]+(,\s*[\u4e00-\u9fa5a-zA-Z\s·\.]+)*$/, message: "格式错误，多人请用逗号分隔，如：张三, 李四", trigger: "blur" },
           { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
         ],
         journal: [
@@ -375,22 +374,18 @@ export default {
           { required: true, message: "发表时间不能为空", trigger: "blur" }
         ],
         volume: [
-          // 卷号通常是数字，或者是 "Vol.1" 这种格式，允许字母数字点和横杠
-          { pattern: /^[a-zA-Z0-9\-\.]+$/, message: "卷号只能包含数字、字母、点(.)或横杠(-)", trigger: "blur" },
-          { max: 20, message: "长度过长", trigger: "blur" }
+          { pattern: /^[a-zA-Z0-9\-\.\s]+$/, message: "卷号格式错误 (可包含数字、字母、点、横杠及空格)", trigger: "blur" },
+          { max: 20, message: "长度不能超过 20 个字符", trigger: "blur" }
         ],
         issue: [
-          // 期号通常是数字，或者是 "No.1" 或 "(1)"，允许括号
-          { pattern: /^[a-zA-Z0-9\-\(\)\.]+$/, message: "期号只能包含数字、字母、括号或横杠", trigger: "blur" },
-          { max: 20, message: "长度过长", trigger: "blur" }
+          { pattern: /^[a-zA-Z0-9\-\(\)\.\s]+$/, message: "期号格式错误 (可包含数字、字母、括号、横杠及空格)", trigger: "blur" },
+          { max: 20, message: "长度不能超过 20 个字符", trigger: "blur" }
         ],
         pageRange: [
-          // 严格校验页码范围，例如: "100", "100-120", "P100-120"
           { pattern: /^[Pp]?[0-9]+(\-[Pp]?[0-9]+)?$/, message: "页码格式应为 '100-120' 或 '25'", trigger: "blur" },
           { max: 20, message: "长度过长", trigger: "blur" }
         ],
         doi: [
-          // DOI 标准格式校验：必须以 10. 开头
           { pattern: /^10\.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/, message: "请输入标准的DOI格式，例如 10.1000/xyz123", trigger: "blur" }
         ]
       }

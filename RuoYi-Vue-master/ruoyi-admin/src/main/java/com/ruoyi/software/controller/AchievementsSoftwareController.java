@@ -69,10 +69,6 @@ public class AchievementsSoftwareController extends BaseController
     {
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         AchievementsSoftware queryParams = exportRequestDTO.getData();
-        System.out.println(queryParams);
-        System.out.println(getUserId());
-        System.out.println(getDeptId());
-
         queryParams.setUserId(getUserId());
         queryParams.setDeptId(getDeptId());
         List<AchievementsSoftware> list = achievementsSoftwareService.selectAchievementsSoftwareList(queryParams);
@@ -152,7 +148,7 @@ public class AchievementsSoftwareController extends BaseController
         // 使用Feign客户端调用远程服务
         DeleteRequest deleteRequest = new DeleteRequest(getUserId(),getDeptId(),softwareIds);
         try {
-            res = contestFeignClient.deleteContests(deleteRequest);
+            res = contestFeignClient.deleteSoftwares(deleteRequest);
             System.out.println(res);
         } catch (Exception e) {
             throw new RuntimeException(e);

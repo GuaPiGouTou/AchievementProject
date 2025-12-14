@@ -64,6 +64,19 @@ public class AchievementsPatent extends BaseEntity
     @Excel(name = "公布号")
     private String publicationNo;
 
+
+    public String getAuthorizationNo() {
+        return authorizationNo;
+    }
+
+    public void setAuthorizationNo(String authorizationNo) {
+        this.authorizationNo = authorizationNo;
+    }
+
+    /** 公布号 */
+    @Excel(name = "授权号")
+    private String authorizationNo;
+
     /** 专利有效期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "专利有效期", width = 30, dateFormat = "yyyy-MM-dd")
@@ -76,10 +89,6 @@ public class AchievementsPatent extends BaseEntity
     /** 专利状态 */
     @Excel(name = "专利状态")
     private String patentStatus;
-
-    /** 专利局 */
-    @Excel(name = "专利局")
-    private String patentOffice;
 
     /** 技术领域 */
     @Excel(name = "技术领域")
@@ -247,15 +256,6 @@ public class AchievementsPatent extends BaseEntity
         return patentStatus;
     }
 
-    public void setPatentOffice(String patentOffice) 
-    {
-        this.patentOffice = patentOffice;
-    }
-
-    public String getPatentOffice() 
-    {
-        return patentOffice;
-    }
 
     public void setTechnicalField(String technicalField) 
     {
@@ -334,7 +334,6 @@ public class AchievementsPatent extends BaseEntity
             .append("patentValidity", getPatentValidity())
             .append("patentSubject", getPatentSubject())
             .append("patentStatus", getPatentStatus())
-            .append("patentOffice", getPatentOffice())
             .append("technicalField", getTechnicalField())
             .append("legalStatus", getLegalStatus())
             .append("certificateType", getCertificateType())

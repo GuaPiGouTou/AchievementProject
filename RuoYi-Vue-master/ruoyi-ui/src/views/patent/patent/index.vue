@@ -161,18 +161,17 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-
-    <!-- 添加或修改专利成果对话框 -->
+<!-- 添加或修改专利成果对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="专利名称" prop="patentName">
-          <el-input v-model="form.patentName" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.patentName" type="textarea" placeholder="请输入专利名称（支持中英文、数字、书名号及括号）" />
         </el-form-item>
         <el-form-item label="专利号" prop="patentNo">
-          <el-input v-model="form.patentNo" placeholder="请输入专利号" />
+          <el-input v-model="form.patentNo" placeholder="请输入专利号 (如: ZL202310123456.X)" />
         </el-form-item>
         <el-form-item label="专利类型" prop="patentType">
-          <el-select v-model="form.patentType" placeholder="请选择">
+          <el-select v-model="form.patentType" placeholder="请选择专利类型">
               <el-option
                 v-for="item in patentTypes"
                 :key="item.value"
@@ -182,7 +181,7 @@
             </el-select>
         </el-form-item>
         <el-form-item label="专利状态" prop="patentStatus">
-          <el-select v-model="form.patentStatus" placeholder="请选择">
+          <el-select v-model="form.patentStatus" placeholder="请选择专利状态">
               <el-option
                 v-for="item in patentStatuss"
                 :key="item.value"
@@ -192,7 +191,7 @@
             </el-select>
         </el-form-item>
         <el-form-item label="专利法律状态" prop="legalStatus">
-          <el-select v-model="form.legalStatus" placeholder="请选择">
+          <el-select v-model="form.legalStatus" placeholder="请选择专利法律状态">
               <el-option
                 v-for="item in legalStatuss"
                 :key="item.value"
@@ -202,7 +201,7 @@
             </el-select>
         </el-form-item>
         <el-form-item label="证书类型" prop="certificateType">
-          <el-select v-model="form.certificateType" placeholder="请选择">
+          <el-select v-model="form.certificateType" placeholder="请选择证书类型">
               <el-option
                 v-for="item in certificateTypes"
                 :key="item.value"
@@ -212,8 +211,11 @@
             </el-select>
         </el-form-item>
         <el-form-item label="发明人顺序" prop="authorOrder">
-          <el-input v-model="form.authorOrder" placeholder="请输入发明人顺序" />
-        </el-form-item>
+                  <el-input
+                    v-model="form.authorOrder"
+                    placeholder="请输入发明人姓名，按顺序用逗号分隔 (如: 张三, 李四)"
+                  />
+                </el-form-item>
         <el-form-item label="申请日期" prop="applicationDate">
           <el-date-picker clearable
             v-model="form.applicationDate"
@@ -222,14 +224,7 @@
             placeholder="请选择申请日期">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="授权日期" prop="authorizationDate">
-          <el-date-picker clearable
-            v-model="form.authorizationDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择授权日期">
-          </el-date-picker>
-        </el-form-item>
+
         <el-form-item label="公布日期" prop="publicationDate">
           <el-date-picker clearable
             v-model="form.publicationDate"
@@ -238,8 +233,20 @@
             placeholder="请选择公布日期">
           </el-date-picker>
         </el-form-item>
+
+        <el-form-item label="授权日期" prop="authorizationDate">
+          <el-date-picker clearable
+            v-model="form.authorizationDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择授权日期">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="授权号" prop="authorizationNo">
+          <el-input v-model="form.authorizationNo" placeholder="请输入授权号 (如: CN101234567A)" />
+        </el-form-item>
         <el-form-item label="公布号" prop="publicationNo">
-          <el-input v-model="form.publicationNo" placeholder="请输入公布号" />
+          <el-input v-model="form.publicationNo" placeholder="请输入公布号 (如: CN101234567A)" />
         </el-form-item>
         <el-form-item label="专利有效期" prop="patentValidity">
           <el-date-picker clearable
@@ -252,28 +259,10 @@
         <el-form-item label="专利所属学科" prop="patentSubject">
           <el-input v-model="form.patentSubject" placeholder="请输入专利所属学科" />
         </el-form-item>
-        <el-form-item label="专利局" prop="patentOffice">
-          <el-input v-model="form.patentOffice" placeholder="请输入专利局" />
-        </el-form-item>
         <el-form-item label="技术领域" prop="technicalField">
-          <el-input v-model="form.technicalField" placeholder="请输入技术领域" />
+          <el-input v-model="form.technicalField" placeholder="请输入技术领域 (如: G06F 3/0481 或 人工智能)" />
         </el-form-item>
-        <el-form-item label="创建时间" prop="createdAt">
-          <el-date-picker clearable
-            v-model="form.createdAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择创建时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="更新时间" prop="updatedAt">
-          <el-date-picker clearable
-            v-model="form.updatedAt"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择更新时间">
-          </el-date-picker>
-        </el-form-item>
+
         <el-form-item label="上传文件" prop="updatedAt">
         	<file-upload ref="file" v-model="files"></file-upload>
         </el-form-item>
@@ -385,8 +374,8 @@ export default {
           label: '专利状态'
         },
         {
-          value: 'patentOffice',
-          label: '专利局'
+          value: 'authorizationNo',
+          label: '授权号'
         },
         {
           value: 'technicalField',
@@ -476,56 +465,69 @@ export default {
       },
       // 表单参数
       form: {},
-      // 表单校验
-      rules: {
-        patentName: [
-          { required: true, message: "专利名称不能为空", trigger: "blur" },
-          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
-          // 允许：中文、英文、数字、中英文括号、书名号、横杠、下划线、空格
-          // 专利名称中常包含化学式或括号说明，如 "一种...的方法(V2.0)"
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s\.]+$/, message: "专利名称包含非法字符", trigger: "blur" }
-        ],
-        patentNo: [
-          { required: true, message: "专利号不能为空", trigger: "blur" },
-          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          // 专利号核心校验：允许字母(ZL/CN)、数字、点(.)。
-          // 标准格式示例: ZL 2023 1 0123456.X 或 CN113548987B
-          { pattern: /^[a-zA-Z0-9\.\s]+$/, message: "专利号格式不正确 (仅允许字母、数字、点和空格)", trigger: "blur" }
-        ],
-        patentType: [
-          { required: true, message: "专利类型不能为空", trigger: "change" }
-        ],
-        authorOrder: [
-          { required: true, message: "发明人顺序不能为空", trigger: "blur" },
-          // 必须是正整数 (1, 2, 3...)，不能是 0 或小数
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
-        ],
-        applicationDate: [
-          { required: true, message: "申请日期不能为空", trigger: "blur" }
-        ],
-        patentOffice: [
-          { required: true, message: "专利局不能为空", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许中英文、括号
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\s]+$/, message: "专利局名称格式不正确", trigger: "blur" }
-        ],
-        certificateType: [
-          { required: true, message: "证书类型不能为空", trigger: "change" }
-        ],
-        publicationNo: [
-          { required: false, message: "请输入公布号", trigger: "blur" },
-          // 公布号通常是 CN + 数字 + 字母后缀，如 CN101234567A
-          { pattern: /^[a-zA-Z0-9]+$/, message: "公布号只能包含字母和数字", trigger: "blur" }
-        ],
-        patentSubject: [
-          { required: false, message: "请输入专利所属学科", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
-        ],
-        technicalField: [
+     // 表单校验
+     rules: {
+       patentName: [
+         { required: true, message: "专利名称不能为空", trigger: "blur" },
+         { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+         {
+           // 允许：中文、英文、数字、中英文括号、书名号、横杠、下划线、空格
+           pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s\.]+$/,
+           message: "专利名称格式错误（支持中英文、数字、书名号、括号、点、下划线及横杠）",
+           trigger: "blur"
+         }
+       ],
+       patentNo: [
+         { required: true, message: "专利号不能为空", trigger: "blur" },
+         { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+         // 专利号核心校验：允许字母(ZL/CN)、数字、点(.)。
+         { pattern: /^[a-zA-Z0-9\.\s]+$/, message: "专利号格式错误，示例: ZL202310123456.X", trigger: "blur" }
+       ],
+       patentType: [
+         { required: true, message: "专利类型不能为空", trigger: "change" }
+       ],
+       authorOrder: [
+         { required: true, message: "发明人顺序不能为空", trigger: "blur" },
+         // 修改点：允许输入多人，使用逗号或分号分隔
+         {
+           pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.]+([,;，；][\u4e00-\u9fa5a-zA-Z0-9\s\.]+)*$/,
+           message: "格式错误，多人请用逗号或分号分隔 (如: 张三, 李四)",
+           trigger: "blur"
+         },
+         { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
+       ],
+       applicationDate: [
+         { required: true, message: "申请日期不能为空", trigger: "blur" }
+       ],
+       certificateType: [
+         { required: true, message: "证书类型不能为空", trigger: "change" }
+       ],
+       publicationNo: [
+         { required: false, message: "请输入公布号", trigger: "blur" },
+         // 公布号通常是 CN + 数字 + 字母后缀
+         { pattern: /^[a-zA-Z0-9]+$/, message: "公布号格式错误（仅允许字母和数字）", trigger: "blur" }
+       ],
+       authorizationNo: [
+         { required: false, message: "请输入授权号", trigger: "blur" },
+         // 公布号通常是 CN + 数字 + 字母后缀
+         { pattern: /^[a-zA-Z0-9]+$/, message: "授权号格式错误（仅允许字母和数字）", trigger: "blur" }
+       ],
+       patentSubject: [
+         { required: false, message: "请输入专利所属学科", trigger: "blur" },
+         { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+       ],
+       technicalField: [
           { required: false, message: "请输入技术领域", trigger: "blur" },
-          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
+          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+          {
+            // 允许：中文、英文、数字、空格、斜杠(/)、逗号、点、横杠
+            // 斜杠 / 是 IPC分类号 (G06F 3/0481) 的核心符号
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\/,，\-\.]+$/,
+            message: "格式错误，支持IPC分类号(如 G06F 3/0481)或中文描述",
+            trigger: "blur"
+          }
         ]
-      }
+     }
     }
   },
   created() {

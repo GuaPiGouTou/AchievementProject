@@ -57,6 +57,8 @@ public class AchievementsCompetitionController extends BaseController
         return res;
     }
 
+
+
     /**
      * 导出竞赛成果列表
      */
@@ -66,10 +68,23 @@ public class AchievementsCompetitionController extends BaseController
     public void export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
     {
         List<String> hiddenColumns = exportRequestDTO .getShowColumns();
+        List<Integer> ids = exportRequestDTO.getIds();
         AchievementsCompetition queryParams = exportRequestDTO.getData();
         queryParams.setUserId(getUserId());
         queryParams.setDeptId(getDeptId());
-        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
+        List<AchievementsCompetition> list;
+
+        // ：判断是导出全部还是导出选中
+        if (ids != null && !ids.isEmpty()) {
+            // 如果 ID 列表不为空，则根据 ID 查询
+            list = achievementsCompetitionService.selectAchievementsCompetitionListByIds(ids,queryParams);
+        } else {
+            // 否则，按原来的查询条件查询 (导出全部)
+            queryParams.setUserId(getUserId());
+            queryParams.setDeptId(getDeptId());
+            list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
+        }
+
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
         if(hiddenColumns != null && !hiddenColumns.isEmpty())
         {

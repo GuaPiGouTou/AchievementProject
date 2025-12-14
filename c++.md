@@ -1219,6 +1219,94 @@ GET /api/selectContestById?userId=1&deptId=100&competitionId=1
 
 ........其他错误
 
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectContestByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "createBy": null,
+      "createTime": null,
+      "updateBy": null,
+      "updateTime": null,
+      "remark": null,
+      "competitionId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "competitionName": "全国大学生程序设计大赛",
+      "competitionLevel": "国家级",
+      "competitionType": "算法编程类",
+      "competitionTime": "2024-10-15",
+      "roleType": "指导老师",
+      "awardLevel": "一等奖",
+      "awardDate": "2024-10-20",
+      "organizer": "教育部高等教育司",
+      "competitionCategory": "学科竞赛",
+      "teamSize": 3,
+      "teamName": "创新之星团队",
+      "studentParticipants": "[\"张三\", \"李四\", \"王五\"]",
+      "awardCertificateNo": "CERT20241020001",
+      "competitionWebsite": "https://acm.contest.edu.cn",
+      "auditStatus": "待审核",
+      "createdAt": "2025-11-07",
+      "updatedAt": "2025-11-10"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
+
 ## 教材著作管理接口文档
 
 ### 查询教材列表
@@ -3560,3 +3648,21 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
   "msg":"成果转化信息删除失败"    
 }
 ```
+
+
+
+
+
+
+
+```
+//导出记录
+      idsCount:0,
+      
+        <el-badge :value="idsCount==0?softwareList.length:idsCount" class="item"  >
+         <el-button @click="DowExcel()" >导出</el-button>
+       </el-badge>
+       
+       Ids:this.ids,
+```
+

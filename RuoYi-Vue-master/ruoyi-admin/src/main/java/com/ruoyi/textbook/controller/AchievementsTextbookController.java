@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
+import com.ruoyi.attachment.domain.AchievementsAttachment;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.AchievementsCompetition;
@@ -54,6 +55,7 @@ public class AchievementsTextbookController extends BaseController
         return res;
     }
 
+
     /**
      * 导出教材著作列表
      */
@@ -64,6 +66,8 @@ public class AchievementsTextbookController extends BaseController
     {
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         AchievementsTextbook queryParams = exportRequestDTO.getData();
+        queryParams.setUserId(getUserId());
+        queryParams.setDeptId(getDeptId());
         List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(queryParams);
         ExcelUtil<AchievementsTextbook> util = new ExcelUtil<AchievementsTextbook>(AchievementsTextbook.class);
         if(hiddenColumns != null && !hiddenColumns.isEmpty())
@@ -80,6 +84,7 @@ public class AchievementsTextbookController extends BaseController
     public AjaxResult getInfo(@PathVariable("textbookId") Long textbookId)
     {
         AjaxResult res = new AjaxResult();
+
         // 使用Feign客户端调用远程服务
         try {
             res = contestFeignClient.getTextbookById(getUserId(), getDeptId(),textbookId);
@@ -101,11 +106,15 @@ public class AchievementsTextbookController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
+            achievementsTextbook.setUserId(getUserId());
+            achievementsTextbook.setDeptId(getDeptId());
+
+            System.out.println(achievementsTextbook);
             res = contestFeignClient.insertTextbook(achievementsTextbook);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         return res;
     }
 
@@ -118,6 +127,8 @@ public class AchievementsTextbookController extends BaseController
     public AjaxResult edit(@RequestBody AchievementsTextbook achievementsTextbook)
     {
         AjaxResult res = new AjaxResult();
+        achievementsTextbook.setUserId(getUserId());
+        achievementsTextbook.setDeptId(getDeptId());
         // 使用Feign客户端调用远程服务
         try {
             res = contestFeignClient.updateTextbook(achievementsTextbook);

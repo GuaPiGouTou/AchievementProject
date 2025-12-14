@@ -1,6 +1,8 @@
 package com.ruoyi.competition.service.impl;
 
 import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.competition.mapper.AchievementsCompetitionMapper;
@@ -89,5 +91,18 @@ public class AchievementsCompetitionServiceImpl implements IAchievementsCompetit
     public int deleteAchievementsCompetitionByCompetitionId(Long competitionId)
     {
         return achievementsCompetitionMapper.deleteAchievementsCompetitionByCompetitionId(competitionId);
+    }
+
+    /**
+     * 根据ids查询
+     * @param ids
+     * @param permissionParams
+     * @return
+     */
+    public List<AchievementsCompetition> selectAchievementsCompetitionListByIds(
+            @Param("ids") List<Integer> ids,
+            @Param("permissionParams") AchievementsCompetition permissionParams
+    ){
+        return achievementsCompetitionMapper.selectAchievementsCompetitionListByIds(ids, permissionParams);
     }
 }

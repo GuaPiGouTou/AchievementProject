@@ -131,7 +131,7 @@ public interface ContestFeignClient {
     /**
      * 更新获奖记录
      */
-    @PostMapping("/api/updateTextbook")
+    @PostMapping("/api/updateAward")
     AjaxResult updateAward(@RequestBody  AchievementsAward achievementsAward);
 
     /**

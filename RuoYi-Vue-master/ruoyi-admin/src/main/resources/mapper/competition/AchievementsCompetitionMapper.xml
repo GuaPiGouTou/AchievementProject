@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.competition.mapper.AchievementsCompetitionMapper">
-    
+
     <resultMap type="AchievementsCompetition" id="AchievementsCompetitionResult">
         <result property="competitionId"    column="competition_id"    />
         <result property="userId"    column="user_id"    />
@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectAchievementsCompetitionList" parameterType="AchievementsCompetition" resultMap="AchievementsCompetitionResult">
         <include refid="selectAchievementsCompetitionVo"/>
-        <where>  
+        <where>
             <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
             <if test="competitionLevel != null  and competitionLevel != ''"> and competition_level = #{competitionLevel}</if>
             <if test="competitionType != null  and competitionType != ''"> and competition_type = #{competitionType}</if>
@@ -46,7 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
         </where>
     </select>
-    
+
     <select id="selectAchievementsCompetitionByCompetitionId" parameterType="Long" resultMap="AchievementsCompetitionResult">
         <include refid="selectAchievementsCompetitionVo"/>
         where competition_id = #{competitionId}
@@ -129,9 +129,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteAchievementsCompetitionByCompetitionIds" parameterType="String">
-        delete from achievements_competition where competition_id in 
+        delete from achievements_competition where competition_id in
         <foreach item="competitionId" collection="array" open="(" separator="," close=")">
             #{competitionId}
         </foreach>
     </delete>
+
+    <select id="selectAchievementsCompetitionListByIds" resultMap="AchievementsCompetitionResult">
+        <include refid="selectAchievementsCompetitionVo"/>
+        <where>
+            competition_id IN
+            <foreach item="id" collection="ids" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>

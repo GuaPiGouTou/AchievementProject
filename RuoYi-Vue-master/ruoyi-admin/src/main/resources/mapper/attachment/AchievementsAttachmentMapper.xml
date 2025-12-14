@@ -134,7 +134,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectAchievementsAttachmentVo"/>
         <where>
             <if test="resourceId != null">
-                and user_id = #{resourceId}
+                and resource_id = #{resourceId}
             </if>
             <if test="attachmentType != null and attachmentType != ''">
                 and attachment_type = #{attachmentType}

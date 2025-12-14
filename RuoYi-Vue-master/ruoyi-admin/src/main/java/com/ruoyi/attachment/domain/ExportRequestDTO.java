@@ -34,6 +34,17 @@ public class ExportRequestDTO<T> {
     }
 
     private List<String> showColumns;
+
+
+    public List<Integer> getIds() {
+        return Ids;
+    }
+
+    public void setIds(List<Integer> ids) {
+        Ids = ids;
+    }
+
+    private List<Integer> Ids;
     private T data;
 
 

@@ -176,61 +176,67 @@
         @delete-success="handleDeleteSuccess"
       />
     <!-- 添加或修改获奖成果对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="奖项名称" prop="awardName">
-          <el-input v-model="form.awardName" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="获奖人" prop="awardWinner">
-          <el-input v-model="form.awardWinner" placeholder="请输入获奖人" />
-        </el-form-item>
-        <el-form-item label="颁奖单位" prop="awardUnit">
-          <el-input v-model="form.awardUnit" placeholder="请输入颁奖单位" />
-        </el-form-item>
-        <el-form-item label="获奖时间" prop="awardDate">
-          <el-date-picker clearable
-            v-model="form.awardDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择获奖时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="奖项级别" prop="awardLevel">
-           <el-select v-model="form.awardLevel" placeholder="请选择">
-               <el-option
-                 v-for="item in awardLevels"
-                 :key="item.value"
-                 :label="item.label"
-                 :value="item.value">
-               </el-option>
-             </el-select>
-        </el-form-item>
-        <el-form-item label="奖项类别" prop="awardCategory">
-          <el-input v-model="form.awardCategory" placeholder="请输入奖项类别" />
-        </el-form-item>
-        <el-form-item label="获奖等次" prop="awardRanking">
-          <el-input v-model="form.awardRanking" placeholder="请输入获奖等次" />
-        </el-form-item>
-        <el-form-item label="颁奖典礼日期" prop="awardCeremonyDate">
-          <el-date-picker clearable
-            v-model="form.awardCeremonyDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择颁奖典礼日期">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="颁奖地点" prop="awardCeremonyPlace">
-          <el-input v-model="form.awardCeremonyPlace" placeholder="请输入颁奖地点" />
-        </el-form-item>
-        <el-form-item label="上传文件" prop="updatedAt">
-        	<file-upload ref="file" v-model="files"></file-upload>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
+        <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form-item label="奖项名称" prop="awardName">
+              <el-input v-model="form.awardName" type="textarea" placeholder="请输入奖项名称，支持书名号《》" />
+            </el-form-item>
+
+            <!-- 修改了 placeholder -->
+            <el-form-item label="获奖人" prop="awardWinner">
+              <el-input v-model="form.awardWinner" placeholder="请输入获奖人，多人请用逗号或分号分隔 (如: 张三;李四)" />
+            </el-form-item>
+
+            <!-- 修改了 placeholder -->
+            <el-form-item label="颁奖单位" prop="awardUnit">
+              <el-input v-model="form.awardUnit" placeholder="请输入颁奖单位，多个单位请用逗号或分号分隔" />
+            </el-form-item>
+
+            <!-- 其他字段保持不变... -->
+            <el-form-item label="获奖时间" prop="awardDate">
+              <el-date-picker clearable
+                v-model="form.awardDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择获奖时间">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="奖项级别" prop="awardLevel">
+               <el-select v-model="form.awardLevel" placeholder="请选择">
+                   <el-option
+                     v-for="item in awardLevels"
+                     :key="item.value"
+                     :label="item.label"
+                     :value="item.value">
+                   </el-option>
+                 </el-select>
+            </el-form-item>
+            <el-form-item label="奖项类别" prop="awardCategory">
+              <el-input v-model="form.awardCategory" placeholder="请输入奖项类别" />
+            </el-form-item>
+            <el-form-item label="获奖等次" prop="awardRanking">
+              <el-input v-model="form.awardRanking" placeholder="请输入获奖等次" />
+            </el-form-item>
+            <el-form-item label="颁奖典礼日期" prop="awardCeremonyDate">
+              <el-date-picker clearable
+                v-model="form.awardCeremonyDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择颁奖典礼日期">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="颁奖地点" prop="awardCeremonyPlace">
+              <el-input v-model="form.awardCeremonyPlace" placeholder="请输入颁奖地点" />
+            </el-form-item>
+            <el-form-item label="上传文件" prop="updatedAt">
+            	<file-upload ref="file" v-model="files"></file-upload>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
     <el-dialog
       :title="Exceltitle"
       :visible.sync="Excelopen"
@@ -384,50 +390,57 @@ export default {
       // 表单参数
       form: {},
       // 表单校验
-      rules: {
-        awardName: [
-          { required: true, message: "奖项名称不能为空", trigger: "blur" },
-          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
-          // 允许中文、英文、数字、括号（中英文）、书名号、横杠、冒号、空格
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\：:\s]+$/, message: "奖项名称包含非法字符", trigger: "blur" }
-        ],
-        awardWinner: [
-          { required: true, message: "获奖人不能为空", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许中文、英文、点（用于缩写）、空格、逗号/分号（用于分隔多人）
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "请只输入姓名，多人可用逗号或分号分隔", trigger: "blur" }
-        ],
-        awardUnit: [
-          { required: true, message: "颁奖单位不能为空", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许中文、英文、数字、括号、点
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "颁奖单位名称格式不正确", trigger: "blur" }
-        ],
-        awardDate: [
-          { required: true, message: "获奖时间不能为空", trigger: "blur" }
-        ],
-        awardLevel: [
-          { required: true, message: "奖项级别不能为空", trigger: "change" }
-        ],
-        awardCategory: [
-          { required: true, message: "奖项类别不能为空", trigger: "blur" },
-          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          // 允许中英文、数字
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s]+$/, message: "奖项类别只能包含中英文及数字", trigger: "blur" }
-        ],
-        awardRanking: [
-          { required: false, message: "请输入获奖等次", trigger: "blur" },
-          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          // 允许：特等奖, 一等奖, 1st, Gold, Top 10
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s]+$/, message: "获奖等次格式不正确", trigger: "blur" }
-        ],
-        awardCeremonyPlace: [
-          { required: false, message: "请输入颁奖地点", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          // 允许地址格式
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s,，]+$/, message: "颁奖地点包含非法字符", trigger: "blur" }
-        ]
-      }
+            rules: {
+              awardName: [
+                { required: true, message: "奖项名称不能为空", trigger: "blur" },
+                { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+                // 允许中文、英文、数字、括号（中英文）、书名号、横杠、冒号、空格
+                { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\：:\s]+$/, message: "奖项名称格式错误，仅允许包含中英文、数字、书名号及括号等", trigger: "blur" }
+              ],
+              awardWinner: [
+                { required: true, message: "获奖人不能为空", trigger: "blur" },
+                { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+                {
+                  // 正则：允许单人或多人，分隔符支持中英文逗号、分号
+                  pattern: /^[\u4e00-\u9fa5a-zA-Z\s\.]+([,;，；][\u4e00-\u9fa5a-zA-Z\s\.]+)*$/,
+                  // 提示信息优化
+                  message: "格式错误，多人请用逗号(,)或分号(;)分隔，例如：张三;李四",
+                  trigger: "blur"
+                }
+              ],
+              awardUnit: [
+                { required: true, message: "颁奖单位不能为空", trigger: "blur" },
+                { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+                {
+                  // 正则：允许单个单位或多个单位，分隔符支持中英文逗号、分号
+                  pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+([,;，；][\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+)*$/,
+                  // 提示信息优化
+                  message: "格式错误，多个单位请用逗号(,)或分号(;)分隔，例如：教育部;科技部",
+                  trigger: "blur"
+                }
+              ],
+              awardDate: [
+                { required: true, message: "获奖时间不能为空", trigger: "blur" }
+              ],
+              awardLevel: [
+                { required: true, message: "奖项级别不能为空", trigger: "change" }
+              ],
+              awardCategory: [
+                { required: true, message: "奖项类别不能为空", trigger: "blur" },
+                { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+                { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s]+$/, message: "奖项类别只能包含中英文及数字", trigger: "blur" }
+              ],
+              awardRanking: [
+                { required: false, message: "请输入获奖等次", trigger: "blur" },
+                { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+                { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s]+$/, message: "获奖等次格式不正确（如：一等奖, 1st）", trigger: "blur" }
+              ],
+              awardCeremonyPlace: [
+                { required: false, message: "请输入颁奖地点", trigger: "blur" },
+                { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+                { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s,，]+$/, message: "颁奖地点包含非法字符", trigger: "blur" }
+              ]
+            }
     }
   },
   created() {

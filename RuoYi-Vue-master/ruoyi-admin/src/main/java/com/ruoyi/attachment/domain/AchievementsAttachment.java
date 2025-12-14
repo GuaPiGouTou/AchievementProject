@@ -54,8 +54,8 @@ public class AchievementsAttachment extends BaseEntity
     private String description;
 
     /** 上传时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "上传时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Excel(name = "上传时间", width = 30, dateFormat = "yyyy-MM-dd'T'HH:mm:ss")
     private Date uploadTime;
 
     /** 上传用户ID */
