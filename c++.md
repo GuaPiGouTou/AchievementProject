@@ -391,7 +391,7 @@ POST /api/deletePapers
   "code": 200
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询论文记录列表
 
 `POST`  /api/selectPaperByIds
 
@@ -853,7 +853,7 @@ POST /api/deleteAttachments
   "msg":"附件信息删除失败"    
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询竞赛记录列表
 
 `POST`  /api/selectAttachmentByIds
 
@@ -1843,7 +1843,7 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
   "msg":"教材信息删除失败"    
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询教材记录列表
 
 `POST`  /api/selectTextbookByIds
 
@@ -2304,7 +2304,7 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
   "msg":"教材信息删除失败"    
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询获奖记录列表
 
 `POST`  /api/selectAwardByIds
 
@@ -2701,7 +2701,7 @@ POST /api/deleteSoftwares
   "msg":"软著信息删除失败"    
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询软著记录列表
 
 `POST`  /api/selectSoftwareByIds
 
@@ -3198,7 +3198,7 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 }
 ```
 
-### 根据id列表查询竞赛记录
+### 根据id列表查询专著记录列表
 
 `POST`  /api/selectMonographByIds
 
@@ -3680,7 +3680,7 @@ GET /api/selectPatentById?userId=1&deptId=100&patentId=2001
 }
 ```
 
-### 根据id列表查询竞赛记录
+### 根据id列表查询专利记录列表
 
 `POST`  /api/selectPatentByIds
 
@@ -4174,7 +4174,7 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
   "msg":"成果转化信息删除失败"    
 }
 ```
-### 根据id列表查询竞赛记录
+### 根据id列表查询转化成果记录列表
 
 `POST`  /api/selectTransferByIds
 

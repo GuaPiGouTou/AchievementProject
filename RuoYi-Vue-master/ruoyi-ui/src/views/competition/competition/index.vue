@@ -201,8 +201,8 @@
             <el-form-item label="竞赛时间" prop="competitionTime">
               <el-date-picker clearable
                 v-model="form.competitionTime"
-                type="date"
-                value-format="yyyy-MM-dd"
+                type="datetime"
+                value-format="yyyy-MM-ddTHH:mm:ss"
                 placeholder="请选择竞赛时间">
               </el-date-picker>
             </el-form-item>
@@ -744,7 +744,7 @@ export default {
           this.ids = this.competitionList.map(item=>item.competitionId)
         }
           const requestData = {
-           ids:this.ids,
+           idList:this.ids,
            showColumns: this.selectClist || [],
            data: {
              ...this.queryParams

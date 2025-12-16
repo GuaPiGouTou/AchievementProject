@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.research.mapper.AchievementsResearchMapper">
+    
+    <resultMap type="AchievementsResearch" id="AchievementsResearchResult">
+        <result property="researchId"    column="research_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectNumber"    column="project_number"    />
+        <result property="projectCategory"    column="project_category"    />
+        <result property="projectLevel"    column="project_level"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="projectName"    column="project_name"    />
+        <result property="principal"    column="principal"    />
+        <result property="participants"    column="participants"    />
+        <result property="organizingUnit"    column="organizing_unit"    />
+        <result property="totalFunding"    column="total_funding"    />
+        <result property="receivedFunding"    column="received_funding"    />
+        <result property="fundingUnit"    column="funding_unit"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="actualEndDate"    column="actual_end_date"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="completionStatus"    column="completion_status"    />
+        <result property="researchField"    column="research_field"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="updatedAt"    column="updated_at"    />
+    </resultMap>
+
+    <sql id="selectAchievementsResearchVo">
+        select research_id, user_id, dept_id, project_number, project_category, project_level, project_type, project_name, principal, participants, organizing_unit, total_funding, received_funding, funding_unit, start_date, end_date, actual_end_date, project_status, completion_status, research_field, audit_status, created_at, updated_at from achievements_research
+    </sql>
+
+    <select id="selectAchievementsResearchList" parameterType="AchievementsResearch" resultMap="AchievementsResearchResult">
+        <include refid="selectAchievementsResearchVo"/>
+        <where>  
+            <if test="projectNumber != null  and projectNumber != ''"> and project_number = #{projectNumber}</if>
+            <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+            <if test="principal != null  and principal != ''"> and principal = #{principal}</if>
+            <if test="totalFunding != null "> and total_funding = #{totalFunding}</if>
+            <if test="projectStatus != null  and projectStatus != ''"> and project_status = #{projectStatus}</if>
+            <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectAchievementsResearchByResearchId" parameterType="Long" resultMap="AchievementsResearchResult">
+        <include refid="selectAchievementsResearchVo"/>
+        where research_id = #{researchId}
+    </select>
+
+    <insert id="insertAchievementsResearch" parameterType="AchievementsResearch">
+        insert into achievements_research
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="researchId != null">research_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectNumber != null and projectNumber != ''">project_number,</if>
+            <if test="projectCategory != null and projectCategory != ''">project_category,</if>
+            <if test="projectLevel != null and projectLevel != ''">project_level,</if>
+            <if test="projectType != null and projectType != ''">project_type,</if>
+            <if test="projectName != null and projectName != ''">project_name,</if>
+            <if test="principal != null and principal != ''">principal,</if>
+            <if test="participants != null">participants,</if>
+            <if test="organizingUnit != null and organizingUnit != ''">organizing_unit,</if>
+            <if test="totalFunding != null">total_funding,</if>
+            <if test="receivedFunding != null">received_funding,</if>
+            <if test="fundingUnit != null">funding_unit,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="actualEndDate != null">actual_end_date,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="completionStatus != null">completion_status,</if>
+            <if test="researchField != null">research_field,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="researchId != null">#{researchId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectNumber != null and projectNumber != ''">#{projectNumber},</if>
+            <if test="projectCategory != null and projectCategory != ''">#{projectCategory},</if>
+            <if test="projectLevel != null and projectLevel != ''">#{projectLevel},</if>
+            <if test="projectType != null and projectType != ''">#{projectType},</if>
+            <if test="projectName != null and projectName != ''">#{projectName},</if>
+            <if test="principal != null and principal != ''">#{principal},</if>
+            <if test="participants != null">#{participants},</if>
+            <if test="organizingUnit != null and organizingUnit != ''">#{organizingUnit},</if>
+            <if test="totalFunding != null">#{totalFunding},</if>
+            <if test="receivedFunding != null">#{receivedFunding},</if>
+            <if test="fundingUnit != null">#{fundingUnit},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="actualEndDate != null">#{actualEndDate},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="completionStatus != null">#{completionStatus},</if>
+            <if test="researchField != null">#{researchField},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAchievementsResearch" parameterType="AchievementsResearch">
+        update achievements_research
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectNumber != null and projectNumber != ''">project_number = #{projectNumber},</if>
+            <if test="projectCategory != null and projectCategory != ''">project_category = #{projectCategory},</if>
+            <if test="projectLevel != null and projectLevel != ''">project_level = #{projectLevel},</if>
+            <if test="projectType != null and projectType != ''">project_type = #{projectType},</if>
+            <if test="projectName != null and projectName != ''">project_name = #{projectName},</if>
+            <if test="principal != null and principal != ''">principal = #{principal},</if>
+            <if test="participants != null">participants = #{participants},</if>
+            <if test="organizingUnit != null and organizingUnit != ''">organizing_unit = #{organizingUnit},</if>
+            <if test="totalFunding != null">total_funding = #{totalFunding},</if>
+            <if test="receivedFunding != null">received_funding = #{receivedFunding},</if>
+            <if test="fundingUnit != null">funding_unit = #{fundingUnit},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="actualEndDate != null">actual_end_date = #{actualEndDate},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="completionStatus != null">completion_status = #{completionStatus},</if>
+            <if test="researchField != null">research_field = #{researchField},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+        </trim>
+        where research_id = #{researchId}
+    </update>
+
+    <delete id="deleteAchievementsResearchByResearchId" parameterType="Long">
+        delete from achievements_research where research_id = #{researchId}
+    </delete>
+
+    <delete id="deleteAchievementsResearchByResearchIds" parameterType="String">
+        delete from achievements_research where research_id in 
+        <foreach item="researchId" collection="array" open="(" separator="," close=")">
+            #{researchId}
+        </foreach>
+    </delete>
+</mapper>

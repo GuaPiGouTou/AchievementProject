@@ -623,8 +623,12 @@ export default {
       },
       /*导出方法*/
       DowExcel(){
-         const requestData = {
-           Ids:this.ids,
+      if(this.ids.length==0)
+        {
+          this.ids = this.textbookList.map(item=>item.textbookId)
+        }
+       const requestData = {
+        idList:this.ids,
           showColumns: this.selectClist || [],
           data: {
             ...this.queryParams

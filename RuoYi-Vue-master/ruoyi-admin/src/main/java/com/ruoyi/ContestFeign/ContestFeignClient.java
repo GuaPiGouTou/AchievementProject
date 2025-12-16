@@ -106,6 +106,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteTextbooks")
     AjaxResult deleteTextbooks(@RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询教材记录列表
+     */
+    @PostMapping("/api/selectTextbookByIds")
+    AjaxResult selectTextbookByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
     /**
      * 查询获奖列表
@@ -145,6 +151,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteAwardIds")
     AjaxResult deleteAward( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询获奖记录列表
+     */
+    @PostMapping("/api/selectPaperByIds")
+    AjaxResult selectPaperByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
     /**
      * 查询论文列表
@@ -185,6 +197,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deletePapers")
     AjaxResult deletePapers( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询论文记录列表
+     */
+    @PostMapping("/api/selectAwardByIds")
+    AjaxResult selectAwardByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
 
     /**
@@ -226,6 +244,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteAttachments")
     AjaxResult deleteAttachments( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询附件记录列表
+     */
+    @PostMapping("/api/selectAttachmentByIds")
+    AjaxResult selectAttachmentByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
 
     /**
@@ -267,6 +291,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteMonographs")
     AjaxResult deleteMonographs( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询论文记录列表
+     */
+    @PostMapping("/api/selectMonographByIds")
+    AjaxResult selectMonographByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
 
     /**
@@ -308,6 +338,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteSoftwares")
     AjaxResult deleteSoftwares( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询软著记录列表
+     */
+    @PostMapping("/api/selectSoftwareByIds")
+    AjaxResult selectSoftwareByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
 
     /**
@@ -349,6 +385,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteTransfers")
     AjaxResult deleteTransfers( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询转化记录列表
+     */
+    @PostMapping("/api/selectTransferByIds")
+    AjaxResult selectTransferByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
 
     /**
@@ -386,9 +428,15 @@ public interface ContestFeignClient {
 
 
     /**
-     * 删除成果转化记录
+     * 删除专利记录
      */
     @PostMapping("/api/deletePatents")
     AjaxResult deletePatents( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询专利记录列表
+     */
+    @PostMapping("/api/selectPatentByIds")
+    AjaxResult selectPatentByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
 }

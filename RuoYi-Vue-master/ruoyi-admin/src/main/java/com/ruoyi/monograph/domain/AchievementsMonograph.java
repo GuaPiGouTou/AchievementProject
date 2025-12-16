@@ -103,13 +103,13 @@ public class AchievementsMonograph extends BaseEntity
     private String auditStatus;
 
     /** 创建时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-M-d'T'H:m:s")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-M-d'T'H:m:s")
     private Date createdAt;
 
     /** 更新时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-M-d'T'H:m:s")
+    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-M-d'T'H:m:s")
     private Date updatedAt;
 
     public void setMonographId(Long monographId) 

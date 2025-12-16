@@ -66,10 +66,11 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:export')")
     @Log(title = "竞赛成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public AjaxResult export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO) {
+    public AjaxResult export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO)
+    {
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
-        Long[] ids = exportRequestDTO.getIds();
+        Long[] ids = exportRequestDTO.getIdList();
 
         // 2. 构造请求 (使用上面修改后的 IdsRequest)
         IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
@@ -77,7 +78,7 @@ public class AchievementsCompetitionController extends BaseController
         // 3. Feign 调用
         AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
 
-        // 4. 【修复】正确判断 total (处理 null 和 类型转换)
+        // 4. 判断 total (处理 null 和 类型转换)
         Object totalObj = result.get("total");
         int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
 
@@ -98,7 +99,7 @@ public class AchievementsCompetitionController extends BaseController
         }
 
         // 执行导出
-        util.exportExcel(response, list, "竞赛数据");
+        util.exportExcel(response, list, "竞赛成果数据");
 
         //返回 success
         return null;

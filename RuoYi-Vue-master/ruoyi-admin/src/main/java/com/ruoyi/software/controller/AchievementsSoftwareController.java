@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
+import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.competition.domain.AchievementsCompetition;
@@ -65,19 +66,43 @@ public class AchievementsSoftwareController extends BaseController
     @PreAuthorize("@ss.hasPermi('software:software:export')")
     @Log(title = "软著成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsSoftware> exportRequestDTO )
+    public AjaxResult export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsSoftware> exportRequestDTO )
     {
+        // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
-        AchievementsSoftware queryParams = exportRequestDTO.getData();
-        queryParams.setUserId(getUserId());
-        queryParams.setDeptId(getDeptId());
-        List<AchievementsSoftware> list = achievementsSoftwareService.selectAchievementsSoftwareList(queryParams);
-        ExcelUtil<AchievementsSoftware> util = new ExcelUtil<AchievementsSoftware>(AchievementsSoftware.class);
-        if(hiddenColumns != null && !hiddenColumns.isEmpty())
-        {
+        Long[] ids = exportRequestDTO.getIdList();
+
+        // 2. 构造请求 (使用上面修改后的 IdsRequest)
+        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
+
+        // 3. Feign 调用
+        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
+
+        // 4. 判断 total (处理 null 和 类型转换)
+        Object totalObj = result.get("total");
+        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
+
+        if (total == 0) {
+            return AjaxResult.warn("未查询到数据");
+        }
+
+        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
+        Object rows = result.get("rows");
+        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
+        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
+        List<AchievementsSoftware> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsSoftware.class);
+
+        // 6. 导出 Excel
+        ExcelUtil<AchievementsSoftware> util = new ExcelUtil<>(AchievementsSoftware.class);
+        if (hiddenColumns != null && !hiddenColumns.isEmpty()) {
             util.showColumn(hiddenColumns.toArray(new String[0]));
         }
-        util.exportExcel(response, list, "软著数据");
+
+        // 执行导出
+        util.exportExcel(response, list, "软著成果数据");
+
+        //返回 success
+        return null;
     }
 
     /**

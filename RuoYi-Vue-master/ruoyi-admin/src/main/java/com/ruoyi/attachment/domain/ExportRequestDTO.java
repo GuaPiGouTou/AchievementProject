@@ -10,12 +10,21 @@ import java.util.List;
 
 
 public class ExportRequestDTO<T> {
+
     public List<String> getShowColumns() {
         return showColumns;
     }
 
     public void setShowColumns(List<String> showColumns) {
         this.showColumns = showColumns;
+    }
+
+    public Long[] getIdList() {
+        return idList;
+    }
+
+    public void setIdList(Long[] idList) {
+        this.idList = idList;
     }
 
     public T getData() {
@@ -26,37 +35,23 @@ public class ExportRequestDTO<T> {
         this.data = data;
     }
 
-    public ExportRequestDTO() {
-    }
-
-    public ExportRequestDTO(List<String> showColumns, T data) {
-        this.showColumns = showColumns;
-        this.data = data;
-    }
-
-    private List<String> showColumns;
-
-
-    public Long[] getIds() {
-        return Ids;
-    }
-
-    public void setIds(Long[] ids) {
-        Ids = ids;
-    }
-
     @Override
     public String toString() {
         return "ExportRequestDTO{" +
                 "showColumns=" + showColumns +
-                ", Ids=" + Arrays.toString(Ids) +
+                ", idList=" + Arrays.toString(idList) +
                 ", data=" + data +
                 '}';
     }
 
-    //    private List<Integer> Ids;
-    private Long [] Ids;
+    public ExportRequestDTO(List<String> showColumns) {
+        this.showColumns = showColumns;
+    }
+
+    private List<String> showColumns;
+    private Long [] idList;
     private T data;
 
-
+    public ExportRequestDTO() {
+    }
 }

@@ -37,7 +37,7 @@
         <el-date-picker clearable
           v-model="queryParams.uploadTime"
           type="date"
-          value-format="yyyy-MM-dd"
+          value-format="yyyy-MM-dd-HH-mm-ss"
           placeholder="请选择上传时间">
         </el-date-picker>
       </el-form-item>
@@ -122,20 +122,32 @@
       <el-table-column label="文件描述" align="center" prop="description" />
       <el-table-column label="上传时间" align="center" prop="uploadTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.uploadTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.uploadTime, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="上传用户ID" align="center" prop="uploadUserId" />
       <el-table-column label="下载次数" align="center" prop="downloadCount" />
+      <el-table-column label="创建者" align="center" prop="createBy" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新者" align="center" prop="updateBy" />
+      <el-table-column label="创建时间" align="center" prop="updateTime" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
+         <!-- <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['attachment:attachment:edit']"
-          >修改</el-button>
+          >修改</el-button> -->
           <el-button
             size="mini"
             type="text"
@@ -179,8 +191,8 @@
         <el-form-item label="上传时间" prop="uploadTime">
           <el-date-picker clearable
             v-model="form.uploadTime"
-            type="date"
-            value-format="yyyy-MM-dd"
+            type="datetime"
+            value-format="yyyy-MM-ddTHH:mm:ss"
             placeholder="请选择上传时间">
           </el-date-picker>
         </el-form-item>

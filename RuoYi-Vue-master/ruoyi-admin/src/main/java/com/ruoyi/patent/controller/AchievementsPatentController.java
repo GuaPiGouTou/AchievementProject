@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
+import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.paper.domain.AchievementsPaper;
@@ -66,19 +67,43 @@ public class AchievementsPatentController extends BaseController
     @PreAuthorize("@ss.hasPermi('patent:patent:export')")
     @Log(title = "专利成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsPatent> exportRequestDTO)
+    public AjaxResult export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsPatent> exportRequestDTO)
     {
-        List<String> showColumns = exportRequestDTO.getShowColumns();
-        AchievementsPatent achievementsPatent = exportRequestDTO.getData();
-        achievementsPatent.setUserId(getUserId());
-        achievementsPatent.setDeptId(getDeptId());
-        List<AchievementsPatent> list =achievementsPatentService.selectAchievementsPatentList(achievementsPatent);
-        ExcelUtil<AchievementsPatent> util = new ExcelUtil<AchievementsPatent>(AchievementsPatent.class);
-        if(showColumns != null && !showColumns.isEmpty())
-        {
-            util.showColumn(showColumns.toArray(new String[0]));
+        // 1. 获取参数
+        List<String> hiddenColumns = exportRequestDTO.getShowColumns();
+        Long[] ids = exportRequestDTO.getIdList();
+
+        // 2. 构造请求 (使用上面修改后的 IdsRequest)
+        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
+
+        // 3. Feign 调用
+        AjaxResult result = contestFeignClient.selectPatentByIds(idsRequest);
+
+        // 4. 判断 total (处理 null 和 类型转换)
+        Object totalObj = result.get("total");
+        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
+
+        if (total == 0) {
+            return AjaxResult.warn("未查询到数据");
         }
+
+        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
+        Object rows = result.get("rows");
+        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
+        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
+        List<AchievementsPatent> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsPatent.class);
+
+        // 6. 导出 Excel
+        ExcelUtil<AchievementsPatent> util = new ExcelUtil<>(AchievementsPatent.class);
+        if (hiddenColumns != null && !hiddenColumns.isEmpty()) {
+            util.showColumn(hiddenColumns.toArray(new String[0]));
+        }
+
+        // 执行导出
         util.exportExcel(response, list, "专利成果数据");
+
+        //返回 success
+        return null;
     }
 
     /**

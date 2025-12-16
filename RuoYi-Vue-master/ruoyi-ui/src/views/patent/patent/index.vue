@@ -114,12 +114,12 @@
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新时间" align="center" prop="updatedAt" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="附件列表" align="center" width="100">
@@ -693,8 +693,12 @@ export default {
       },
       /*导出*/
       async DowExcel(){
-          const requestData = {
-           Ids:this.ids,
+        if(this.ids.length==0)
+          {
+            this.ids = this.patentList.map(item=>item.patentIds)
+          }
+         const requestData = {
+          idList:this.ids,
            showColumns: this.selectClist || [],
            data: {
              ...this.queryParams
