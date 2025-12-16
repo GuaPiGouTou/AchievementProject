@@ -391,6 +391,80 @@ POST /api/deletePapers
   "code": 200
 }
 ```
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectPaperByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+    "paperId": 1001,
+    "userId": 1,
+    "deptId": 101,
+    "paperTitle": "人工智能在教育领域的应用研究",
+    "paperCategory": "期刊论文",
+    "researchDirection": "人工智能",
+    "authorInformation": "第一作者",
+    "journal": "计算机科学",
+    "publishDate": "2024-10-15",
+    "volume": "50",
+    "issue": "10",
+    "pageRange": "100-110",
+    "doi": "10.1234/abc.2024.10.001",
+    "auditStatus": "待审核",
+    "createdAt": "2025-11-07",
+    "updatedAt": "2025-11-10"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
 
 ## 成果附件管理接口文档
 
@@ -779,6 +853,78 @@ POST /api/deleteAttachments
   "msg":"附件信息删除失败"    
 }
 ```
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectAttachmentByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+      "attachmentId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "attachmentType": "paper",
+      "fileName": "论文原文.pdf",
+      "filePath": "/uploads/2025/11/26/abc.pdf",
+      "fileSize": 2048,
+      "fileExtension": "pdf",
+      "fileCategory": "文档",
+      "description": "论文原文",
+      "uploadTime": "2025-11-26 10:00:00",
+      "uploadUserId": "1",
+      "downloadCount": 10,
+      "resourceId": 1001
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
 
 ## 竞赛管理接口文档
 
@@ -1697,6 +1843,82 @@ GET /api/selectTextbookById?userId=1&deptId=100&textbookId=1001
   "msg":"教材信息删除失败"    
 }
 ```
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectTextbookByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+  "textbookId": 1001,
+  "userId": 24306010534,
+  "deptId": 101,
+  "textbookName": "人工智能导论",
+  "authorRole": "主编",
+  "pressName": "高等教育出版社",
+  "isbnNumber": "978-7-04-060000-1",
+  "publishDate": "2024-05-20",
+  "textbookType": "规划教材",
+  "edition": "第一版",
+  "wordCount": null,
+  "usingInstitutions": null,
+  "applicableMajor": null,
+  "textbookLevel": "本科",
+  "approvalNumber": null,
+  "auditStatus": "待审核",
+  "createdAt": "2025-11-07T10:53:26",
+  "updatedAt": "2025-11-07T10:53:26"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
 
 ## 获奖管理接口文档
 
@@ -2082,7 +2304,79 @@ GET /api/selectAwardById?userId=1&deptId=100&textbookId=1001
   "msg":"教材信息删除失败"    
 }
 ```
+### 根据id列表查询竞赛记录
 
+`POST`  /api/selectAwardByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+    "awardId": 1,
+    "userId": 1001,
+    "deptId": 2001,
+    "awardName": "优秀项目奖",
+    "awardWinner": "张三",
+    "awardUnit": "技术部",
+    "awardDate": "2025-11-20",
+    "awardLevel": "国家级",
+    "awardCategory": "科学技术奖",
+    "awardRanking": "一等奖",
+    "awardCeremonyDate": "2025-12-10",
+    "awardCeremonyPlace": "北京国家会议中心",
+    "auditStatus": "0",
+    "createdAt": "2025-11-20T10:00:00",
+    "updatedAt": "2025-11-20T10:00:00"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
 ## 软著成果管理接口文档
 
 ### 查询软著列表
@@ -2407,6 +2701,82 @@ POST /api/deleteSoftwares
   "msg":"软著信息删除失败"    
 }
 ```
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectSoftwareByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+      "softwareId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "softwareName": "智能教学辅助系统",
+      "softwareVersion": "V1.0.0",
+      "certificateNo": "2024SR0123456",
+      "publishDate": "2024-10-01",
+      "registerDate": "2024-11-15",
+      "developmentDate": "2024-09-30",
+      "programmingLanguage": "Java",
+      "softwareType": "应用软件",
+      "softwareCopyrightCertificateLevel": "普通",
+      "certificateType": "软著登记证书",
+      "mainFunction": "提供智能化的教学辅助功能，包括作业批改、学情分析等。",
+      "applicationField": "教育技术",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
+
+........其他错误
 
 ## 专著管理接口文档
 
@@ -2828,6 +3198,85 @@ GET /api/selectMonographById?userId=1&deptId=100&monographId=1001
 }
 ```
 
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectMonographByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+     "monographId": 1001,
+      "userId": 1,
+      "deptId": 101,
+      "monographTitle": "大数据挖掘技术与应用",
+      "authorRole": "第一作者",
+      "pressName": "清华大学出版社",
+      "isbnNumber": "978-7-302-12345-6",
+      "publishDate": "2024-05-15",
+      "monographType": "学术专著",
+      "edition": "第一版",
+      "wordCount": 35,
+      "pageCount": 420,
+      "language": "中文",
+      "subjectCategory": "计算机科学与技术",
+      "isIncluded": 1,
+      "includedDatabase": "CSCD",
+      "awardSituation": "校级优秀学术著作一等奖",
+      "coAuthors": "[{\"name\":\"李四\",\"unit\":\"计算机学院\"}]",
+      "internationalStandardBookNumber": "978-7-302-12345-6",
+      "chinaClassificationNumber": "TP311",
+      "auditStatus": "待审核",
+      "createdAt": "2024-11-20",
+      "updatedAt": "2024-11-20"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
 ## 专利管理接口文档
 
 ### 查询专利列表
@@ -3231,6 +3680,83 @@ GET /api/selectPatentById?userId=1&deptId=100&patentId=2001
 }
 ```
 
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectPatentByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+      "patentId": 2001,
+      "userId": 1,
+      "deptId": 101,
+      "patentName": "一种智能数据处理装置",
+      "patentNo": "ZL202310123456.7",
+      "patentType": "发明专利",
+      "authorOrder": 1,
+      "applicationDate": "2023-01-15",
+      "authorizationDate": "2024-03-20",
+      "publicationDate": "2023-07-01",
+      "publicationNo": "CN116000000A",
+      "patentValidity": "2043-01-15",
+      "patentSubject": "计算机科学与技术",
+      "patentStatus": "已授权",
+      "patentOffice": "国家知识产权局",
+      "technicalField": "人工智能与大数据",
+      "legalStatus": "有效",
+      "certificateType": "authorization_certificate",
+      "auditStatus": "待审核",
+      "createdAt": "2024-03-25",
+      "updatedAt": "2024-03-25"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
 ## 成果转化管理接口文档
 
 ### 查询成果转化列表
@@ -3646,6 +4172,85 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
   "code": 501,
   "competitionIds": null,
   "msg":"成果转化信息删除失败"    
+}
+```
+### 根据id列表查询竞赛记录
+
+`POST`  /api/selectTransferByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+      "transferId": 3001,
+      "userId": 1,
+      "deptId": 101,
+      "achievementName": "高性能芯片散热技术",
+      "achievementType": "专利",
+      "achievementNumber": "ZL202310001",
+      "transferMethod": "技术转让",
+      "partnerEnterprise": "未来科技有限公司",
+      "transferAmount": 500.00,
+      "transferDate": "2024-05-10",
+      "transferDescription": "将芯片散热专利技术整体转让给合作企业。",
+      "validityPeriod": "永久",
+      "territoryRange": "全球",
+      "paymentMethod": "分期付款",
+      "transferStatus": "已签约",
+      "isExclusive": 1,
+      "economicBenefits": "预计年增收2000万元",
+      "socialBenefits": "推动半导体行业发展",
+      "contactPerson": "张三",
+      "contactPhone": "13800138000",
+      "auditStatus": "待审核",
+      "createdAt": "2024-05-15",
+      "updatedAt": "2024-05-15"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
 }
 ```
 
