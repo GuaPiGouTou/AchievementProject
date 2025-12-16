@@ -61,6 +61,12 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/deleteContests")
     AjaxResult deleteContests( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询竞赛记录列表
+     */
+    @PostMapping("/api/selectContestByIds")
+    AjaxResult selectContestByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
     /**
      * 查询教材列表

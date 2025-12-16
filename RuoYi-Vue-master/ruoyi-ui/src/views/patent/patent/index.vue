@@ -281,7 +281,9 @@
        <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
           <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.label}}</el-checkbox>
         </el-checkbox-group>
+       <el-badge :value="idsCount==0?patentList.length:idsCount" class="item"  >
         <el-button @click="DowExcel()" >导出</el-button>
+       </el-badge>
     </el-dialog>
     <AttachmentManagement
         :visible="attachmentVisible"
@@ -305,6 +307,8 @@ export default {
   name: "Patent",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //上传文件组件
       files:[],
       //附件弹窗参数
@@ -690,6 +694,7 @@ export default {
       /*导出*/
       async DowExcel(){
           const requestData = {
+           Ids:this.ids,
            showColumns: this.selectClist || [],
            data: {
              ...this.queryParams

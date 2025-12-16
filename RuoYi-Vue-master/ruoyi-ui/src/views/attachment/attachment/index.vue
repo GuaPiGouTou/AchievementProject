@@ -206,8 +206,8 @@
           <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.label}}</el-checkbox>
         </el-checkbox-group>
          <el-badge :value="idsCount==0?attachmentList.length:idsCount" class="item"  >
-                 <el-button @click="DowExcel()" >导出</el-button>
-               </el-badge>>
+           <el-button @click="DowExcel()" >导出</el-button>
+         </el-badge>
     </el-dialog>
   </div>
 </template>

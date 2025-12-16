@@ -40,8 +40,8 @@ public class AchievementsCompetition extends BaseEntity
     private String competitionType;
 
     /** 竞赛时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "竞赛时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-M-d'T'H:m:s")
+    @Excel(name = "竞赛时间", width = 30, dateFormat = "yyyy-MM-dd'T'H:m:s")
     private Date competitionTime;
 
     /** 角色类型 */
@@ -74,7 +74,7 @@ public class AchievementsCompetition extends BaseEntity
     private String teamName;
 
     /** 指导的学生参赛（仅指导老师角色使用） */
-    @Excel(name = "指导的学生参赛", readConverterExp = "仅=指导老师角色使用")
+    @Excel(name = "指导的学生参赛", readConverterExp = "仅指导老师角色使用")
     private String studentParticipants;
 
     /** 获奖证书编号 */
@@ -90,13 +90,13 @@ public class AchievementsCompetition extends BaseEntity
     private String auditStatus;
 
     /** 创建时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-M-d'T'H:m:s")
+    @Excel(name = "竞赛时间", width = 30, dateFormat = "yyyy-MM-dd'T'H:m:s")
     private Date createdAt;
 
     /** 更新时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-M-d'T'H:m:s")
+    @Excel(name = "竞赛时间", width = 30, dateFormat = "yyyy-MM-dd'T'H:m:s")
     private Date updatedAt;
 
     public void setCompetitionId(Long competitionId) 

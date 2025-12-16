@@ -212,22 +212,7 @@
             <el-form-item label="批准文号" prop="approvalNumber">
               <el-input v-model="form.approvalNumber" placeholder="请输入批准文号 (如: 国教材〔2023〕1号)" />
             </el-form-item>
-            <el-form-item label="创建时间" prop="createdAt">
-              <el-date-picker clearable
-                v-model="form.createdAt"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择创建时间">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="更新时间" prop="updatedAt">
-              <el-date-picker clearable
-                v-model="form.updatedAt"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择更新时间">
-              </el-date-picker>
-            </el-form-item>
+
             <el-form-item label="上传文件" prop="updatedAt">
             	<file-upload ref="file" v-model="files"></file-upload>
             </el-form-item>
@@ -257,7 +242,9 @@
          <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
             <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.lable}}</el-checkbox>
           </el-checkbox-group>
-          <el-button @click="DowExcel()" >导出</el-button>
+        <el-badge :value="idsCount==0?textbookList.length:idsCount" class="item"  >
+         <el-button @click="DowExcel()" >导出</el-button>
+        </el-badge>
       </el-dialog>
   </div>
 </template>
@@ -269,6 +256,8 @@ export default {
   name: "Textbook",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //导出弹窗
       Exceltitle:"选择导出的字段",
       Excelopen:false,
@@ -634,9 +623,8 @@ export default {
       },
       /*导出方法*/
       DowExcel(){
-        console.log('查询条件:', this.queryParams);
-         console.log('隐藏列:', this.selectClist);
          const requestData = {
+           Ids:this.ids,
           showColumns: this.selectClist || [],
           data: {
             ...this.queryParams

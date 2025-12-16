@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
+import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
 
@@ -65,32 +66,42 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:export')")
     @Log(title = "竞赛成果", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response,@RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO )
-    {
-        List<String> hiddenColumns = exportRequestDTO .getShowColumns();
-        List<Integer> ids = exportRequestDTO.getIds();
-        AchievementsCompetition queryParams = exportRequestDTO.getData();
-        queryParams.setUserId(getUserId());
-        queryParams.setDeptId(getDeptId());
-        List<AchievementsCompetition> list;
+    public AjaxResult export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsCompetition> exportRequestDTO) {
+        // 1. 获取参数
+        List<String> hiddenColumns = exportRequestDTO.getShowColumns();
+        Long[] ids = exportRequestDTO.getIds();
 
-        // ：判断是导出全部还是导出选中
-        if (ids != null && !ids.isEmpty()) {
-            // 如果 ID 列表不为空，则根据 ID 查询
-            list = achievementsCompetitionService.selectAchievementsCompetitionListByIds(ids,queryParams);
-        } else {
-            // 否则，按原来的查询条件查询 (导出全部)
-            queryParams.setUserId(getUserId());
-            queryParams.setDeptId(getDeptId());
-            list = achievementsCompetitionService.selectAchievementsCompetitionList(queryParams);
+        // 2. 构造请求 (使用上面修改后的 IdsRequest)
+        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
+
+        // 3. Feign 调用
+        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
+
+        // 4. 【修复】正确判断 total (处理 null 和 类型转换)
+        Object totalObj = result.get("total");
+        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
+
+        if (total == 0) {
+            return AjaxResult.warn("未查询到数据");
         }
 
-        ExcelUtil<AchievementsCompetition> util = new ExcelUtil<AchievementsCompetition>(AchievementsCompetition.class);
-        if(hiddenColumns != null && !hiddenColumns.isEmpty())
-        {
+        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
+        Object rows = result.get("rows");
+        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
+        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
+        List<AchievementsCompetition> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsCompetition.class);
+
+        // 6. 导出 Excel
+        ExcelUtil<AchievementsCompetition> util = new ExcelUtil<>(AchievementsCompetition.class);
+        if (hiddenColumns != null && !hiddenColumns.isEmpty()) {
             util.showColumn(hiddenColumns.toArray(new String[0]));
         }
+
+        // 执行导出
         util.exportExcel(response, list, "竞赛数据");
+
+        //返回 success
+        return null;
     }
 
     /**

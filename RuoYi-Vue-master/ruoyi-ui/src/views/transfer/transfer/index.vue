@@ -243,22 +243,7 @@
             <el-form-item label="联系电话" prop="contactPhone">
               <el-input v-model="form.contactPhone" placeholder="请输入联系电话 (手机或座机)" />
             </el-form-item>
-            <el-form-item label="创建时间" prop="createdAt">
-              <el-date-picker clearable
-                v-model="form.createdAt"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择创建时间">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="更新时间" prop="updatedAt">
-              <el-date-picker clearable
-                v-model="form.updatedAt"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择更新时间">
-              </el-date-picker>
-            </el-form-item>
+
             <el-form-item label="上传文件" prop="updatedAt">
             	<file-upload ref="file" v-model="files"></file-upload>
             </el-form-item>
@@ -277,7 +262,9 @@
        <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
           <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.label}}</el-checkbox>
         </el-checkbox-group>
-        <el-button @click="DowExcel()" >导出</el-button>
+        <el-badge :value="idsCount==0?transferList.length:idsCount" class="item"  >
+         <el-button @click="DowExcel()" >导出</el-button>
+        </el-badge>
     </el-dialog>
     <AttachmentManagement
         :visible="attachmentVisible"
@@ -300,6 +287,8 @@ export default {
   name: "Transfer",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //上传文件组件
       files:[],
       //附件弹窗参数
@@ -678,6 +667,7 @@ export default {
       /*导出*/
       async DowExcel(){
           const requestData = {
+            Ids:this.ids,
            showColumns: this.selectClist || [],
            data: {
              ...this.queryParams

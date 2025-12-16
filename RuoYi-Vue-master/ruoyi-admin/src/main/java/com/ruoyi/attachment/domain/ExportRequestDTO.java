@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -36,15 +37,25 @@ public class ExportRequestDTO<T> {
     private List<String> showColumns;
 
 
-    public List<Integer> getIds() {
+    public Long[] getIds() {
         return Ids;
     }
 
-    public void setIds(List<Integer> ids) {
+    public void setIds(Long[] ids) {
         Ids = ids;
     }
 
-    private List<Integer> Ids;
+    @Override
+    public String toString() {
+        return "ExportRequestDTO{" +
+                "showColumns=" + showColumns +
+                ", Ids=" + Arrays.toString(Ids) +
+                ", data=" + data +
+                '}';
+    }
+
+    //    private List<Integer> Ids;
+    private Long [] Ids;
     private T data;
 
 

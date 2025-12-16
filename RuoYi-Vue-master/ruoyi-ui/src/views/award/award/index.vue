@@ -246,7 +246,9 @@
        <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
           <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.lable}}</el-checkbox>
         </el-checkbox-group>
-        <el-button @click="DowExcel()" >导出</el-button>
+              <el-badge :value="idsCount==0?awardList.length:idsCount" class="item"  >
+               <el-button @click="DowExcel()" >导出</el-button>
+              </el-badge>
     </el-dialog>
   </div>
 </template>
@@ -258,6 +260,8 @@ export default {
   name: "Award",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //附件弹窗参数
       currentPaperId:null,
       currentPaper:"",
@@ -593,9 +597,8 @@ export default {
     },
     /*导出方法*/
     DowExcel(){
-      console.log('查询条件:', this.queryParams);
-       console.log('隐藏列:', this.selectClist);
        const requestData = {
+          Ids:this.ids,
          showColumns: this.selectClist || [],
          data: {
            ...this.queryParams

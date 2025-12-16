@@ -211,7 +211,9 @@
          <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
             <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.lable}}</el-checkbox>
           </el-checkbox-group>
-          <el-button @click="DowExcel()" >导出</el-button>
+               <el-badge :value="idsCount==0?paperList.length:idsCount" class="item"  >
+                <el-button @click="DowExcel()" >导出</el-button>
+               </el-badge>
       </el-dialog>
   </div>
 </template>
@@ -224,6 +226,8 @@ export default {
   name: "Paper",
   data() {
     return {
+      //导出记录
+      idsCount:0,
       //导出弹窗
       Exceltitle:"选择导出的字段",
       Excelopen:false,
@@ -514,6 +518,7 @@ export default {
      /*导出*/
     DowExcel(){
        const requestData = {
+         Ids:this.ids,
         showColumns: this.selectClist || [],
         data: {
           ...this.queryParams

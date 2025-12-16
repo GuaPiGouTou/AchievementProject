@@ -10,6 +10,28 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <artifactId>ruoyi-admin</artifactId>
+    <profiles>
+        <!-- 1. 开发环境（默认激活） -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault> <!-- 默认激活，IDEA直接启动就用这个 -->
+            </activation>
+            <properties>
+                <!-- 对应 application.yml 里的 @spring.profile@ -->
+                <spring.profile>dev</spring.profile>
+            </properties>
+        </profile>
+
+        <!-- 2. 生产/服务器环境 -->
+        <profile>
+            <id>prod</id>
+            <properties>
+                <!-- 打包时如果选了prod，这里就会变成 prod -->
+                <spring.profile>prod</spring.profile>
+            </properties>
+        </profile>
+    </profiles>
 
     <description>
         web服务入口
@@ -90,6 +112,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering> <!-- 必须为 true，否则 @变量@ 不会被替换 -->
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -3651,18 +3651,3 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
 
 
 
-
-
-
-
-```
-//导出记录
-      idsCount:0,
-      
-        <el-badge :value="idsCount==0?softwareList.length:idsCount" class="item"  >
-         <el-button @click="DowExcel()" >导出</el-button>
-       </el-badge>
-       
-       Ids:this.ids,
-```
-
