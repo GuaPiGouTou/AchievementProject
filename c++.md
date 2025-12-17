@@ -4581,7 +4581,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 
 ### 删除研究记录
 
-`POST /api/deleteResearchId`
+`POST /api/deleteResearch`
 
 ##### 请求头
 
