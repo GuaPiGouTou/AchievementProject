@@ -4341,8 +4341,8 @@ SELECT * FROM achievements_research WHERE user_id = userId;(data_scope = "5")
       "principal": "张老师",
       "participants": "12321",
       "organizingUnit": "国家自然科学基金委",
-      "totalFunding": "500.00",
-      "receivedFunding": "3213.00",
+      "totalFunding": 500.00,
+      "receivedFunding": 3213.00,
       "fundingUnit": "2311",
       "startDate": "2024-03-01",
       "endDate": "2026-02-28",
@@ -4420,8 +4420,8 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
       "principal": "张老师",
       "participants": "12321",
       "organizingUnit": "国家自然科学基金委",
-      "totalFunding": "500.00",
-      "receivedFunding": "3213.00",
+      "totalFunding": 500.00,
+      "receivedFunding": 3213.00,
       "fundingUnit": "2311",
       "startDate": "2024-03-01",
       "endDate": "2026-02-28",
@@ -4542,8 +4542,8 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
       "principal": "张老师",
       "participants": "12321",
       "organizingUnit": "国家自然科学基金委",
-      "totalFunding": "500.00",
-      "receivedFunding": "3213.00",
+      "totalFunding": 500.00,
+      "receivedFunding": 3213.00,
       "fundingUnit": "2311",
       "startDate": "2024-03-01",
       "endDate": "2026-02-28",
@@ -4566,7 +4566,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ```json
 {
   "code": 200,
-  "researchId": 3007,
+  "researchId": 3001,
   "msg": "更新成功"
 }
 ```
