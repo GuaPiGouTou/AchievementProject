@@ -73,11 +73,11 @@ public class AchievementsTransferController extends BaseController
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
 
-        // 2. 构造请求 (使用上面修改后的 IdsRequest)
+        // 2. 构造请求
         IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
 
         // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
+        AjaxResult result = contestFeignClient.selectTransferByIds(idsRequest);
 
         // 4. 判断 total (处理 null 和 类型转换)
         Object totalObj = result.get("total");

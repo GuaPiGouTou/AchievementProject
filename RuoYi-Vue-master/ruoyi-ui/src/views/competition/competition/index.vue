@@ -657,10 +657,11 @@ export default {
               if(response.competitionId!=null)
               {
                  this.$refs.file.submitUpload(response.competitionId,"competition");
+                 this.$modal.msgSuccess("修改成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("修改成功，上传文件失败")
               }
-              this.$modal.msgSuccess("修改成功")
+
               this.open = false
               this.getList()
             })
@@ -669,14 +670,13 @@ export default {
             console.log(this.form)
             addCompetition(this.form).then(response => {
 
-              this.$modal.msgSuccess("新增成功")
+
               if(response.competitionId!=null)
               {
-                console.log(response.competitionId)
-                console.log("response.competitionId")
                  this.$refs.file.submitUpload(response.competitionId,"competition");
+                 this.$modal.msgSuccess("新增成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("新增成功,上传文件失败")
               }
               this.open = false
               this.getList()

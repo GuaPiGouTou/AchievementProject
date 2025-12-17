@@ -73,7 +73,7 @@ public class AchievementsTextbookController extends BaseController
         IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
 
         // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
+        AjaxResult result = contestFeignClient.selectTextbookByIds(idsRequest);
 
         // 4. 判断 total (处理 null 和 类型转换)
         Object totalObj = result.get("total");

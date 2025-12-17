@@ -528,8 +528,11 @@ export default {
               if(response.awardId!=null)
               {
                  this.$refs.file.submitUpload(response.awardId,"award");
+                 this.$modal.msgSuccess("修改成功")
+              }else{
+                this.$modal.msgSuccess("修改成功,文件上传失败")
               }
-              this.$modal.msgSuccess("修改成功")
+
               this.open = false
               this.getList()
             })
@@ -539,8 +542,11 @@ export default {
               if(response.awardId!=null)
               {
                  this.$refs.file.submitUpload(response.awardId,"award");
+                 this.$modal.msgSuccess("新增成功")
+              }else{
+                this.$modal.msgSuccess("新增成功,文件上传失败")
               }
-              this.$modal.msgSuccess("新增成功")
+
               this.open = false
               this.getList()
             })

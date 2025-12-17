@@ -332,10 +332,10 @@ export default {
                 value: 'auditStatus',
                 label: '审核状态'
               }, {
-                value: 'createTime',
+                value: 'createdAt',
                 label: '创建时间'
               }, {
-                value: 'updateTime',
+                value: 'updatedAt',
                 label: '更新时间'
               }
             ],
@@ -560,15 +560,16 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.monographId != null) {
-            updateMonograph(this.form).then(response => {
-				if(response.monographId!=null)
-				{
-				   this.$refs.file.submitUpload(response.monographId,"monograph");
-				}else{
-				    this.$modal.msgSuccess("上传文件失败")
-				}
-              this.$modal.msgSuccess("修改成功")
+              if (this.form.monographId != null) {
+              updateMonograph(this.form).then(response => {
+              if(response.monographId!=null)
+              {
+                  this.$refs.file.submitUpload(response.monographId,"monograph");
+                  this.$modal.msgSuccess("修改成功")
+              }else{
+                  this.$modal.msgSuccess("修改成功,上传文件失败")
+              }
+
               this.open = false
               this.getList()
             })
@@ -577,10 +578,11 @@ export default {
               if(response.monographId!=null)
               {
                  this.$refs.file.submitUpload(response.monographId,"monograph");
+                  this.$modal.msgSuccess("新增成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("新增成功,上传文件失败")
               }
-              this.$modal.msgSuccess("新增成功")
+
               this.open = false
               this.getList()
             })

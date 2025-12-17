@@ -477,10 +477,11 @@ export default {
               {
 
                  this.$refs.file.submitUpload(response.paperId,"paper");
+                 this.$modal.msgSuccess("修改成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("修改成功,上传文件失败")
               }
-              this.$modal.msgSuccess("修改成功")
+
               this.open = false
               this.getList()
             })
@@ -490,10 +491,10 @@ export default {
               {
 
                  this.$refs.file.submitUpload(response.paperId,"paper");
+                 this.$modal.msgSuccess("新增成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("新增成功,上传文件失败")
               }
-              this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
             })

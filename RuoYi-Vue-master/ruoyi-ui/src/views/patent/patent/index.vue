@@ -620,10 +620,11 @@ export default {
               if(response.patentId!=null)
               {
                  this.$refs.file.submitUpload(response.patentId,"patent");
+                 this.$modal.msgSuccess("修改成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("修改成功,上传文件失败")
               }
-              this.$modal.msgSuccess("修改成功")
+
               this.open = false
               this.getList()
             })
@@ -632,10 +633,11 @@ export default {
               if(response.patentId!=null)
               {
                  this.$refs.file.submitUpload(response.patentId,"patent");
+                  this.$modal.msgSuccess("新增成功")
               }else{
-                  this.$modal.msgSuccess("上传文件失败")
+                  this.$modal.msgSuccess("新增成功,上传文件失败")
               }
-              this.$modal.msgSuccess("新增成功")
+
               this.open = false
               this.getList()
             })
@@ -695,7 +697,7 @@ export default {
       async DowExcel(){
         if(this.ids.length==0)
           {
-            this.ids = this.patentList.map(item=>item.patentIds)
+            this.ids = this.patentList.map(item=>item.patentId)
           }
          const requestData = {
           idList:this.ids,

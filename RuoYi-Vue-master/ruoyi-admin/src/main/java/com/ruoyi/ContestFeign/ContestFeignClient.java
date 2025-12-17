@@ -8,6 +8,7 @@ import com.ruoyi.competition.domain.demo;
 import com.ruoyi.monograph.domain.AchievementsMonograph;
 import com.ruoyi.paper.domain.AchievementsPaper;
 import com.ruoyi.patent.domain.AchievementsPatent;
+import com.ruoyi.research.domain.AchievementsResearch;
 import com.ruoyi.software.domain.AchievementsSoftware;
 import com.ruoyi.textbook.domain.AchievementsTextbook;
 import com.ruoyi.transfer.domain.AchievementsTransfer;
@@ -438,5 +439,52 @@ public interface ContestFeignClient {
      */
     @PostMapping("/api/selectPatentByIds")
     AjaxResult selectPatentByIds( @RequestBody IdsRequest request);
+//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------//    ---------------------------------------------------------------------------------
+
+    /**
+     * 查询研究列表
+     */
+    @GetMapping("/api/selectResearchList")
+    AjaxResult selectResearchList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("pageNum") Integer pageNum,
+            @RequestParam("pageSize") Integer pageSize
+    );
+
+    /**
+     * 查询研究记录详细信息
+     */
+    @GetMapping("/api/selectResearchById")
+    AjaxResult selectResearchById(
+            @RequestParam("userId") Long userId,
+            @RequestParam("deptId") Long deptId,
+            @RequestParam("researchId") Long researchId
+    );
+
+    /**
+     * 新增研究记录
+     */
+    @PostMapping("/api/insertResearch")
+    AjaxResult insertResearch(@RequestBody AchievementsResearch achievementsResearch);
+
+    /**
+     * 更新研究记录
+     */
+    @PostMapping("/api/updateResearch")
+    AjaxResult updateResearch(@RequestBody AchievementsResearch achievementsResearch);
+
+
+    /**
+     * 删除专利记录
+     */
+    @PostMapping("/api/deleteResearchId")
+    AjaxResult deleteResearchId( @RequestBody DeleteRequest request);
+
+    /**
+     * 根据id列表查询专利记录列表
+     */
+    @PostMapping("/api/selectResearchByIds")
+    AjaxResult selectResearchByIds( @RequestBody IdsRequest request);
 //    ---------------------------------------------------------------------------------
 }
