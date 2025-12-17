@@ -4253,6 +4253,460 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
   "msg": "查询失败"
 }
 ```
+## 研究接口文档
+
+### 查询研究列表
+
+`GET /api/selectResearchList`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `pageNum`: `Long`类型，分页页码
+- `pageSize`: `Long`类型，分页大小
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_transfer的全部字段
+
+##### 请求参数示例
+
+```
+GET /api/selectResearchList?userId=1&deptId=100&pageNum=1&pageSize=10
+```
+
+##### SQL权限控制
+
+根据user_id查出role_id，在角色表中根据role_id查出 data_scope 来确定数据权限，再根据数据权限来动态拼接SQL语句
+
+```sql
+----------------------------示例----------------------------
+SELECT 
+    r.data_scope
+FROM sys_user u
+LEFT JOIN sys_user_role ur ON u.user_id = ur.user_id
+LEFT JOIN sys_role r ON ur.role_id = r.role_id
+WHERE u.user_id = 1
+AND u.del_flag = '0'
+AND u.status = '0'
+AND r.del_flag = '0'
+AND r.status = '0';
+----------------------------示例----------------------------
+```
+
+- `data_scope`: `char`类型，数据权限标识符（1-5）1:全部数据权限,2:自定义数据权限,3:本部门数据权限,4:本部门及以下数据权限,5:仅本人数据权限
+
+```sql
+----------------------------示例----------------------------
+SELECT * FROM achievements_transfer;  (data_scope = "1")
+
+SELECT * FROM achievements_transfer WHERE dept_id IN
+(SELECT dept_id FROM sys_dept WHERE dept_id IN 
+(SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
+
+SELECT * FROM achievements_transfer WHERE dept_id = deptId;  (data_scope = "3")
+
+SELECT * FROM achievements_transfer WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+
+SELECT * FROM achievements_transfer WHERE user_id = userId;(data_scope = "5")
+----------------------------示例----------------------------
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，成果转化列表
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "total": 1,
+  "rows": [
+    {
+      "researchId": 3001,
+      "userId": 1,
+      "deptId": 101,
+      "projectNumber": "NSFC2024001",
+      "projectCategory": "横向项目",
+      "projectLevel": "国家级",
+      "projectType": "自然科学基金",
+      "projectName": "人工智能在教育领域的应用研究",
+      "principal": 张老师,
+      "participants": "12321",
+      "organizingUnit": "国家自然科学基金委",
+      "totalFunding": "500.00",
+      "receivedFunding": "3213.00",
+      "fundingUnit": "2311",
+      "startDate": "2024-03-01",
+      "endDate": 2026-02-28,
+      "actualEndDate": "2026-01-01",
+      "projectStatus": "在研",
+      "completionStatus": "未结题",
+      "researchField": "200",
+      "auditStatus": "待审核",
+      "createdAt": "2025-12-17 02:50:07",
+      "updatedAt": "2025-11-07 00:00:00"
+    }
+  ],
+  "code": 200,
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 200,
+  "msg": "查询失败"
+}
+```
+
+### 查询成果转化记录详细信息
+
+`GET /api/selectResearchById`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `transferId`: `Long`类型，转化ID（用于查询转化表的具体记录）
+
+##### 查询数据字段
+
+数据库ry-vue中achievements_transfer的指定ID记录
+
+##### 请求参数示例
+
+```
+GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
+```
+
+需要进行权限检查原理同**查询成果转化列表**
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，成果转化详细信息
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "data": {
+     "researchId": 3001,
+      "userId": 1,
+      "deptId": 101,
+      "projectNumber": "NSFC2024001",
+      "projectCategory": "横向项目",
+      "projectLevel": "国家级",
+      "projectType": "自然科学基金",
+      "projectName": "人工智能在教育领域的应用研究",
+      "principal": 张老师,
+      "participants": "12321",
+      "organizingUnit": "国家自然科学基金委",
+      "totalFunding": "500.00",
+      "receivedFunding": "3213.00",
+      "fundingUnit": "2311",
+      "startDate": "2024-03-01",
+      "endDate": 2026-02-28,
+      "actualEndDate": "2026-01-01",
+      "projectStatus": "在研",
+      "completionStatus": "未结题",
+      "researchField": "200",
+      "auditStatus": "待审核",
+      "createdAt": "2025-12-17 02:50:07",
+      "updatedAt": "2025-11-07 00:00:00"
+  },
+  "msg": "查询成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "data": "",
+  "msg":"查询详细信息失败"    
+}
+```
+
+### 新增成果转化成果
+
+`POST /api/insertResearch`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+创建时间，更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+   "researchId": 3001,
+      "userId": 1,
+      "deptId": 101,
+      "projectNumber": "NSFC2024001",
+      "projectCategory": "横向项目",
+      "projectLevel": "国家级",
+      "projectType": "自然科学基金",
+      "projectName": "人工智能在教育领域的应用研究",
+      "principal": 张老师,
+      "participants": "12321",
+      "organizingUnit": "国家自然科学基金委",
+      "totalFunding": "500.00",
+      "receivedFunding": "3213.00",
+      "fundingUnit": "2311",
+      "startDate": "2024-03-01",
+      "endDate": 2026-02-28,
+      "actualEndDate": "2026-01-01",
+      "projectStatus": "在研",
+      "completionStatus": "未结题",
+      "researchField": "200",
+      "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，上传后的转化记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "msg": "操作成功",
+  "researchId": 3007,
+  "code": 200
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "msg": "研究信息插入失败",
+  "researchId": null,
+  "code": 200
+}
+```
+
+### 更新成果转化记录
+
+`POST /api/updateResearch`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+更新时间后端在接收参数后自行插入
+
+##### 请求参数示例
+
+```json
+{
+    "researchId": 3001,
+        "userId": 1,
+      "deptId": 101,
+      "projectNumber": "NSFC2024001",
+      "projectCategory": "横向项目",
+      "projectLevel": "国家级",
+      "projectType": "自然科学基金",
+      "projectName": "人工智能在教育领域的应用研究",
+      "principal": 张老师,
+      "participants": "12321",
+      "organizingUnit": "国家自然科学基金委",
+      "totalFunding": "500.00",
+      "receivedFunding": "3213.00",
+      "fundingUnit": "2311",
+      "startDate": "2024-03-01",
+      "endDate": 2026-02-28,
+      "actualEndDate": "2026-01-01",
+      "projectStatus": "在研",
+      "completionStatus": "未结题",
+      "researchField": "200",
+      "auditStatus": "待审核"
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，更新后的转化记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "researchId": 3007,
+  "msg": "更新成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 200,
+  "researchId": null,
+  "msg": "成果转化信息更新失败"
+}
+```
+
+### 删除成果转化记录
+
+`POST /api/deleteResearchId`
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long`类型，用户ID（用于查询角色权限）
+- `deptId`: `Long`类型，部门ID（用于部门权限隔离）
+- `competitionIds`: `Long[]`类型，删除的转化记录ID数组
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "competitionIds": [3001, 3002, 3003]
+}
+```
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，删除的转化记录ID
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+
+```json
+{
+  "code": 200,
+  "competitionIds": [3001],
+  "msg": "删除成功"
+}
+```
+
+##### 请求失败结果
+
+```json
+{
+  "code": 501,
+  "competitionIds": null,
+  "msg":"成果转化信息删除失败"    
+}
+```
+### 根据id列表查询转化成果记录列表
+
+`POST`  /api/selectResearchIdByIds
+
+##### 请求头
+
+- `Content-Type`: `application/json`
+
+##### 请求参数
+
+- `userId`: `Long `类型，用户ID（用于查询角色权限）
+- `deptId`: `Long `类型，部门ID（用于部门权限隔离）
+- `Ids`:`Long[]`类型，查询的竞赛记录ID
+
+##### 更新时间后端在接收参数后自行插入
+
+
+##### 请求参数示例
+
+```json
+{
+  "userId": 1,
+  "deptId": 100,
+  "Ids": [1001, 1002, 1003]
+}
+```
+
+
+##### 响应结果
+
+- `code`: `number`类型，状态码
+- `data`: `Object`类型，查询的竞赛记录
+- `msg`: `String`类型，提示信息
+
+##### 响应结果示例
+请求成功结果
+```json
+{
+  "total": 1,
+  "rows": [
+{
+       "researchId": 3001,
+        "userId": 1,
+      "deptId": 101,
+      "projectNumber": "NSFC2024001",
+      "projectCategory": "横向项目",
+      "projectLevel": "国家级",
+      "projectType": "自然科学基金",
+      "projectName": "人工智能在教育领域的应用研究",
+      "principal": 张老师,
+      "participants": "12321",
+      "organizingUnit": "国家自然科学基金委",
+      "totalFunding": "500.00",
+      "receivedFunding": "3213.00",
+      "fundingUnit": "2311",
+      "startDate": "2024-03-01",
+      "endDate": 2026-02-28,
+      "actualEndDate": "2026-01-01",
+      "projectStatus": "在研",
+      "completionStatus": "未结题",
+      "researchField": "200",
+      "auditStatus": "待审核",
+      "createdAt": "2024-05-15",
+      "updatedAt": "2024-05-15"
+}
+]
+"code":200
+"msg": "查询成功"
+```
+请求失败结果
+
+```json
+{
+  "total": 0,
+  "rows": null,
+  "code": 501,
+  "msg": "查询失败"
+}
+```
 
 
 
