@@ -4272,7 +4272,7 @@ GET /api/selectTransferById?userId=1&deptId=100&transferId=3001
 
 ##### 查询数据字段
 
-数据库ry-vue中achievements_transfer的全部字段
+数据库ry-vue中achievements_research的全部字段
 
 ##### 请求参数示例
 
@@ -4303,24 +4303,24 @@ AND r.status = '0';
 
 ```sql
 ----------------------------示例----------------------------
-SELECT * FROM achievements_transfer;  (data_scope = "1")
+SELECT * FROM achievements_research;  (data_scope = "1")
 
-SELECT * FROM achievements_transfer WHERE dept_id IN
+SELECT * FROM achievements_research WHERE dept_id IN
 (SELECT dept_id FROM sys_dept WHERE dept_id IN 
 (SELECT dept_id FROM sys_role_dept WHERE role_id = 101));  		(data_scope = "2")
 
-SELECT * FROM achievements_transfer WHERE dept_id = deptId;  (data_scope = "3")
+SELECT * FROM achievements_research WHERE dept_id = deptId;  (data_scope = "3")
 
-SELECT * FROM achievements_transfer WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
+SELECT * FROM achievements_research WHERE dept_id IN(SELECT dept_id FROM sys_dept WHERE FIND_IN_SET(deptId, ancestors) > 0) OR deptId = 100; (data_scope = "4")
 
-SELECT * FROM achievements_transfer WHERE user_id = userId;(data_scope = "5")
+SELECT * FROM achievements_research WHERE user_id = userId;(data_scope = "5")
 ----------------------------示例----------------------------
 ```
 
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，成果转化列表
+- `data`: `Object`类型，研究列表
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -4371,7 +4371,7 @@ SELECT * FROM achievements_transfer WHERE user_id = userId;(data_scope = "5")
 }
 ```
 
-### 查询成果转化记录详细信息
+### 查询研究记录详细信息
 
 `GET /api/selectResearchById`
 
@@ -4383,11 +4383,11 @@ SELECT * FROM achievements_transfer WHERE user_id = userId;(data_scope = "5")
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `transferId`: `Long`类型，转化ID（用于查询转化表的具体记录）
+- `transferId`: `Long`类型，转化ID（用于查询研究表的具体记录）
 
 ##### 查询数据字段
 
-数据库ry-vue中achievements_transfer的指定ID记录
+数据库ry-vue中achievements_research的指定ID记录
 
 ##### 请求参数示例
 
@@ -4395,12 +4395,12 @@ SELECT * FROM achievements_transfer WHERE user_id = userId;(data_scope = "5")
 GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ```
 
-需要进行权限检查原理同**查询成果转化列表**
+需要进行权限检查原理同**查询研究列表**
 
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，成果转化详细信息
+- `data`: `Object`类型，研究详细信息
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -4447,7 +4447,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 }
 ```
 
-### 新增成果转化成果
+### 新增研究
 
 `POST /api/insertResearch`
 
@@ -4490,7 +4490,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，上传后的转化记录ID
+- `data`: `Object`类型，上传后的研究记录ID
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -4513,7 +4513,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 }
 ```
 
-### 更新成果转化记录
+### 更新研究记录
 
 `POST /api/updateResearch`
 
@@ -4556,7 +4556,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，更新后的转化记录ID
+- `data`: `Object`类型，更新后的研究记录ID
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -4575,11 +4575,11 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 {
   "code": 200,
   "researchId": null,
-  "msg": "成果转化信息更新失败"
+  "msg": "研究更新失败"
 }
 ```
 
-### 删除成果转化记录
+### 删除研究记录
 
 `POST /api/deleteResearchId`
 
@@ -4591,7 +4591,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 
 - `userId`: `Long`类型，用户ID（用于查询角色权限）
 - `deptId`: `Long`类型，部门ID（用于部门权限隔离）
-- `competitionIds`: `Long[]`类型，删除的转化记录ID数组
+- `competitionIds`: `Long[]`类型，删除的研究记录ID数组
 
 ##### 请求参数示例
 
@@ -4606,7 +4606,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，删除的转化记录ID
+- `data`: `Object`类型，研究记录ID
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
@@ -4625,12 +4625,12 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 {
   "code": 501,
   "competitionIds": null,
-  "msg":"成果转化信息删除失败"    
+  "msg":"研究信息删除失败"    
 }
 ```
-### 根据id列表查询转化成果记录列表
+### 根据id列表查询研究记录列表
 
-`POST`  /api/selectResearchIdByIds
+`POST`  /api/selectResearchByIds
 
 ##### 请求头
 
@@ -4640,7 +4640,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 
 - `userId`: `Long `类型，用户ID（用于查询角色权限）
 - `deptId`: `Long `类型，部门ID（用于部门权限隔离）
-- `Ids`:`Long[]`类型，查询的竞赛记录ID
+- `Ids`:`Long[]`类型，研究ID
 
 ##### 更新时间后端在接收参数后自行插入
 
@@ -4659,7 +4659,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ##### 响应结果
 
 - `code`: `number`类型，状态码
-- `data`: `Object`类型，查询的竞赛记录
+- `data`: `Object`类型，查询的研究记录
 - `msg`: `String`类型，提示信息
 
 ##### 响应结果示例
