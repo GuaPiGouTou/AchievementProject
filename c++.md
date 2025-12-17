@@ -4458,15 +4458,16 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
 ##### 请求参数
 
 创建时间，更新时间后端在接收参数后自行插入
+!!注意projectNumber不能与已有的重复否则无法插入
 
 ##### 请求参数示例
 
 ```json
 {
-   "researchId": 3001,
+  {
       "userId": 1,
       "deptId": 101,
-      "projectNumber": "NSFC2024001",
+      "projectNumber": "NSFC20212314001124123422",
       "projectCategory": "横向项目",
       "projectLevel": "国家级",
       "projectType": "自然科学基金",
@@ -4474,8 +4475,8 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
       "principal": "张老师",
       "participants": "12321",
       "organizingUnit": "国家自然科学基金委",
-      "totalFunding": "500.00",
-      "receivedFunding": "3213.00",
+      "totalFunding": 500.00,
+      "receivedFunding": 3213.00,
       "fundingUnit": "2311",
       "startDate": "2024-03-01",
       "endDate": "2026-02-28",
@@ -4484,6 +4485,7 @@ GET /api/selectResearchById?userId=1&deptId=100&researchId=3001
       "completionStatus": "未结题",
       "researchField": "200",
       "auditStatus": "待审核"
+}
 }
 ```
 
