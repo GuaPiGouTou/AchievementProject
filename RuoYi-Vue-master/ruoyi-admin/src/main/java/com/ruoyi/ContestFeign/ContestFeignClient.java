@@ -476,13 +476,13 @@ public interface ContestFeignClient {
 
 
     /**
-     * 删除专利记录
+     * 删除研究记录
      */
-    @PostMapping("/api/deleteResearchId")
+    @PostMapping("/api/deleteResearch")
     AjaxResult deleteResearchId( @RequestBody DeleteRequest request);
 
     /**
-     * 根据id列表查询专利记录列表
+     * 根据id列表查询研究记录列表
      */
     @PostMapping("/api/selectResearchByIds")
     AjaxResult selectResearchByIds( @RequestBody IdsRequest request);

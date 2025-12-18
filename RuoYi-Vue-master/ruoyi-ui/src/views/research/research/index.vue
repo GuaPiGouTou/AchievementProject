@@ -177,102 +177,141 @@
     />
 
     <!-- 添加或修改项目成果对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+    <!-- 添加或修改项目成果对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="项目编号" prop="projectNumber">
-          <el-input v-model="form.projectNumber" placeholder="请输入项目编号" />
+          <el-input v-model="form.projectNumber" placeholder="请输入项目编号（字母、数字、横线）" />
         </el-form-item>
+
         <el-form-item label="项目类别" prop="projectCategory">
-          <el-select v-model="form.projectCategory" placeholder="请选择项目类别">
-              <el-option
-                v-for="item in projectCategorys"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
+          <el-select v-model="form.projectCategory" placeholder="请选择项目类别" style="width: 100%">
+            <el-option
+              v-for="item in projectCategorys"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
-         <el-form-item label="项目级别" prop="projectCategory">
-          <el-select v-model="form.projectLevel" placeholder="请选择项目级别">
-              <el-option
-                v-for="item in projectLevels"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
+
+        <!-- 修复点：prop 改为 projectLevel，之前写成了 projectCategory -->
+        <el-form-item label="项目级别" prop="projectLevel">
+          <el-select v-model="form.projectLevel" placeholder="请选择项目级别" style="width: 100%">
+            <el-option
+              v-for="item in projectLevels"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
-          <el-form-item label="项目状态" prop="projectCategory">
-          <el-select v-model="form.projectStatus" placeholder="请选择项目状态">
-              <el-option
-                v-for="item in projectStatuss"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
+
+        <el-form-item label="项目类型" prop="projectType">
+          <el-input v-model="form.projectType" placeholder="请输入项目类型" />
         </el-form-item>
-          <el-form-item label="结题状态" prop="completionStatus">
-          <el-select v-model="form.completionStatus" placeholder="请选择结题状态">
-              <el-option
-                v-for="item in completionStatuss"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
+
+        <!-- 修复点：prop 改为 projectStatus，之前写成了 projectCategory -->
+        <el-form-item label="项目状态" prop="projectStatus">
+          <el-select v-model="form.projectStatus" placeholder="请选择项目状态" style="width: 100%">
+            <el-option
+              v-for="item in projectStatuss"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
+
+        <el-form-item label="结题状态" prop="completionStatus">
+          <el-select v-model="form.completionStatus" placeholder="请选择结题状态" style="width: 100%">
+            <el-option
+              v-for="item in completionStatuss"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="项目名称" prop="projectName">
-          <el-input v-model="form.projectName" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.projectName" type="textarea" placeholder="请输入项目名称（支持中英文、数字及常用标点）" />
         </el-form-item>
+
         <el-form-item label="负责人" prop="principal">
-          <el-input v-model="form.principal" placeholder="请输入负责人" />
+          <el-input v-model="form.principal" placeholder="请输入负责人姓名（支持中英文）" />
         </el-form-item>
+
         <el-form-item label="参与人" prop="participants">
-          <el-input v-model="form.participants" type="textarea" placeholder="请输入内容" />
+          <el-input v-model="form.participants" type="textarea" placeholder="请输入参与人信息" />
         </el-form-item>
+
         <el-form-item label="立项单位" prop="organizingUnit">
-          <el-input v-model="form.organizingUnit" placeholder="请输入立项单位" />
+          <el-input v-model="form.organizingUnit" placeholder="请输入立项单位全称" />
         </el-form-item>
-        <el-form-item label="总经费" prop="totalFunding">
-          <el-input v-model="form.totalFunding" placeholder="请输入总经费" />
-        </el-form-item>
-        <el-form-item label="已到账经费" prop="receivedFunding">
-          <el-input v-model="form.receivedFunding" placeholder="请输入已到账经费" />
-        </el-form-item>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="总经费" prop="totalFunding">
+              <el-input v-model="form.totalFunding" placeholder="例: 10.50">
+                <template slot="append">万元</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="已到账经费" prop="receivedFunding">
+              <el-input v-model="form.receivedFunding" placeholder="例: 5.00">
+                <template slot="append">万元</template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="经费拨款单位" prop="fundingUnit">
           <el-input v-model="form.fundingUnit" placeholder="请输入经费拨款单位" />
         </el-form-item>
-        <el-form-item label="开始时间" prop="startDate">
-          <el-date-picker clearable
-            v-model="form.startDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择开始时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="结束时间" prop="endDate">
-          <el-date-picker clearable
-            v-model="form.endDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择结束时间">
-          </el-date-picker>
-        </el-form-item>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="开始时间" prop="startDate">
+              <el-date-picker clearable
+                style="width: 100%"
+                v-model="form.startDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择开始时间">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="结束时间" prop="endDate">
+              <el-date-picker clearable
+                style="width: 100%"
+                v-model="form.endDate"
+                type="date"
+                value-format="yyyy-MM-dd"
+                placeholder="请选择结束时间">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="实际结题时间" prop="actualEndDate">
           <el-date-picker clearable
+            style="width: 100%"
             v-model="form.actualEndDate"
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="请选择实际结题时间">
           </el-date-picker>
         </el-form-item>
+
         <el-form-item label="研究领域" prop="researchField">
           <el-input v-model="form.researchField" placeholder="请输入研究领域" />
         </el-form-item>
 
-        <el-form-item label="上传文件" prop="updatedAt">
-        	<file-upload ref="file" v-model="files"></file-upload>
+        <el-form-item label="上传文件">
+          <file-upload ref="file" v-model="files"></file-upload>
         </el-form-item>
 
       </el-form>
@@ -494,28 +533,75 @@ export default {
       // 表单校验
       rules: {
         projectNumber: [
-          { required: true, message: "项目编号不能为空", trigger: "blur" }
+          { required: true, message: "项目编号不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          {
+            pattern: /^[A-Za-z0-9\-_]+$/,
+            message: "项目编号仅支持字母、数字、下划线及中划线",
+            trigger: "blur"
+          }
         ],
         projectCategory: [
-          { required: true, message: "项目类别不能为空", trigger: "blur" }
+          { required: true, message: "请选择项目类别", trigger: "change" }
         ],
         projectLevel: [
-          { required: true, message: "项目级别不能为空", trigger: "blur" }
+          { required: true, message: "请选择项目级别", trigger: "change" }
         ],
         projectType: [
-          { required: true, message: "项目类型不能为空", trigger: "change" }
+          { required: true, message: "项目类型不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         projectName: [
-          { required: true, message: "项目名称不能为空", trigger: "blur" }
+          { required: true, message: "项目名称不能为空", trigger: "blur" },
+          { max: 500, message: "长度不能超过 500 个字符", trigger: "blur" },
+          {
+            // 允许中文、英文、数字、括号、书名号、破折号等常用符号
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）《》\-\_\s\.]+$/,
+            message: "项目名称包含非法字符",
+            trigger: "blur"
+          }
         ],
         principal: [
-          { required: true, message: "负责人不能为空", trigger: "blur" }
+          { required: true, message: "负责人不能为空", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+          {
+            pattern: /^[\u4e00-\u9fa5a-zA-Z\.\·\s]+$/,
+            message: "负责人姓名仅支持中文、英文、点和空格",
+            trigger: "blur"
+          }
+        ],
+        participants: [
+          { required: false, message: "请输入参与人", trigger: "blur" },
+          { max: 2000, message: "内容过长", trigger: "blur" }
         ],
         organizingUnit: [
-          { required: true, message: "立项单位不能为空", trigger: "blur" }
+          { required: true, message: "立项单位不能为空", trigger: "blur" },
+          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+          {
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\-\s]+$/,
+            message: "单位名称格式不正确",
+            trigger: "blur"
+          }
         ],
         totalFunding: [
-          { required: true, message: "总经费不能为空", trigger: "blur" }
+          { required: true, message: "总经费不能为空", trigger: "blur" },
+          {
+            pattern: /^(([1-9]\d*)|\d)(\.\d{1,2})?$/,
+            message: "请输入正确的金额，最多保留两位小数",
+            trigger: "blur"
+          }
+        ],
+        receivedFunding: [
+          { required: false, message: "请输入已到账经费", trigger: "blur" },
+          {
+            pattern: /^(([1-9]\d*)|\d)(\.\d{1,2})?$/,
+            message: "请输入正确的金额，最多保留两位小数",
+            trigger: "blur"
+          }
+        ],
+        fundingUnit: [
+          { required: false, message: "请输入经费拨款单位", trigger: "blur" },
+          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         startDate: [
           { required: true, message: "开始时间不能为空", trigger: "blur" }
@@ -523,6 +609,10 @@ export default {
         endDate: [
           { required: true, message: "结束时间不能为空", trigger: "blur" }
         ],
+        researchField: [
+          { required: false, message: "请输入研究领域", trigger: "blur" },
+          { max: 200, message: "长度不能超过 200 个字符", trigger: "blur" }
+        ]
       }
     }
   },
@@ -655,9 +745,9 @@ export default {
     附件弹窗方法
     */
       handleAttachment(row) {
-          this.currentPaperId = row.competitionId
+          this.currentPaperId = row.researchId
           this.currentPaper = row
-          this.attachmentTitle = `附件管理 - ${row.competitionName || '项目'}`
+          this.attachmentTitle = `附件管理 - ${row.projectName|| '项目'}`
           this.attachmentVisible = true
         },
 

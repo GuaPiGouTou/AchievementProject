@@ -608,9 +608,9 @@ export default {
     附件弹窗方法
     */
       handleAttachment(row) {
-          this.currentPaperId = row.competitionId
+          this.currentPaperId = row.monographId
           this.currentPaper = row
-          this.attachmentTitle = `附件管理 - ${row.competitionName || '专著'}`
+          this.attachmentTitle = `附件管理 - ${row.monographTitle || '专著'}`
           this.attachmentVisible = true
         },
 
