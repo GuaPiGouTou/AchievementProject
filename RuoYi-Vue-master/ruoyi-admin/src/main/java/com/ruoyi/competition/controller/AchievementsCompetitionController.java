@@ -49,9 +49,10 @@ public class AchievementsCompetitionController extends BaseController
         Integer pageNum = ServletUtils.getParameterToInt("pageNum");
         Integer pageSize = ServletUtils.getParameterToInt("pageSize");
         AjaxResult res = new AjaxResult();
+        System.out.println(achievementsCompetition);
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize);
+            res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize, achievementsCompetition);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

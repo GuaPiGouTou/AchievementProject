@@ -1,35 +1,34 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="ISBN号" prop="isbnNumber">
-        <el-input
-          v-model="queryParams.isbnNumber"
-          placeholder="请输入ISBN号"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="出版时间" prop="publishDate">
-        <el-date-picker clearable
-          v-model="queryParams.publishDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择出版时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="版次" prop="edition">
-        <el-input
-          v-model="queryParams.edition"
-          placeholder="请输入版次"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+              <el-form-item label="搜索字段" prop="competitionName">
+                <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
+                    <el-option
+                      v-for="item in checkList"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
+                      >
+                    </el-option>
+                </el-select>
+
+              </el-form-item>
+              <el-form-item >
+                <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
+                <el-date-picker v-else
+                  clearable
+                  v-model="SelectQueryParamsValue"
+                  :type="TimeType"
+                  :value-format="TimeFormat"
+                  placeholder="请选择时间">
+                </el-date-picker>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+              </el-form-item>
+            </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -79,7 +78,7 @@
 
     <el-table v-loading="loading" :data="textbookList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="教材id" align="center" prop="textbookId" />
+      <el-table-column v-if="adminFlag" label="教材id" align="center" prop="textbookId" />
       <el-table-column label="教材名称" align="center" prop="textbookName" />
       <el-table-column label="作者角色" align="center" prop="authorRole" />
       <el-table-column label="出版社" align="center" prop="pressName" />
@@ -97,12 +96,12 @@
       <el-table-column label="教材层次" align="center" prop="textbookLevel" />
       <el-table-column label="批准文号" align="center" prop="approvalNumber" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedAt" width="180">
+      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
         </template>
@@ -119,6 +118,19 @@
               </el-button>
             </template>
           </el-table-column>
+
+          <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="text"
+                  icon="el-icon-more"
+                  @click="handleAudis(scope.row)"
+                >
+                  标注
+                </el-button>
+              </template>
+            </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -148,10 +160,10 @@
     />
 
     <!-- 添加或修改教材著作对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body:close-on-click-modal="false" @close="cancel">
+          <el-form ref="form" :model="form" :rules="rules" label-width="80px"style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
             <el-form-item label="教材名称" prop="textbookName">
-              <el-input v-model="form.textbookName" type="textarea" placeholder="请输入教材完整名称" />
+              <el-input v-model="form.textbookName"  placeholder="请输入教材完整名称" />
             </el-form-item>
             <el-form-item label="作者角色" prop="authorRole">
               <el-select v-model="form.authorRole" placeholder="请选择作者角色"  style="width: 240px">
@@ -194,10 +206,10 @@
               <el-input v-model="form.wordCount" placeholder="请输入字数 (万字)" />
             </el-form-item>
             <el-form-item label="使用院校" prop="usingInstitutions">
-              <el-input v-model="form.usingInstitutions" type="textarea" placeholder="请输入使用该教材的院校名称" />
+              <el-input v-model="form.usingInstitutions"  placeholder="请输入使用该教材的院校名称" />
             </el-form-item>
             <el-form-item label="适用专业" prop="applicableMajor">
-              <el-input v-model="form.applicableMajor" type="textarea" placeholder="请输入适用专业" />
+              <el-input v-model="form.applicableMajor" placeholder="请输入适用专业" />
             </el-form-item>
             <el-form-item label="教材层次" prop="textbookLevel">
               <el-select v-model="form.textbookLevel" placeholder="请选择教材层次"  style="width: 240px">
@@ -221,6 +233,7 @@
             <el-button type="primary" @click="submitForm">确 定</el-button>
             <el-button @click="cancel">取 消</el-button>
           </div>
+
         </el-dialog>
     <AttachmentManagement
         :visible="attachmentVisible"
@@ -233,7 +246,7 @@
         @download-success="handleDownloadSuccess"
         @delete-success="handleDeleteSuccess"
       />
-      <el-dialog
+<!--      <el-dialog
         :title="Exceltitle"
         :visible.sync="Excelopen"
         width="600px"
@@ -245,17 +258,98 @@
         <el-badge :value="idsCount==0?textbookList.length:idsCount" class="item"  >
          <el-button @click="DowExcel()" >导出</el-button>
         </el-badge>
+      </el-dialog> -->
+
+      <el-dialog
+        :title="Exceltitle"
+        :visible.sync="Excelopen"
+        width="720px"
+        append-to-body
+        :close-on-click-modal="false"
+      >
+        <!-- 导出字段选择区 -->
+        <div class="export-container">
+          <el-checkbox-group
+            v-model="selectClist"
+            class="export-checkbox-group"
+          >
+            <!-- 修复1：item.lable → item.label -->
+            <el-checkbox
+              v-for="item in checkList"
+              :key="item.value"
+              :label="item.value"
+              class="export-checkbox"
+            >
+              {{ item.label }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </div>
+
+        <!-- 底部操作按钮（修复2：用 div 包裹 slot，避免样式冲突） -->
+        <div slot="footer" class="export-dialog-footer">
+          <el-button @click="Excelopen = false">取 消</el-button>
+          <el-button
+            type="primary"
+            icon="el-icon-download"
+            @click="DowExcel"
+          >
+            导 出
+          </el-button>
+        </div>
       </el-dialog>
+
+      <!--审核弹窗  -->
+          <el-dialog
+            title="审核审批"
+            :visible.sync="AudisVisible"
+            width="720px"
+            append-to-body
+            :close-on-click-modal="false"
+          >
+            <el-radio-group v-model="AudisStatis">
+              <el-radio v-for="item in audisItems" :key="item" :label="item">{{item}}</el-radio>
+            </el-radio-group>
+
+            <div slot="footer" class="export-dialog-footer">
+              <el-button @click="AudisVisible = false">取 消</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-edit"
+                @click="EditAudios(AudisStatis)"
+              >
+                修改
+              </el-button>
+            </div>
+          </el-dialog>
   </div>
 </template>
 
 <script>
 import { listTextbook, getTextbook, delTextbook, addTextbook, updateTextbook } from "@/api/textbook/textbook"
-
+import Cookies from "js-cookie"
 export default {
   name: "Textbook",
   data() {
     return {
+      //日期选择类型
+      TimeType:"datetime",
+      TimeFormat:"yyyy-MM-ddTHH:mm:ss",
+      //是否为时间字段
+      TimeFlag:false,
+      //搜索内容
+      SelectQueryParamsValue:null,
+      //搜索字段
+      SelectQueryParams:null,
+      //审核选择项
+      AudisStatis:"待审核",
+      //审核选项列表 '通过','驳回','待审核','退回'
+      audisItems: [
+      '通过','驳回','待审核','退回'
+      ],
+      //审核弹窗
+      AudisVisible:false,
+      //管理员标识
+      adminFlag:false,
       //导出记录
       idsCount:0,
       //导出弹窗
@@ -267,58 +361,58 @@ export default {
       checkList:[
       {
         value: 'textbookId',
-        lable: '教材id'
+        label: '教材id'
       },{
         value: 'userId',
-        lable: '用户ID'
+        label: '用户ID'
       },{
         value: 'deptId',
-        lable: '部门ID'
+        label: '部门ID'
       },{
         value: 'textbookName',
-        lable: '教材名称'
+        label: '教材名称'
       },{
         value: 'authorRole',
-        lable: '作者角色'
+        label: '作者角色'
       },{
         value: 'pressName',
-        lable: '出版社'
+        label: '出版社'
       },{
         value: 'isbnNumber',
-        lable: 'ISBN号'
+        label: 'ISBN号'
       },{
         value: 'publishDate',
-        lable: '出版时间'
+        label: '出版时间'
       },{
         value: 'textbookType',
-        lable: '教材类型'
+        label: '教材类型'
       },{
         value: 'edition',
-        lable: '版次'
+        label: '版次'
       },{
         value: 'wordCount',
-        lable: '字数（万字）'
+        label: '字数（万字）'
       },{
         value: 'usingInstitutions',
-        lable: '使用院校'
+        label: '使用院校'
       },{
         value: 'applicableMajor',
-        lable: '适用专业'
+        label: '适用专业'
       },{
         value: 'textbookLevel',
-        lable: '教材层次'
+        label: '教材层次'
       },{
         value: 'approvalNumber',
-        lable: '批准文号'
+        label: '批准文号'
       },{
         value: 'auditStatus',
-        lable: '审核状态'
+        label: '审核状态'
       },{
         value: 'createdAt',
-        lable: '创建时间'
+        label: '创建时间'
       },{
         value: 'updatedAt',
-        lable: '更新时间'
+        label: '更新时间'
       }
       ],
       //上传文件组件
@@ -331,47 +425,47 @@ export default {
       //教材层次
       textbookLevels:[{
         value:'本科',
-        lable:'本科'
+        label:'本科'
       },{
         value:'专科',
-        lable:'专科'
+        label:'专科'
       },{
         value:'研究生',
-        lable:'研究生'
+        label:'研究生'
       },{
         value:'职业教育',
-        lable:'职业教育'
+        label:'职业教育'
       }],
       //教材类型
       textbookTypes:[{
         value:'规划教材',
-        lable:'规划教材'
+        label:'规划教材'
       },{
         value:'校本教材',
-        lable:'校本教材'
+        label:'校本教材'
       },{
         value:'国家级规划',
-        lable:'国家级规划'
+        label:'国家级规划'
       },{
         value:'省部级规划',
-        lable:'省部级规划'
+        label:'省部级规划'
       },{
         value:'行业规划',
-        lable:'行业规划'
+        label:'行业规划'
       }],
       //作者角色
       authorRoles:[{
         value:'主编',
-        lable:'主编'
+        label:'主编'
       },{
         value:'副主编',
-        lable:'副主编'
+        label:'副主编'
       },{
         value:'参编',
-        lable:'参编'
+        label:'参编'
       },{
         value:'独著',
-        lable:'独著'
+        label:'独著'
       }],
       // 遮罩层
       loading: true,
@@ -465,8 +559,60 @@ export default {
   },
   created() {
     this.getList()
+    /*管理权限标识符验证 显示隐藏组件*/
+    const flag = Cookies.get("adminFlag")
+    if(flag =="true")
+    {
+      this.adminFlag = true
+    }
   },
   methods: {
+    /*查询输入字段验证时间组件*/
+    changeQueryParams(res){
+      this.SelectQueryParamsValue = null;
+      if(res=="updatedAt"||res=="createdAt"||res=="publishDate")
+      {
+        if(res=="publishDate")
+        {
+          this.TimeFormat = "yyyy-MM-dd"
+          this.TimeType = "date"
+        }else{
+           this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
+           this.TimeType = "datetime"
+        }
+        this.TimeFlag = true
+      }else{
+         this.TimeFlag = false
+      }
+    },
+    /*审核提交*/
+    EditAudios(audis)
+    {
+      if (this.form.textbookId != null) {
+        this.form.auditStatus = audis
+        updateTextbook(this.form).then(response => {
+          if(response.textbookId!=null)
+          {
+             this.$modal.msgSuccess("修改成功")
+          }else{
+              this.$modal.msgSuccess("修改成功，上传文件失败")
+          }
+
+          this.AudisVisible = false
+          this.getList()
+        })
+      }
+    },
+    /*审核批改*/
+    handleAudis(row){
+      this.AudisStatis=row.auditStatus
+       this.reset()
+       const textbookId = row.textbookId || this.ids
+       getTextbook(textbookId).then(response => {
+         this.form = response.data
+         this.AudisVisible=true
+       })
+    },
     /** 查询教材著作列表 */
     getList() {
       this.loading = true
@@ -503,12 +649,26 @@ export default {
         createdAt: null,
         updatedAt: null
       }
+      this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
-    /** 搜索按钮操作 */
+
+  /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1
-      this.getList()
+     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
+     {
+     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
+     this.queryParams.pageNum = 1
+     this.getList()
+     }else{
+       if(this.SelectQueryParams==null)
+       {
+         this.$message.error("搜索字段不能为空")
+       }else{
+         this.$message.error("搜索值不能为空")
+       }
+
+     }
     },
     /** 重置按钮操作 */
     resetQuery() {
@@ -640,3 +800,63 @@ export default {
   }
 }
 </script>
+<style scoped>
+
+/* ===== 导出弹窗主体容器 ===== */
+.export-container {
+  padding: 20px 24px;        /* 内边距：上下16px 左右20px，保证内容与边框间距 */
+  background: #fafbfc;       /* 浅灰背景色，提升视觉层次感 */
+  border-radius: 6px;        /* 圆角设计，统一产品视觉风格 */
+  margin-bottom: 10px;       /* 新增：与底部按钮区分隔 */
+}
+
+/* ===== 复选框组 - 网格布局 ===== */
+.export-checkbox-group {
+  display: grid;                              /* 使用网格布局实现多列排列 */
+  grid-template-columns: repeat(4, 1fr);      /* 平均分成4列，注释标注"4列最舒服"为视觉体验最优选择 */
+  column-gap: 24px;                           /* 列之间的间距 24px，保证列间不拥挤 */
+  row-gap: 14px;                              /* 行之间的间距 14px，平衡行高与紧凑度 */
+}
+
+/* ===== 单个复选框容器 ===== */
+.export-checkbox {
+  display: flex;               /* 弹性布局，使复选框与文字垂直居中对齐 */
+  align-items: center;         /* 垂直居中，优化视觉对齐效果 */
+  white-space: nowrap;         /* 文字不换行，避免标签文字被截断 */
+}
+
+/* 修复3：使用 ::v-deep 穿透 scoped（Vue2），Vue3 用 :deep() */
+::v-deep .export-checkbox .el-checkbox__label {
+  font-size: 14px;             /* 文字大小 14px，符合中台产品字体规范 */
+  color: #303133;              /* 深灰色文字，保证可读性 */
+  padding-left: 6px;           /* 与复选框保持6px间距，提升点击体验 */
+}
+
+/* ===== 弹窗底部按钮区域 ===== */
+.export-dialog-footer {
+  display: flex;               /* 弹性布局，控制按钮对齐方式 */
+  justify-content: flex-end;   /* 按钮右对齐，符合弹窗交互习惯 */
+  padding: 10px 20px;          /* 调整内边距，适配弹窗默认padding */
+  border-top: 1px solid #ebeef5; /* 顶部分隔线，视觉区分内容区与操作区 */
+  margin: 0 -20px -10px;       /* 抵消弹窗默认的padding，使分隔线全屏 */
+}
+
+/* ===== 主按钮（导出按钮）样式定制 ===== */
+/* 修复4：提高优先级，覆盖Element默认样式 */
+::v-deep .export-dialog-footer .el-button--primary {
+  background-color: #409eff !important;   /* 定制主按钮背景色，统一品牌色调 */
+  border-color: #409eff !important;       /* 定制边框色，与背景色一致 */
+}
+
+/* 主按钮 hover 状态 */
+::v-deep .export-dialog-footer .el-button--primary:hover {
+  background-color: #66b1ff !important;   /* hover 时浅化背景色，提供交互反馈 */
+  border-color: #66b1ff !important;       /* 边框色同步变化 */
+}
+
+/* 主按钮 active 状态 */
+::v-deep .export-dialog-footer .el-button--primary:active {
+  background-color: #337ecc !important;   /* 点击时加深背景色，模拟按压效果 */
+  border-color: #337ecc !important;       /* 边框色同步加深 */
+}
+</style>

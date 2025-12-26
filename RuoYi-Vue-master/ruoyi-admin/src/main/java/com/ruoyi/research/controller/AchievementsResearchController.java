@@ -69,6 +69,8 @@ public class AchievementsResearchController extends BaseController
     @PostMapping("/export")
     public AjaxResult export(HttpServletResponse response, @RequestBody ExportRequestDTO<AchievementsResearch> exportRequestDTO)
     {
+        System.out.println("exportRequestDTO");
+        System.out.println(exportRequestDTO);
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
@@ -77,8 +79,8 @@ public class AchievementsResearchController extends BaseController
         IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
 
         // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
-
+        AjaxResult result = contestFeignClient.selectResearchByIds(idsRequest);
+        System.out.println(result);
         // 4. 判断 total (处理 null 和 类型转换)
         Object totalObj = result.get("total");
         int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());

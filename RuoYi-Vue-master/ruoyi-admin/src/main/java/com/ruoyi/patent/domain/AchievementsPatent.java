@@ -43,7 +43,7 @@ public class AchievementsPatent extends BaseEntity
 
     /** 发明人顺序 */
     @Excel(name = "发明人顺序")
-    private Long authorOrder;
+    private String authorOrder;
 
     /** 申请日期 */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -176,12 +176,12 @@ public class AchievementsPatent extends BaseEntity
         return patentType;
     }
 
-    public void setAuthorOrder(Long authorOrder) 
+    public void setAuthorOrder(String authorOrder)
     {
         this.authorOrder = authorOrder;
     }
 
-    public Long getAuthorOrder() 
+    public String getAuthorOrder()
     {
         return authorOrder;
     }

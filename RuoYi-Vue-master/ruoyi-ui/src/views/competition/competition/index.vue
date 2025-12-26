@@ -1,51 +1,33 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="竞赛名称" prop="competitionName">
-        <el-input
-          v-model="queryParams.competitionName"
-          placeholder="请输入竞赛名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="竞赛类型" prop="competitionType">
-        <el-input
-          v-model="queryParams.competitionType"
-          placeholder="请输入竞赛类型"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="竞赛时间" prop="competitionTime">
-        <el-date-picker clearable
-          v-model="queryParams.competitionTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择竞赛时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="获奖日期" prop="awardDate">
-        <el-date-picker clearable
-          v-model="queryParams.awardDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择获奖日期">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="团队名称" prop="teamName">
-        <el-input
-          v-model="queryParams.teamName"
-          placeholder="请输入团队名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+          <el-form-item label="搜索字段" prop="competitionName">
+            <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
+                <el-option
+                  v-for="item in checkList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                   v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true">
+                </el-option>
+            </el-select>
+
+          </el-form-item>
+          <el-form-item >
+            <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
+            <el-date-picker v-else
+              clearable
+              v-model="SelectQueryParamsValue"
+              :type="TimeType"
+              :value-format="TimeFormat"
+              placeholder="请选择时间">
+            </el-date-picker>
+          </el-form-item>
+
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+          </el-form-item>
+        </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -95,7 +77,7 @@
 
     <el-table v-loading="loading" :data="competitionList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="竞赛id" align="center" prop="competitionId" />
+      <el-table-column v-if="adminFlag" label="竞赛id" align="center" prop="competitionId" />
       <el-table-column label="竞赛名称" align="center" prop="competitionName" />
       <el-table-column label="竞赛级别" align="center" prop="competitionLevel" />
       <el-table-column label="竞赛类型" align="center" prop="competitionType" />
@@ -119,12 +101,12 @@
       <el-table-column label="获奖证书编号" align="center" prop="awardCertificateNo" />
       <el-table-column label="竞赛官网" align="center" prop="competitionWebsite" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updatedAt" width="180">
+      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
         </template>
@@ -138,6 +120,18 @@
                 @click="handleAttachment(scope.row)"
               >
                 附件
+              </el-button>
+            </template>
+          </el-table-column>
+        <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-more"
+                @click="handleAudis(scope.row)"
+              >
+                标注
               </el-button>
             </template>
           </el-table-column>
@@ -180,8 +174,8 @@
         @delete-success="handleDeleteSuccess"
       />
     <!-- 添加或修改竞赛成果对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body:close-on-click-modal="false" @close="cancel">
+          <el-form ref="form" :model="form" :rules="rules" text-align: right label-width="100px"style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
             <el-form-item label="竞赛名称" prop="competitionName">
               <el-input v-model="form.competitionName" placeholder="请输入竞赛名称（包含中英文、数字、括号及横杠）" />
             </el-form-item>
@@ -254,13 +248,13 @@
               <el-input v-model="form.teamName" placeholder="请输入团队名称（包含中英文、数字、下划线及横杠）" />
             </el-form-item>
             <el-form-item label="参赛队员" prop="studentParticipants">
-              <el-input v-model="form.studentParticipants" type="textarea" placeholder="请输入参赛队员姓名，多人请用逗号分隔" />
+              <el-input v-model="form.studentParticipants"  placeholder="请输入参赛队员姓名，多人请用逗号分隔" />
             </el-form-item>
             <el-form-item label="获奖证书编号" prop="awardCertificateNo">
               <el-input v-model="form.awardCertificateNo" placeholder="请输入获奖证书编号（包含字母、数字、横杠、下划线及点）" />
             </el-form-item>
             <el-form-item label="竞赛官网" prop="competitionWebsite">
-              <el-input v-model="form.competitionWebsite" type="textarea" placeholder="请输入竞赛官网地址 (如: https://www.example.com)" />
+              <el-input v-model="form.competitionWebsite"  placeholder="请输入竞赛官网地址 (如: https://www.example.com)" />
             </el-form-item>
             <el-form-item label="上传文件" prop="updatedAt">
             	<file-upload ref="file" v-model="files"></file-upload>
@@ -271,18 +265,68 @@
             <el-button @click="cancel">取 消</el-button>
           </div>
         </el-dialog>
+
+
+<!-- 导出弹窗 -->
     <el-dialog
       :title="Exceltitle"
       :visible.sync="Excelopen"
-      width="600px"
+      width="720px"
       append-to-body
-      :close-on-click-modal="false">
-       <el-checkbox-group  class="custom-checkbox-group" v-model="selectClist"  >
-          <el-checkbox v-for="(item,index) in checkList " :label="item.value" :key="item.value " >{{item.lable}}</el-checkbox>
+      :close-on-click-modal="false"
+    >
+      <!-- 导出字段选择区 -->
+      <div class="export-container">
+        <el-checkbox-group
+          v-model="selectClist"
+          class="export-checkbox-group"
+        >
+          <!-- 修复1：item.lable → item.label -->
+          <el-checkbox
+            v-for="item in checkList"
+            :key="item.value"
+            :label="item.value"
+            class="export-checkbox"
+          >
+            {{ item.label }}
+          </el-checkbox>
         </el-checkbox-group>
-        <el-badge :value="idsCount==0?competitionList.length:idsCount" class="item"  >
-          <el-button @click="DowExcel()" >导出</el-button>
-        </el-badge>
+      </div>
+
+      <!-- 底部操作按钮（修复2：用 div 包裹 slot，避免样式冲突） -->
+      <div slot="footer" class="export-dialog-footer">
+        <el-button @click="Excelopen = false">取 消</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-download"
+          @click="DowExcel"
+        >
+          导 出
+        </el-button>
+      </div>
+    </el-dialog>
+<!--审核弹窗  -->
+    <el-dialog
+      title="审核审批"
+      :visible.sync="AudisVisible"
+      width="720px"
+      append-to-body
+      :close-on-click-modal="false"
+    >
+      <el-radio-group v-model="AudisStatis">
+        <el-radio v-for="item in audisItems" :key="item" :label="item">{{item}}</el-radio>
+      </el-radio-group>
+      <!-- 底部操作按钮（修复2：用 div 包裹 slot，避免样式冲突） -->
+      <div slot="footer" class="export-dialog-footer">
+        <el-button @click="Excelopen = false">取 消</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-edit"
+          @click="EditAudios(AudisStatis)"
+        >
+          修改
+        </el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -290,11 +334,31 @@
 <script>
 import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listCompetition, getCompetition, delCompetition, addCompetition, updateCompetition } from "@/api/competition/competition"
-
+import Cookies from "js-cookie"
 export default {
   name: "Competition",
   data() {
     return {
+        //日期选择类型
+        TimeType:"datetime",
+        TimeFormat:"yyyy-MM-ddTHH:mm:ss",
+        //是否为时间字段
+        TimeFlag:false,
+        //搜索内容
+        SelectQueryParamsValue:null,
+        //搜索字段
+        SelectQueryParams:"",
+        //审核选择项
+        AudisStatis:"待审核",
+        //审核选项列表 '通过','驳回','待审核','退回'
+        audisItems: [
+          '通过','驳回','待审核','退回'
+        ],
+        //审核弹窗
+        AudisVisible:false,
+        //管理员标识
+        adminFlag:false,
+
       //导出记录
       idsCount:0,
       //上传文件组件
@@ -311,138 +375,138 @@ export default {
       checkList:[
         {
           value:'competitionId',
-          lable:'竞赛id'
+          label:'竞赛id'
         },{
           value:'competitionName',
-          lable:'竞赛名称'
+          label:'竞赛名称'
         },{
           value:'competitionLevel',
-          lable:'竞赛级别'
+          label:'竞赛级别'
         },{
           value:'competitionType',
-          lable:'竞赛类型'
+          label:'竞赛类型'
         },{
           value:'competitionTime',
-          lable:'竞赛时间'
+          label:'竞赛时间'
         },{
           value:'roleType',
-          lable:'角色类型'
+          label:'角色类型'
         },{
           value:'awardLevel',
-          lable:'获奖等级'
+           label:'获奖等级'
         },{
           value:'awardDate',
-          lable:'获奖日期'
+          label:'获奖日期'
         },{
           value:'organizer',
-          lable:'主办单位'
+          label:'主办单位'
         },{
           value:'competitionCategory',
-          lable:'竞赛类别'
+           label:'竞赛类别'
         },{
           value:'teamSize',
-          lable:'团队人数'
+          label:'团队人数'
         },{
           value:'teamName',
-          lable:'团队名称'
+          label:'团队名称'
         },{
           value:'studentParticipants',
-          lable:'指导的学生参赛'
+         label:'指导的学生参赛'
         },{
           value:'awardCertificateNo',
-          lable:'获奖证书编号'
+         label:'获奖证书编号'
         },{
           value:'competitionWebsite',
-          lable:'竞赛官网'
+         label:'竞赛官网'
         },{
           value:'auditStatus',
-          lable:'审核状态'
+         label:'审核状态'
         },{
           value:'createdAt',
-          lable:'创建时间'
+         label:'创建时间'
         },{
           value:'updatedAt',
-          lable:'更新时间'
+         label:'更新时间'
         }
       ],
       selectClist:[],
       //竞赛类别
       competitionCategorys:[{
         value:'学科竞赛',
-        lable:'学科竞赛'
+        label:'学科竞赛'
       },{
         value:'科技创新',
-        lable:'科技创新'
+        label:'科技创新'
       },{
         value:'教学竞赛',
-        lable:'教学竞赛'
+        label:'教学竞赛'
       },{
         value:'科研竞赛',
-        lable:'科研竞赛'
+        label:'科研竞赛'
       },{
       value:'技能竞赛',
-      lable:'技能竞赛'
+     label:'技能竞赛'
       },{
         value:'综合类竞赛',
-        lable:'综合类竞赛'
+       label:'综合类竞赛'
       },{
         value:'创业竞赛',
-        lable:'创业竞赛'
+       label:'创业竞赛'
       }],
       //获奖等级
       awardLevels:[{
         value:'特等奖',
-        lable:'特等奖'
+      label:'特等奖'
       },{
         value:'一等奖',
-        lable:'一等奖'
+      label:'一等奖'
       },{
         value:'二等奖',
-        lable:'二等奖'
+      label:'二等奖'
       },{
         value:'三等奖',
-        lable:'三等奖'
+       label:'三等奖'
       },{
         value:'优秀奖',
-        lable:'优秀奖'
+       label:'优秀奖'
       },{
         value:'参与奖',
-        lable:'参与奖'
+       label:'参与奖'
       },{
         value:'组织奖',
-        lable:'组织奖'
+        label:'组织奖'
       },{
         value:'指导奖',
-        lable:'指导奖'
+       label:'指导奖'
       },{
         value:'金奖',
-        lable:'金奖'
+        label:'金奖'
       },{
         value:'银奖',
-        lable:'银奖'
+        label:'银奖'
       },{
         value:'铜奖',
-        lable:'铜奖'
+       label:'铜奖'
       }],
       //角色类型
       roleTypes:[{
         value:'参赛者',
-        lable:'参赛者'
+        label:'参赛者'
       },{
         value:'队长',
-        lable:'队长'
+        label:'队长'
       },{
         value:'队员',
-        lable:'队员'
+        label:'队员'
       },{
         value:'指导老师',
-        lable:'指导老师'
+        label:'指导老师'
       },{
         value:'评委',
-        lable:'评委'
+        label:'评委'
       },{
         value:'组织者',
-        lable:'组织者'
+        label:'组织者'
       }],
       //竞赛级别
       competitionLevels:[{
@@ -567,15 +631,67 @@ export default {
   },
   created() {
     this.getList()
+    /*管理权限标识符验证 显示隐藏组件*/
+    const flag = Cookies.get("adminFlag")
+    if(flag =="true")
+    {
+      this.adminFlag = true
+    }
+
   },
   methods: {
-    /**/
+    /*查询输入字段验证时间组件*/
+    changeQueryParams(res){
+      console.log(res)
+      this.SelectQueryParamsValue = null;
+      if(res=="updatedAt"||res=="createdAt"||res=="competitionTime"||res=="awardDate")
+      {
+        if(res=="awardDate")
+        {
+          this.TimeFormat = "yyyy-MM-dd"
+          this.TimeType = "date"
+        }else{
+           this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
+           this.TimeType = "datetime"
+        }
+        console.log(this.TimeFormat)
+        this.TimeFlag = true
+      }else{
+         this.TimeFlag = false
+      }
+    },
+    /*审核提交*/
+    EditAudios(audis)
+    {
+      if (this.form.competitionId != null) {
+        this.form.auditStatus = audis
+        updateCompetition(this.form).then(response => {
+          if(response.competitionId!=null)
+          {
+             this.$modal.msgSuccess("修改成功")
+          }else{
+              this.$modal.msgSuccess("修改成功，上传文件失败")
+          }
 
+          this.AudisVisible = false
+          this.getList()
+        })
+      }
+    },
+    /*审核批改*/
+    handleAudis(row){
+      this.AudisStatis=row.auditStatus
+       this.reset()
+       const competitionId = row.competitionId || this.ids
+       getCompetition(competitionId).then(response => {
+         this.form = response.data
+         this.AudisVisible=true
+       })
+    },
     /** 查询竞赛成果列表 */
     getList() {
       this.loading = true
       listCompetition(this.queryParams).then(response => {
-
         this.competitionList = response.rows
         this.total = response.total
         this.loading = false
@@ -610,12 +726,25 @@ export default {
         createdAt: null,
         updatedAt: null
       }
+      this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1
-      this.getList()
+      if(this.SelectQueryParamsValue!=null)
+      {
+        this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
+        this.queryParams.pageNum = 1
+        this.getList()
+      }else{
+      if(this.SelectQueryParams==null)
+      {
+        this.$message.error("搜索字段不能为空")
+      }else{
+        this.$message.error("搜索值不能为空")
+      }
+      }
+
     },
     /** 重置按钮操作 */
     resetQuery() {
@@ -666,8 +795,6 @@ export default {
               this.getList()
             })
           } else {
-            console.log("竞赛新增")
-            console.log(this.form)
             addCompetition(this.form).then(response => {
 
 
@@ -757,7 +884,7 @@ export default {
   }
 }
 </script>
-<style>
+<!-- <style>
 
 
 
@@ -765,4 +892,70 @@ export default {
     font-size: 18px;
   }
 
+</style> -->
+
+<style scoped>
+/* ================= 整体说明 ================= */
+/* 该样式为导出功能弹窗的专属样式，使用 scoped 确保样式仅作用于当前组件
+   基于 Element Plus 组件库的样式扩展，主要包含弹窗容器、复选框网格、底部按钮区样式
+*/
+
+/* ===== 导出弹窗主体容器 ===== */
+.export-container {
+  padding: 20px 24px;        /* 内边距：上下16px 左右20px，保证内容与边框间距 */
+  background: #fafbfc;       /* 浅灰背景色，提升视觉层次感 */
+  border-radius: 6px;        /* 圆角设计，统一产品视觉风格 */
+  margin-bottom: 10px;       /* 新增：与底部按钮区分隔 */
+}
+
+/* ===== 复选框组 - 网格布局 ===== */
+.export-checkbox-group {
+  display: grid;                              /* 使用网格布局实现多列排列 */
+  grid-template-columns: repeat(4, 1fr);      /* 平均分成4列，注释标注"4列最舒服"为视觉体验最优选择 */
+  column-gap: 24px;                           /* 列之间的间距 24px，保证列间不拥挤 */
+  row-gap: 14px;                              /* 行之间的间距 14px，平衡行高与紧凑度 */
+}
+
+/* ===== 单个复选框容器 ===== */
+.export-checkbox {
+  display: flex;               /* 弹性布局，使复选框与文字垂直居中对齐 */
+  align-items: center;         /* 垂直居中，优化视觉对齐效果 */
+  white-space: nowrap;         /* 文字不换行，避免标签文字被截断 */
+}
+
+/* 修复3：使用 ::v-deep 穿透 scoped（Vue2），Vue3 用 :deep() */
+::v-deep .export-checkbox .el-checkbox__label {
+  font-size: 14px;             /* 文字大小 14px，符合中台产品字体规范 */
+  color: #303133;              /* 深灰色文字，保证可读性 */
+  padding-left: 6px;           /* 与复选框保持6px间距，提升点击体验 */
+}
+
+/* ===== 弹窗底部按钮区域 ===== */
+.export-dialog-footer {
+  display: flex;               /* 弹性布局，控制按钮对齐方式 */
+  justify-content: flex-end;   /* 按钮右对齐，符合弹窗交互习惯 */
+  padding: 10px 20px;          /* 调整内边距，适配弹窗默认padding */
+  border-top: 1px solid #ebeef5; /* 顶部分隔线，视觉区分内容区与操作区 */
+  margin: 0 -20px -10px;       /* 抵消弹窗默认的padding，使分隔线全屏 */
+}
+
+/* ===== 主按钮（导出按钮）样式定制 ===== */
+/* 修复4：提高优先级，覆盖Element默认样式 */
+::v-deep .export-dialog-footer .el-button--primary {
+  background-color: #409eff !important;   /* 定制主按钮背景色，统一品牌色调 */
+  border-color: #409eff !important;       /* 定制边框色，与背景色一致 */
+}
+
+/* 主按钮 hover 状态 */
+::v-deep .export-dialog-footer .el-button--primary:hover {
+  background-color: #66b1ff !important;   /* hover 时浅化背景色，提供交互反馈 */
+  border-color: #66b1ff !important;       /* 边框色同步变化 */
+}
+
+/* 主按钮 active 状态 */
+::v-deep .export-dialog-footer .el-button--primary:active {
+  background-color: #337ecc !important;   /* 点击时加深背景色，模拟按压效果 */
+  border-color: #337ecc !important;       /* 边框色同步加深 */
+}
 </style>
+

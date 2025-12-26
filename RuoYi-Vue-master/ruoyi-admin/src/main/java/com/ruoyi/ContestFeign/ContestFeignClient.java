@@ -31,7 +31,8 @@ public interface ContestFeignClient {
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsCompetition achievementsCompetition
         );
 
     /**
