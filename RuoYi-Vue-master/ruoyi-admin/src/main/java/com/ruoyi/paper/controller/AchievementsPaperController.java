@@ -49,7 +49,16 @@ public class AchievementsPaperController extends BaseController
         try {
             res = contestFeignClient.getPaperList(getUserId(), getDeptId(), pageNum, pageSize);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            logger.warn("远程论文服务调用失败，使用本地数据库查询兜底", e);
+            achievementsPaper.setUserId(getUserId());
+            achievementsPaper.setDeptId(getDeptId());
+            startPage();
+            List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(achievementsPaper);
+            TableDataInfo tableData = getDataTable(list);
+            res.put("code", tableData.getCode());
+            res.put("msg", "远程论文服务暂不可用，已使用本地数据");
+            res.put("rows", tableData.getRows());
+            res.put("total", tableData.getTotal());
         }
         return res;
     }
