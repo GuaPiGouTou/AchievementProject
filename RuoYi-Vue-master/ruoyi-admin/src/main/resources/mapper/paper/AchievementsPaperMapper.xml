@@ -30,6 +30,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsPaperList" parameterType="AchievementsPaper" resultMap="AchievementsPaperResult">
         <include refid="selectAchievementsPaperVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="researchDirection != null  and researchDirection != ''"> and research_direction = #{researchDirection}</if>
