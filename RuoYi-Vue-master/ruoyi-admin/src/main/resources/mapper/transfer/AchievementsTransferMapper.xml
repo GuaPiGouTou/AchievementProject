@@ -28,10 +28,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="auditStatus"    column="audit_status"    />
         <result property="createdAt"    column="created_at"    />
         <result property="updatedAt"    column="updated_at"    />
+        <result property="archivalType"    column="archival_type"    />
     </resultMap>
 
     <sql id="selectAchievementsTransferVo">
-        select transfer_id, user_id, dept_id, achievement_name, achievement_type, achievement_number, transfer_method, partner_enterprise, transfer_amount, transfer_date, transfer_description, validity_period, territory_range, payment_method, transfer_status, is_exclusive, economic_benefits, social_benefits, contact_person, contact_phone, audit_status, created_at, updated_at from achievements_transfer
+        select transfer_id, user_id, dept_id, achievement_name, achievement_type, achievement_number, transfer_method, partner_enterprise, transfer_amount, transfer_date, transfer_description, validity_period, territory_range, payment_method, transfer_status, is_exclusive, economic_benefits, social_benefits, contact_person, contact_phone, audit_status, created_at, updated_at, archival_type from achievements_transfer
     </sql>
 
     <select id="selectAchievementsTransferList" parameterType="AchievementsTransfer" resultMap="AchievementsTransferResult">
@@ -79,6 +80,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">audit_status,</if>
             <if test="createdAt != null">created_at,</if>
             <if test="updatedAt != null">updated_at,</if>
+            <if test="archivalType != null">archival_type,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="transferId != null">#{transferId},</if>
@@ -104,6 +106,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="createdAt != null">#{createdAt},</if>
             <if test="updatedAt != null">#{updatedAt},</if>
+            <if test="archivalType != null">#{archivalType},</if>
          </trim>
     </insert>
 
@@ -132,6 +135,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="createdAt != null">created_at = #{createdAt},</if>
             <if test="updatedAt != null">updated_at = #{updatedAt},</if>
+            <if test="archivalType != null">archival_type = #{archivalType},</if>
         </trim>
         where transfer_id = #{transferId}
     </update>

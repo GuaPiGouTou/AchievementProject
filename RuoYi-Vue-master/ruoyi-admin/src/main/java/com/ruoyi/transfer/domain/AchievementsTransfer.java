@@ -113,6 +113,10 @@ public class AchievementsTransfer extends BaseEntity
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-M-d'T'H:m:s")
     private Date updatedAt;
 
+    /** 归档类型 */
+    @Excel(name = "归档类型")
+    private String archivalType;
+
     public void setTransferId(Long transferId) 
     {
         this.transferId = transferId;
@@ -343,6 +347,16 @@ public class AchievementsTransfer extends BaseEntity
         return updatedAt;
     }
 
+    public void setArchivalType(String archivalType)
+    {
+        this.archivalType = archivalType;
+    }
+
+    public String getArchivalType()
+    {
+        return archivalType;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -369,6 +383,7 @@ public class AchievementsTransfer extends BaseEntity
             .append("auditStatus", getAuditStatus())
             .append("createdAt", getCreatedAt())
             .append("updatedAt", getUpdatedAt())
+            .append("archivalType", getArchivalType())
             .toString();
     }
 }

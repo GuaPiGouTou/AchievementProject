@@ -1,33 +1,36 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-          <el-form-item label="搜索字段" prop="competitionName">
-            <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-                <el-option
-                  v-for="item in checkList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                   v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true">
-                </el-option>
-            </el-select>
-
-          </el-form-item>
-          <el-form-item >
-            <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-            <el-date-picker v-else
-              clearable
-              v-model="SelectQueryParamsValue"
-              :type="TimeType"
-              :value-format="TimeFormat"
-              placeholder="请选择时间">
-            </el-date-picker>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-          </el-form-item>
-        </el-form>
+      <el-form-item label="竞赛名称" prop="competitionName">
+        <el-input v-model.trim="queryParams.competitionName" placeholder="请输入竞赛名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="竞赛级别" prop="competitionLevel">
+        <el-select v-model="queryParams.competitionLevel" placeholder="请选择竞赛级别" clearable filterable>
+          <el-option
+            v-for="item in competitionLevels"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="竞赛类别" prop="competitionCategory">
+        <el-select v-model="queryParams.competitionCategory" placeholder="请选择竞赛类别" clearable filterable>
+          <el-option
+            v-for="item in competitionCategorys"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -77,10 +80,9 @@
 
     <el-table v-loading="loading" :data="competitionList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="adminFlag" label="竞赛id" align="center" prop="competitionId" />
       <el-table-column label="竞赛名称" align="center" prop="competitionName" />
       <el-table-column label="竞赛级别" align="center" prop="competitionLevel" />
-      <el-table-column label="竞赛类型" align="center" prop="competitionType" />
+      <el-table-column label="竞赛对象" align="center" prop="competitionType" />
       <el-table-column label="竞赛时间" align="center" prop="competitionTime" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.competitionTime, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
@@ -100,17 +102,8 @@
       <el-table-column label="参赛队员" align="center" prop="studentParticipants" />
       <el-table-column label="获奖证书编号" align="center" prop="awardCertificateNo" />
       <el-table-column label="竞赛官网" align="center" prop="competitionWebsite" />
-      <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
-        </template>
-      </el-table-column>
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+<el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -189,8 +182,15 @@
                   </el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="竞赛类型" prop="competitionType">
-              <el-input v-model="form.competitionType" placeholder="请输入竞赛类型 (仅限中英文和数字)" />
+            <el-form-item label="竞赛对象" prop="competitionType">
+              <el-select v-model="form.competitionType" placeholder="请选择竞赛对象">
+                  <el-option
+                    v-for="item in competitionTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="竞赛时间" prop="competitionTime">
               <el-date-picker clearable
@@ -256,6 +256,16 @@
             <el-form-item label="竞赛官网" prop="competitionWebsite">
               <el-input v-model="form.competitionWebsite"  placeholder="请输入竞赛官网地址 (如: https://www.example.com)" />
             </el-form-item>
+            <el-form-item v-if="showArchivalTypeField" label="归档类别" prop="archivalType">
+              <el-select v-model="form.archivalType" placeholder="请选择归档类别">
+                  <el-option
+                    v-for="item in archivalTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="上传文件" prop="updatedAt">
             	<file-upload ref="file" v-model="files"></file-upload>
             </el-form-item>
@@ -283,7 +293,7 @@
         >
           <!-- 修复1：item.lable → item.label -->
           <el-checkbox
-            v-for="item in checkList"
+            v-for="item in searchCheckList"
             :key="item.value"
             :label="item.value"
             class="export-checkbox"
@@ -344,6 +354,8 @@ export default {
         TimeFormat:"yyyy-MM-ddTHH:mm:ss",
         //是否为时间字段
         TimeFlag:false,
+        // 搜索输入类型 text/select/date
+        SearchInputType:"text",
         //搜索内容
         SelectQueryParamsValue:null,
         //搜索字段
@@ -358,6 +370,7 @@ export default {
         AudisVisible:false,
         //管理员标识
         adminFlag:false,
+      isStudentUser: false,
 
       //导出记录
       idsCount:0,
@@ -371,6 +384,21 @@ export default {
       //导出弹窗
       Exceltitle:"选择导出的字段",
       Excelopen:false,
+      // 面向大众的搜索字段（隐藏技术字段）
+      searchFields:[
+        { value:'competitionName', label:'竞赛名称', type:'text' },
+        { value:'competitionLevel', label:'竞赛级别', type:'select' },
+        { value:'competitionType', label:'竞赛对象', type:'select' },
+        { value:'roleType', label:'角色类型', type:'select' },
+        { value:'awardLevel', label:'获奖等级', type:'select' },
+        { value:'awardDate', label:'获奖日期', type:'date' },
+        { value:'competitionCategory', label:'竞赛类别', type:'select' },
+        { value:'teamName', label:'团队名称', type:'text' },
+        { value:'studentParticipants', label:'参赛队员', type:'text' },
+        { value:'archivalType', label:'归档类别', type:'select' },
+        { value:'auditStatus', label:'审核状态', type:'select' },],
+      // 当前搜索字段候选项
+      currentSearchOptions:[],
       //导出选择字段
       checkList:[
         {
@@ -384,7 +412,7 @@ export default {
           label:'竞赛级别'
         },{
           value:'competitionType',
-          label:'竞赛类型'
+          label:'竞赛对象'
         },{
           value:'competitionTime',
           label:'竞赛时间'
@@ -419,17 +447,22 @@ export default {
           value:'competitionWebsite',
          label:'竞赛官网'
         },{
+        value:'archivalType',
+        label:'归档类别'
+      }, {
           value:'auditStatus',
          label:'审核状态'
-        },{
-          value:'createdAt',
-         label:'创建时间'
-        },{
-          value:'updatedAt',
-         label:'更新时间'
         }
       ],
       selectClist:[],
+      archivalTypes: [
+        { label: "教育教学改革", value: "教育教学改革" },
+        { label: "课程设计", value: "课程设计" }
+      ],
+      competitionTypes:[
+        { value:'教师竞赛', label:'教师竞赛' },
+        { value:'学生竞赛', label:'学生竞赛' }
+      ],
       //竞赛类别
       competitionCategorys:[{
         value:'学科竞赛',
@@ -493,20 +526,8 @@ export default {
         value:'参赛者',
         label:'参赛者'
       },{
-        value:'队长',
-        label:'队长'
-      },{
-        value:'队员',
-        label:'队员'
-      },{
-        value:'指导老师',
-        label:'指导老师'
-      },{
-        value:'评委',
-        label:'评委'
-      },{
-        value:'组织者',
-        label:'组织者'
+        value:'指导教师',
+        label:'指导教师'
       }],
       //竞赛级别
       competitionLevels:[{
@@ -574,9 +595,7 @@ export default {
           { required: true, message: "竞赛级别不能为空", trigger: "change" }
         ],
         competitionType: [
-          { required: false, message: "请输入竞赛类型", trigger: "blur" },
-          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]+$/, message: "竞赛类型格式错误（仅允许中英文和数字）", trigger: "blur" }
+          { required: true, message: "竞赛对象不能为空", trigger: "change" }
         ],
         competitionTime: [
           { required: true, message: "竞赛时间不能为空", trigger: "blur" }
@@ -588,7 +607,7 @@ export default {
           { required: true, message: "获奖等级不能为空", trigger: "change" }
         ],
         awardDate: [
-          { required: false, message: "请选择获奖日期", trigger: "blur" }
+          { required: true, message: "获奖日期不能为空", trigger: "blur" }
         ],
         organizer: [
           { required: true, message: "主办单位不能为空", trigger: "blur" },
@@ -631,6 +650,7 @@ export default {
   },
   created() {
     this.getList()
+    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -639,25 +659,65 @@ export default {
     }
 
   },
+  computed: {
+    showArchivalTypeField() {
+      return !this.isStudentUser
+    },
+    searchCheckList() {
+      return this.checkList.filter((item) => {
+        if (/id$/i.test(item.value)) {
+          return false
+        }
+        if (item.value === "archivalType" && this.isStudentUser) {
+          return false
+        }
+        if ((item.value === "updatedAt" || item.value === "createdAt") && !this.adminFlag) {
+          return false
+        }
+        return true
+      })
+    }
+  },
   methods: {
+    initUserRoleScope() {
+      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+    },
     /*查询输入字段验证时间组件*/
     changeQueryParams(res){
-      console.log(res)
       this.SelectQueryParamsValue = null;
-      if(res=="updatedAt"||res=="createdAt"||res=="competitionTime"||res=="awardDate")
-      {
-        if(res=="awardDate")
-        {
-          this.TimeFormat = "yyyy-MM-dd"
-          this.TimeType = "date"
-        }else{
-           this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
-           this.TimeType = "datetime"
+      this.currentSearchOptions = [];
+      this.TimeFlag = false;
+      this.SearchInputType = "text";
+      if (!res) {
+        return;
+      }
+      const field = this.searchFields.find(item => item.value === res);
+      if (!field) {
+        return;
+      }
+      if (field.type === "date") {
+        this.SearchInputType = "date";
+        this.TimeFlag = true;
+        if (res === "awardDate") {
+          this.TimeFormat = "yyyy-MM-dd";
+          this.TimeType = "date";
+        } else {
+          this.TimeFormat = "yyyy-MM-ddTHH:mm:ss";
+          this.TimeType = "datetime";
         }
-        console.log(this.TimeFormat)
-        this.TimeFlag = true
-      }else{
-         this.TimeFlag = false
+      } else if (field.type === "select") {
+        this.SearchInputType = "select";
+        const selectMap = {
+          competitionLevel: this.competitionLevels,
+          competitionType: this.competitionTypes,
+          roleType: this.roleTypes,
+          awardLevel: this.awardLevels,
+          competitionCategory: this.competitionCategorys,
+          archivalType: this.archivalTypes,
+          auditStatus: this.audisItems.map(item => ({ label: item, value: item }))
+        };
+        this.currentSearchOptions = selectMap[res] || [];
       }
     },
     /*审核提交*/
@@ -724,31 +784,30 @@ export default {
         competitionWebsite: null,
         auditStatus: null,
         createdAt: null,
-        updatedAt: null
+        updatedAt: null,
+        archivalType: null
       }
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
+    clearCurrentSearch() {
+      if (this.SelectQueryParams) {
+        this.queryParams[this.SelectQueryParams] = null
+      }
+      this.SelectQueryParamsValue = null
+      this.TimeFlag = false
+    },
     /** 搜索按钮操作 */
     handleQuery() {
-      if(this.SelectQueryParamsValue!=null)
-      {
-        this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-        this.queryParams.pageNum = 1
-        this.getList()
-      }else{
-      if(this.SelectQueryParams==null)
-      {
-        this.$message.error("搜索字段不能为空")
-      }else{
-        this.$message.error("搜索值不能为空")
-      }
-      }
-
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.competitionName = null
+      this.queryParams.competitionLevel = null
+      this.queryParams.competitionCategory = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -781,6 +840,18 @@ export default {
       this.$refs["form"].validate(valid => {
 
         if (valid) {
+          if (!this.showArchivalTypeField) {
+            this.form.archivalType = null
+          } else {
+            if (!this.form.archivalType) {
+              this.$modal.msgError("归档类别为必填项")
+              return
+            }
+            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+              this.$modal.msgError("归档类别无效，请重新选择")
+              return
+            }
+          }
           if (this.form.competitionId != null) {
             updateCompetition(this.form).then(response => {
               if(response.competitionId!=null)
@@ -958,4 +1029,3 @@ export default {
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-

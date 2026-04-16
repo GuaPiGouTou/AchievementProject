@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.system;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -27,15 +29,15 @@ import com.ruoyi.system.service.ISysNoticeService;
 public class SysIndexController
 {
     private static final AchievementTable[] ACHIEVEMENT_TABLES = {
-            new AchievementTable("论文成果", "achievements_paper"),
-            new AchievementTable("获奖成果", "achievements_award"),
-            new AchievementTable("竞赛成果", "achievements_competition"),
-            new AchievementTable("专利成果", "achievements_patent"),
-            new AchievementTable("科研项目", "achievements_research"),
-            new AchievementTable("软著成果", "achievements_software"),
-            new AchievementTable("教材成果", "achievements_textbook"),
-            new AchievementTable("专著成果", "achievements_monograph"),
-            new AchievementTable("成果转化", "achievements_transfer")
+            new AchievementTable("论文成果", "achievements_paper", "paper_id", "paper_title", "/paper/paper"),
+            new AchievementTable("获奖成果", "achievements_award", "award_id", "award_name", "/award/award"),
+            new AchievementTable("竞赛成果", "achievements_competition", "competition_id", "competition_name", "/competition/competition"),
+            new AchievementTable("专利成果", "achievements_patent", "patent_id", "patent_name", "/patent/patent"),
+            new AchievementTable("科研项目", "achievements_research", "research_id", "project_name", "/research/research"),
+            new AchievementTable("软著成果", "achievements_software", "software_id", "software_name", "/software/software"),
+            new AchievementTable("教材成果", "achievements_textbook", "textbook_id", "textbook_name", "/textbook/textbook"),
+            new AchievementTable("专著成果", "achievements_monograph", "monograph_id", "monograph_title", "/monograph/monograph"),
+            new AchievementTable("成果转化", "achievements_transfer", "transfer_id", "achievement_name", "/transfer/transfer")
     };
 
     /** 系统基础配置 */
@@ -126,6 +128,27 @@ public class SysIndexController
     }
 
     /**
+     * 首页待处理明细列表。
+     */
+    @GetMapping("/dashboard/achievement/pending")
+    public AjaxResult pendingAchievementList(@RequestParam(defaultValue = "60") int limit)
+    {
+        int safeLimit = Math.max(1, Math.min(limit, 200));
+        int perTableLimit = Math.max(6, (int) Math.ceil(safeLimit / (double) ACHIEVEMENT_TABLES.length));
+        List<Map<String, Object>> rows = new ArrayList<>();
+
+        for (AchievementTable achievementTable : ACHIEVEMENT_TABLES)
+        {
+            rows.addAll(queryPendingRows(achievementTable, perTableLimit));
+        }
+
+        rows.sort(Comparator.comparingLong((Map<String, Object> item) -> toLong(item.get("sortKey"))).reversed());
+        List<Map<String, Object>> data = rows.size() > safeLimit ? rows.subList(0, safeLimit) : rows;
+        data.forEach(item -> item.remove("sortKey"));
+        return AjaxResult.success(data);
+    }
+
+    /**
      * 首页公告列表，返回公告正文供首页直接展示。
      */
     @GetMapping("/dashboard/notices")
@@ -193,15 +216,56 @@ public class SysIndexController
         return value == null ? 0L : Long.parseLong(value.toString());
     }
 
+    private List<Map<String, Object>> queryPendingRows(AchievementTable achievementTable, int limit)
+    {
+        String sql = "select "
+                + achievementTable.idColumn + " as record_id, "
+                + "ifnull(" + achievementTable.titleColumn + ", '未命名记录') as record_title, "
+                + "ifnull(audit_status, '未填写') as audit_status, "
+                + "created_at, "
+                + "ifnull(unix_timestamp(created_at), 0) as sort_key "
+                + "from " + achievementTable.tableName + " "
+                + "where (audit_status like '%待%' or audit_status like '%未%' or audit_status is null) "
+                + "order by created_at desc limit ?";
+        List<Map<String, Object>> result = new ArrayList<>();
+        try
+        {
+            List<Map<String, Object>> source = jdbcTemplate.queryForList(sql, limit);
+            for (Map<String, Object> row : source)
+            {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("module", achievementTable.label);
+                item.put("routePath", achievementTable.routePath);
+                item.put("recordId", row.get("record_id"));
+                item.put("title", row.get("record_title"));
+                item.put("auditStatus", row.get("audit_status"));
+                item.put("createdAt", row.get("created_at"));
+                item.put("sortKey", row.get("sort_key"));
+                result.add(item);
+            }
+        }
+        catch (Exception ignored)
+        {
+            // 忽略单表异常，避免影响首页整体加载。
+        }
+        return result;
+    }
+
     private static class AchievementTable
     {
         private final String label;
         private final String tableName;
+        private final String idColumn;
+        private final String titleColumn;
+        private final String routePath;
 
-        private AchievementTable(String label, String tableName)
+        private AchievementTable(String label, String tableName, String idColumn, String titleColumn, String routePath)
         {
             this.label = label;
             this.tableName = tableName;
+            this.idColumn = idColumn;
+            this.titleColumn = titleColumn;
+            this.routePath = routePath;
         }
     }
 }

@@ -39,6 +39,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="projectNumber != null  and projectNumber != ''"> and project_number = #{projectNumber}</if>
             <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
+            <if test="projectCategory != null  and projectCategory != ''"> and project_category = #{projectCategory}</if>
+            <if test="projectLevel != null  and projectLevel != ''"> and project_level = #{projectLevel}</if>
             <if test="principal != null  and principal != ''"> and principal = #{principal}</if>
             <if test="totalFunding != null "> and total_funding = #{totalFunding}</if>
             <if test="projectStatus != null  and projectStatus != ''"> and project_status = #{projectStatus}</if>

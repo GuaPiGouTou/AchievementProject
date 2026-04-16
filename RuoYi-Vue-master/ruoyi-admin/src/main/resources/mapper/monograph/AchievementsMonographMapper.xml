@@ -37,11 +37,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsMonographList" parameterType="AchievementsMonograph" resultMap="AchievementsMonographResult">
         <include refid="selectAchievementsMonographVo"/>
         <where>  
-            <if test="monographTitle != null  and monographTitle != ''"> and monograph_title = #{monographTitle}</if>
+            <if test="monographTitle != null  and monographTitle != ''"> and monograph_title like concat('%', #{monographTitle}, '%')</if>
             <if test="authorRole != null  and authorRole != ''"> and author_role = #{authorRole}</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
             <if test="monographType != null  and monographType != ''"> and monograph_type = #{monographType}</if>
-            <if test="subjectCategory != null  and subjectCategory != ''"> and subject_category = #{subjectCategory}</if>
+            <if test="subjectCategory != null  and subjectCategory != ''"> and subject_category like concat('%', #{subjectCategory}, '%')</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
         </where>
     </select>

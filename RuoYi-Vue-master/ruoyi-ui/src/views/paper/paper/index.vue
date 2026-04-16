@@ -1,34 +1,29 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-              <el-form-item label="搜索字段" prop="competitionName">
-                <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-                    <el-option
-                      v-for="item in checkList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                      >
-                    </el-option>
-                </el-select>
-
-              </el-form-item>
-              <el-form-item >
-                <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-                <el-date-picker v-else
-                  clearable
-                  v-model="SelectQueryParamsValue"
-                  :type="TimeType"
-                  :value-format="TimeFormat"
-                  placeholder="请选择时间">
-                </el-date-picker>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-              </el-form-item>
-            </el-form>
+     <el-form class="paper-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+      <el-form-item label="论文标题" prop="paperTitle">
+        <el-input v-model.trim="queryParams.paperTitle" placeholder="请输入论文标题关键词" clearable />
+      </el-form-item>
+      <el-form-item label="论文类别" prop="paperCategory">
+        <el-select v-model="queryParams.paperCategory" placeholder="请选择论文类别" clearable filterable>
+          <el-option
+            v-for="item in paperCategorys"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="研究方向" prop="researchDirection">
+        <el-input v-model.trim="queryParams.researchDirection" placeholder="请输入研究方向关键词" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -78,7 +73,6 @@
 
     <el-table v-loading="loading" :data="paperList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="adminFlag" label="论文id" align="center" prop="paperId" />
       <el-table-column label="论文标题" align="center" prop="paperTitle" />
       <el-table-column label="论文类别" align="center" prop="paperCategory" />
       <el-table-column label="研究方向" align="center" prop="researchDirection" />
@@ -93,17 +87,8 @@
       <el-table-column label="期号" align="center" prop="issue" />
       <el-table-column label="页码范围" align="center" prop="pageRange" />
       <el-table-column label="DOI号" align="center" prop="doi" />
-      <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-            <template slot-scope="scope">
-              <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{s}') }}</span>
-            </template>
-          </el-table-column>
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+<el-table-column label="审核状态" align="center" prop="auditStatus" />
        <el-table-column label="附件列表" align="center" prop="updatedAt" width="180">
               <template slot-scope="scope">
               <el-button
@@ -201,6 +186,16 @@
            <el-form-item label="DOI号" prop="doi">
              <el-input v-model="form.doi" placeholder="请输入DOI号 (如: 10.1000/xyz123)" />
            </el-form-item>
+            <el-form-item v-if="showArchivalTypeField" label="归档类别" prop="archivalType">
+              <el-select v-model="form.archivalType" placeholder="请选择归档类别">
+                  <el-option
+                    v-for="item in archivalTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
            <el-form-item label="上传文件" prop="updatedAt">
                 <file-upload ref="file" v-model="files"></file-upload>
              </el-form-item>
@@ -307,15 +302,6 @@ export default {
   name: "Paper",
   data() {
     return {
-      //日期选择类型
-      TimeType:"datetime",
-      TimeFormat:"yyyy-MM-ddTHH:mm:ss",
-      //是否为时间字段
-      TimeFlag:false,
-      //搜索内容
-      SelectQueryParamsValue:null,
-      //搜索字段
-      SelectQueryParams:null,
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -326,6 +312,7 @@ export default {
       AudisVisible:false,
       //管理员标识
       adminFlag:false,
+      isStudentUser: false,
       //导出记录
       idsCount:0,
       //导出弹窗
@@ -373,18 +360,19 @@ export default {
               value: 'doi',
               label: 'DOI号'
             }, {
+        value:'archivalType',
+        label:'归档类别'
+      }, {
               value: 'auditStatus',
               label: '审核状态'
-            }, {
-              value: 'createdAt',
-              label: '创建时间'
-            }, {
-              value: 'updatedAt',
-              label: '更新时间'
             }
           ],
       //导出选择字段
       selectClist:[],
+      archivalTypes: [
+        { label: "教育教学改革", value: "教育教学改革" },
+        { label: "课程设计", value: "课程设计" }
+      ],
       //上传文件组件
       files:[],
       //附件弹窗参数
@@ -497,6 +485,7 @@ export default {
   },
   created() {
     this.getList()
+    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -504,27 +493,16 @@ export default {
       this.adminFlag = true
     }
   },
-  methods: {
-/*查询输入字段验证时间组件*/
-changeQueryParams(res){
-  console.log(res)
-  this.SelectQueryParamsValue = null;
-  if(res=="updatedAt"||res=="createdAt"||res=="publishDate")
-  {
-    if(res=="publishDate")
-    {
-      this.TimeFormat = "yyyy-MM-dd"
-      this.TimeType = "date"
-    }else{
-       this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
-       this.TimeType = "datetime"
+  computed: {
+    showArchivalTypeField() {
+      return !this.isStudentUser
     }
-    console.log(this.TimeFormat)
-    this.TimeFlag = true
-  }else{
-     this.TimeFlag = false
-  }
-},
+  },
+  methods: {
+    initUserRoleScope() {
+      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+    },
 /*审核提交*/
 EditAudios(audis)
 {
@@ -585,32 +563,23 @@ handleAudis(row){
         auditStatus: null,
         createdAt: null,
         updatedAt: null,
+        archivalType: null,
         deptId: null
       }
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
-
   /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.paperTitle = null
+      this.queryParams.paperCategory = null
+      this.queryParams.researchDirection = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -639,6 +608,18 @@ handleAudis(row){
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (!this.showArchivalTypeField) {
+            this.form.archivalType = null
+          } else {
+            if (!this.form.archivalType) {
+              this.$modal.msgError("归档类别为必填项")
+              return
+            }
+            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+              this.$modal.msgError("归档类别无效，请重新选择")
+              return
+            }
+          }
           if (this.form.paperId != null) {
             updatePaper(this.form).then(response => {
               console.log(response)
@@ -739,6 +720,11 @@ handleAudis(row){
 }
 </script>
 <style scoped>
+/* 论文搜索标签保持单行显示，避免标题换行 */
+::v-deep .paper-search-form .el-form-item__label {
+  white-space: nowrap;
+}
+
 /* ================= 整体说明 ================= */
 /* 该样式为导出功能弹窗的专属样式，使用 scoped 确保样式仅作用于当前组件
    基于 Element Plus 组件库的样式扩展，主要包含弹窗容器、复选框网格、底部按钮区样式
@@ -802,4 +788,3 @@ handleAudis(row){
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-

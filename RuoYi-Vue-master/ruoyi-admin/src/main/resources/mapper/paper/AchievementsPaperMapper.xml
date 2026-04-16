@@ -32,9 +32,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="userId != null"> and user_id = #{userId}</if>
             <if test="deptId != null"> and dept_id = #{deptId}</if>
-            <if test="paperTitle != null  and paperTitle != ''"> and paper_title = #{paperTitle}</if>
+            <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
-            <if test="researchDirection != null  and researchDirection != ''"> and research_direction = #{researchDirection}</if>
+            <if test="researchDirection != null  and researchDirection != ''"> and research_direction like concat('%', #{researchDirection}, '%')</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
         </where>

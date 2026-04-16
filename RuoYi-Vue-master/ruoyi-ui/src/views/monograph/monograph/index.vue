@@ -1,34 +1,29 @@
 <template>
   <div class="app-container">
      <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="搜索字段" prop="competitionName">
-          <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-              <el-option
-                v-for="item in checkList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                >
-              </el-option>
-          </el-select>
-
-        </el-form-item>
-        <el-form-item >
-          <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-          <el-date-picker v-else
-            clearable
-            v-model="SelectQueryParamsValue"
-            :type="TimeType"
-            :value-format="TimeFormat"
-            placeholder="请选择时间">
-          </el-date-picker>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        </el-form-item>
-      </el-form>
+      <el-form-item label="专著名称" prop="monographTitle">
+        <el-input v-model.trim="queryParams.monographTitle" placeholder="请输入专著名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="专著类型" prop="monographType">
+        <el-select v-model="queryParams.monographType" placeholder="请选择专著类型" clearable filterable>
+          <el-option
+            v-for="item in monographTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="学科分类" prop="subjectCategory">
+        <el-input v-model.trim="queryParams.subjectCategory" placeholder="请输入学科分类关键词" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -78,7 +73,6 @@
 
     <el-table v-loading="loading" :data="monographList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="adminFlag" label="专著id" align="center" prop="monographId" />
       <el-table-column label="专著名称" align="center" prop="monographTitle" />
       <el-table-column label="作者角色" align="center" prop="authorRole" />
       <el-table-column label="出版社" align="center" prop="pressName" />
@@ -100,17 +94,8 @@
       <el-table-column label="合著者信息" align="center" prop="coAuthors" />
       <el-table-column label="国际标准书号" align="center" prop="internationalStandardBookNumber" />
       <el-table-column label="中国分类号" align="center" prop="chinaClassificationNumber" />
-      <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+<el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -255,6 +240,16 @@
             <el-form-item label="中国分类号" prop="chinaClassificationNumber">
               <el-input v-model="form.chinaClassificationNumber" placeholder="请输入中国分类号 (如: TP311)" />
             </el-form-item>
+            <el-form-item v-if="showArchivalTypeField" label="归档类别" prop="archivalType">
+              <el-select v-model="form.archivalType" placeholder="请选择归档类别">
+                  <el-option
+                    v-for="item in archivalTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+            </el-form-item>
     		<el-form-item label="上传文件" prop="updatedAt">
     			<file-upload ref="file" v-model="files"></file-upload>
     		</el-form-item>
@@ -369,6 +364,7 @@ export default {
       AudisVisible:false,
       //管理员标识
       adminFlag:false,
+      isStudentUser: false,
       //导出记录
       idsCount:0,
       //导出弹窗
@@ -431,17 +427,18 @@ export default {
                 value: 'chinaClassificationNumber',
                 label: '中国分类号'
               }, {
+        value:'archivalType',
+        label:'归档类别'
+      }, {
                 value: 'auditStatus',
                 label: '审核状态'
-              }, {
-                value: 'createdAt',
-                label: '创建时间'
-              }, {
-                value: 'updatedAt',
-                label: '更新时间'
               }
             ],
       selectClist:[],
+      archivalTypes: [
+        { label: "教育教学改革", value: "教育教学改革" },
+        { label: "课程设计", value: "课程设计" }
+      ],
       //附件弹窗参数
       currentPaperId:null,
       currentPaper:"",
@@ -581,6 +578,7 @@ export default {
   },
   created() {
     this.getList()
+    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -588,7 +586,30 @@ export default {
       this.adminFlag = true
     }
   },
+  computed: {
+    showArchivalTypeField() {
+      return !this.isStudentUser
+    },
+    searchCheckList() {
+      return this.checkList.filter((item) => {
+        if (/id$/i.test(item.value)) {
+          return false
+        }
+        if (item.value === "archivalType" && this.isStudentUser) {
+          return false
+        }
+        if ((item.value === "updatedAt" || item.value === "createdAt") && !this.adminFlag) {
+          return false
+        }
+        return true
+      })
+    }
+  },
   methods: {
+    initUserRoleScope() {
+      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+    },
     /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       this.SelectQueryParamsValue = null;
@@ -674,32 +695,31 @@ export default {
         chinaClassificationNumber: null,
         auditStatus: null,
         createdAt: null,
-        updatedAt: null
+        updatedAt: null,
+        archivalType: null
       }
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
+    clearCurrentSearch() {
+      if (this.SelectQueryParams) {
+        this.queryParams[this.SelectQueryParams] = null
+      }
+      this.SelectQueryParamsValue = null
+      this.TimeFlag = false
+    },
 
    /** 搜索按钮操作 */
      handleQuery() {
-      if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-      {
-      this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
       this.queryParams.pageNum = 1
       this.getList()
-      }else{
-        if(this.SelectQueryParams==null)
-        {
-          this.$message.error("搜索字段不能为空")
-        }else{
-          this.$message.error("搜索值不能为空")
-        }
-
-      }
      },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.monographTitle = null
+      this.queryParams.monographType = null
+      this.queryParams.subjectCategory = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -728,6 +748,18 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (!this.showArchivalTypeField) {
+            this.form.archivalType = null
+          } else {
+            if (!this.form.archivalType) {
+              this.$modal.msgError("归档类别为必填项")
+              return
+            }
+            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+              this.$modal.msgError("归档类别无效，请重新选择")
+              return
+            }
+          }
               if (this.form.monographId != null) {
               updateMonograph(this.form).then(response => {
               if(response.monographId!=null)

@@ -1,34 +1,29 @@
 <template>
   <div class="app-container">
      <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="搜索字段" prop="competitionName">
-          <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-              <el-option
-                v-for="item in checkList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                >
-              </el-option>
-          </el-select>
-
-        </el-form-item>
-        <el-form-item >
-          <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-          <el-date-picker v-else
-            clearable
-            v-model="SelectQueryParamsValue"
-            :type="TimeType"
-            :value-format="TimeFormat"
-            placeholder="请选择时间">
-          </el-date-picker>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        </el-form-item>
-      </el-form>
+      <el-form-item label="奖项名称" prop="awardName">
+        <el-input v-model.trim="queryParams.awardName" placeholder="请输入奖项名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="奖项级别" prop="awardLevel">
+        <el-select v-model="queryParams.awardLevel" placeholder="请选择奖项级别" clearable filterable>
+          <el-option
+            v-for="item in awardLevels"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="奖项类别" prop="awardCategory">
+        <el-input v-model.trim="queryParams.awardCategory" placeholder="请输入奖项类别关键词" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -78,8 +73,7 @@
 
     <el-table v-loading="loading" :data="awardList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="奖项" align="center" prop="awardId" />
-      <el-table-column v-if="adminFlag" label="奖项名称id" align="center" prop="awardName" />
+      <el-table-column label="奖项名称" align="center" prop="awardName" />
       <el-table-column label="获奖人" align="center" prop="awardWinner" />
       <el-table-column label="颁奖单位" align="center" prop="awardUnit" />
       <el-table-column label="获奖时间" align="center" prop="awardDate" width="180">
@@ -90,23 +84,8 @@
       <el-table-column label="奖项级别" align="center" prop="awardLevel" />
       <el-table-column label="奖项类别" align="center" prop="awardCategory" />
       <el-table-column label="获奖等次" align="center" prop="awardRanking" />
-      <el-table-column label="颁奖典礼日期" align="center" prop="awardCeremonyDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.awardCeremonyDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="颁奖地点" align="center" prop="awardCeremonyPlace" />
-      <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+<el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -217,16 +196,15 @@
             <el-form-item label="获奖等次" prop="awardRanking">
               <el-input v-model="form.awardRanking" placeholder="请输入获奖等次" />
             </el-form-item>
-            <el-form-item label="颁奖典礼日期" prop="awardCeremonyDate">
-              <el-date-picker clearable
-                v-model="form.awardCeremonyDate"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择颁奖典礼日期">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="颁奖地点" prop="awardCeremonyPlace">
-              <el-input v-model="form.awardCeremonyPlace" placeholder="请输入颁奖地点" />
+            <el-form-item v-if="showArchivalTypeField" label="归档类别" prop="archivalType">
+              <el-select v-model="form.archivalType" placeholder="请选择归档类别">
+                  <el-option
+                    v-for="item in archivalTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="上传文件" prop="updatedAt">
             	<file-upload ref="file" v-model="files"></file-upload>
@@ -342,6 +320,7 @@ export default {
       AudisVisible:false,
       //管理员标识
       adminFlag:false,
+      isStudentUser: false,
       //导出记录
       idsCount:0,
       //附件弹窗参数
@@ -395,26 +374,18 @@ export default {
         "label": "获奖等次"
       },
       {
-        "value": "awardCeremonyDate",
-        "label": "颁奖典礼日期"
-      },
-      {
-        "value": "awardCeremonyPlace",
-        "label": "颁奖地点"
+        "value": "archivalType",
+        "label": "归档类别"
       },
       {
         "value": "auditStatus",
         "label": "审核状态"
-      },
-      {
-        "value": "createdAt",
-        "label": "创建时间"
-      },
-      {
-        "value": "updatedAt",
-        "label": "更新时间"
-      }],
+      },],
       selectClist:[],
+      archivalTypes: [
+        { label: "教育教学改革", value: "教育教学改革" },
+        { label: "课程设计", value: "课程设计" }
+      ],
       //上传文件组件
       files:[],
       //奖项级别
@@ -524,16 +495,13 @@ export default {
                 { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
                 { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s]+$/, message: "获奖等次格式不正确（如：一等奖, 1st）", trigger: "blur" }
               ],
-              awardCeremonyPlace: [
-                { required: false, message: "请输入颁奖地点", trigger: "blur" },
-                { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-                { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\-\s,，]+$/, message: "颁奖地点包含非法字符", trigger: "blur" }
-              ]
+              
             }
     }
   },
   created() {
     this.getList()
+    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -541,20 +509,37 @@ export default {
       this.adminFlag = true
     }
   },
+  computed: {
+    showArchivalTypeField() {
+      return !this.isStudentUser
+    },
+    searchCheckList() {
+      return this.checkList.filter((item) => {
+        if (/id$/i.test(item.value)) {
+          return false
+        }
+        if (item.value === "archivalType" && this.isStudentUser) {
+          return false
+        }
+        if ((item.value === "updatedAt" || item.value === "createdAt") && !this.adminFlag) {
+          return false
+        }
+        return true
+      })
+    }
+  },
   methods: {
+    initUserRoleScope() {
+      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+    },
     /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       this.SelectQueryParamsValue = null;
-      if(res=="updatedAt"||res=="createdAt"||res=="awardCeremonyDate")
+      if(res=="updatedAt"||res=="createdAt")
       {
-        if(res=="awardCeremonyDate")
-        {
-          this.TimeFormat = "yyyy-MM-dd"
-          this.TimeType = "date"
-        }else{
-           this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
-           this.TimeType = "datetime"
-        }
+        this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
+        this.TimeType = "datetime"
         this.TimeFlag = true
       }else{
          this.TimeFlag = false
@@ -615,36 +600,33 @@ export default {
         awardLevel: null,
         awardCategory: null,
         awardRanking: null,
-        awardCeremonyDate: null,
-        awardCeremonyPlace: null,
         auditStatus: null,
         createdAt: null,
-        updatedAt: null
+        updatedAt: null,
+        archivalType: null
       }
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
+    clearCurrentSearch() {
+      if (this.SelectQueryParams) {
+        this.queryParams[this.SelectQueryParams] = null
+      }
+      this.SelectQueryParamsValue = null
+      this.TimeFlag = false
+    },
 
   /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.awardName = null
+      this.queryParams.awardLevel = null
+      this.queryParams.awardCategory = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -673,6 +655,18 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (!this.showArchivalTypeField) {
+            this.form.archivalType = null
+          } else {
+            if (!this.form.archivalType) {
+              this.$modal.msgError("归档类别为必填项")
+              return
+            }
+            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+              this.$modal.msgError("归档类别无效，请重新选择")
+              return
+            }
+          }
            const msg = ""
           if (this.form.awardId != null) {
             updateAward(this.form).then(response => {
@@ -836,4 +830,3 @@ export default {
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-

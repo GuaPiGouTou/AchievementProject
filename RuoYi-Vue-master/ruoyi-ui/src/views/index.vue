@@ -11,7 +11,7 @@
         <div class="metric-label">已通过/已归档</div>
         <div class="metric-value">{{ overview.approved }}</div>
       </div>
-      <div class="metric-card orange">
+      <div class="metric-card orange clickable" @click="openPendingDialog">
         <div class="metric-icon">待</div>
         <div class="metric-label">待处理</div>
         <div class="metric-value">{{ overview.pending }}</div>
@@ -70,6 +70,26 @@
         <el-button type="primary" @click="noticeDialogOpen = false">知道了</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog title="待处理项目明细" :visible.sync="pendingDialogOpen" width="960px" append-to-body>
+      <el-table v-loading="pendingLoading" :data="pendingList" border>
+        <el-table-column label="成果模块" prop="module" min-width="120" />
+        <el-table-column label="标题/名称" prop="title" min-width="300" show-overflow-tooltip />
+        <el-table-column label="审核状态" prop="auditStatus" min-width="120" />
+        <el-table-column label="提交时间" prop="createdAt" min-width="180" />
+        <el-table-column label="操作" width="120" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" size="mini" @click="handlePendingJump(scope.row)">查看</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-if="!pendingLoading && !pendingList.length" class="pending-empty">
+        <el-empty :image-size="80" description="当前没有待处理项目" />
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="pendingDialogOpen = false">关闭</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -91,6 +111,14 @@ function getAchievementOverviewData() {
   return request({
     url: '/dashboard/achievement/overview',
     method: 'get'
+  })
+}
+
+function getPendingAchievementList(params) {
+  return request({
+    url: '/dashboard/achievement/pending',
+    method: 'get',
+    params
   })
 }
 
@@ -130,8 +158,11 @@ export default {
       loading: false,
       noticeLoading: false,
       noticeDialogOpen: false,
+      pendingDialogOpen: false,
+      pendingLoading: false,
       charts: {},
       notices: [],
+      pendingList: [],
       activeNotice: {},
       overview: this.buildDefaultOverview()
     }
@@ -294,6 +325,27 @@ export default {
       }).catch(() => {
         this.activeNotice = item
       })
+    },
+    openPendingDialog() {
+      this.pendingDialogOpen = true
+      this.getPendingList()
+    },
+    getPendingList() {
+      this.pendingLoading = true
+      getPendingAchievementList({ limit: 80 }).then(response => {
+        this.pendingList = response.data || []
+      }).catch(() => {
+        this.pendingList = []
+      }).finally(() => {
+        this.pendingLoading = false
+      })
+    },
+    handlePendingJump(row) {
+      if (!row || !row.routePath) {
+        return
+      }
+      this.pendingDialogOpen = false
+      this.$router.push(row.routePath).catch(() => {})
     }
   }
 }
@@ -335,6 +387,10 @@ export default {
 .metric-card:hover {
   box-shadow: 0 16px 34px rgba(38, 63, 102, 0.12);
   transform: translateY(-2px);
+}
+
+.metric-card.clickable {
+  cursor: pointer;
 }
 
 .metric-card::after {
@@ -495,6 +551,10 @@ export default {
   min-height: 120px;
   line-height: 1.8;
   color: #303133;
+}
+
+.pending-empty {
+  padding: 16px 0;
 }
 
 @media (max-width: 768px) {

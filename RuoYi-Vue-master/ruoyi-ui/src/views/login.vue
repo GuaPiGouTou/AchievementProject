@@ -74,8 +74,8 @@ export default {
       title: process.env.VUE_APP_TITLE,
       codeUrl: "",
       loginForm: {
-        username: "admin",
-        password: "admin123",
+        username: "",
+        password: "",
         rememberMe: false,
         code: "",
         uuid: ""
@@ -107,9 +107,17 @@ export default {
   },
   created() {
     this.getCode()
-    this.getCookie()
+    this.clearLoginCache()
   },
   methods: {
+    clearLoginCache() {
+      Cookies.remove("username")
+      Cookies.remove("password")
+      Cookies.remove("rememberMe")
+      this.loginForm.username = ""
+      this.loginForm.password = ""
+      this.loginForm.rememberMe = false
+    },
     getCode() {
       getCodeImg().then(res => {
         this.captchaEnabled = res.captchaEnabled === undefined ? true : res.captchaEnabled
@@ -124,8 +132,8 @@ export default {
       const password = Cookies.get("password")
       const rememberMe = Cookies.get('rememberMe')
       this.loginForm = {
-        username: username === undefined ? this.loginForm.username : username,
-        password: password === undefined ? this.loginForm.password : decrypt(password),
+        username: username === undefined ? "" : username,
+        password: password === undefined ? "" : decrypt(password),
         rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
       }
     },

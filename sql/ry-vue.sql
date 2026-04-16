@@ -5202,4 +5202,55 @@ END
 ;;
 delimiter ;
 
+-- ----------------------------
+-- Compatibility patch for legacy C++ SQL
+-- Fix: Unknown column 'achievements_type' in textbook/software/patent modules
+-- ----------------------------
+SET @db_name = DATABASE();
+
+SET @sql_stmt = (
+  SELECT IF(COUNT(*) = 0,
+            'ALTER TABLE achievements_textbook ADD COLUMN achievements_type varchar(50) NULL COMMENT ''兼容旧版C++查询字段''',
+            'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db_name
+    AND TABLE_NAME = 'achievements_textbook'
+    AND COLUMN_NAME = 'achievements_type'
+);
+PREPARE s1 FROM @sql_stmt;
+EXECUTE s1;
+DEALLOCATE PREPARE s1;
+UPDATE achievements_textbook
+SET achievements_type = COALESCE(achievements_type, '教材');
+
+SET @sql_stmt = (
+  SELECT IF(COUNT(*) = 0,
+            'ALTER TABLE achievements_software ADD COLUMN achievements_type varchar(50) NULL COMMENT ''兼容旧版C++查询字段''',
+            'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db_name
+    AND TABLE_NAME = 'achievements_software'
+    AND COLUMN_NAME = 'achievements_type'
+);
+PREPARE s2 FROM @sql_stmt;
+EXECUTE s2;
+DEALLOCATE PREPARE s2;
+UPDATE achievements_software
+SET achievements_type = COALESCE(achievements_type, '软著');
+
+SET @sql_stmt = (
+  SELECT IF(COUNT(*) = 0,
+            'ALTER TABLE achievements_patent ADD COLUMN achievements_type varchar(50) NULL COMMENT ''兼容旧版C++查询字段''',
+            'SELECT 1')
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = @db_name
+    AND TABLE_NAME = 'achievements_patent'
+    AND COLUMN_NAME = 'achievements_type'
+);
+PREPARE s3 FROM @sql_stmt;
+EXECUTE s3;
+DEALLOCATE PREPARE s3;
+UPDATE achievements_patent
+SET achievements_type = COALESCE(achievements_type, '专利');
+
 SET FOREIGN_KEY_CHECKS = 1;

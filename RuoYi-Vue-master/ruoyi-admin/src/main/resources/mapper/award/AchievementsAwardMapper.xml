@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="awardWinner != null  and awardWinner != ''"> and award_winner = #{awardWinner}</if>
             <if test="awardDate != null "> and award_date = #{awardDate}</if>
             <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
-            <if test="awardCategory != null  and awardCategory != ''"> and award_category = #{awardCategory}</if>
+            <if test="awardCategory != null  and awardCategory != ''"> and award_category like concat('%', #{awardCategory}, '%')</if>
             <if test="awardRanking != null  and awardRanking != ''"> and award_ranking = #{awardRanking}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>

@@ -1,34 +1,36 @@
 <template>
   <div class="app-container">
      <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="搜索字段" prop="competitionName">
-          <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-              <el-option
-                v-for="item in checkList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                >
-              </el-option>
-          </el-select>
-
-        </el-form-item>
-        <el-form-item >
-          <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-          <el-date-picker v-else
-            clearable
-            v-model="SelectQueryParamsValue"
-            :type="TimeType"
-            :value-format="TimeFormat"
-            placeholder="请选择时间">
-          </el-date-picker>
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        </el-form-item>
-      </el-form>
+      <el-form-item label="项目名称" prop="projectName">
+        <el-input v-model.trim="queryParams.projectName" placeholder="请输入项目名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="项目类别" prop="projectCategory">
+        <el-select v-model="queryParams.projectCategory" placeholder="请选择项目类别" clearable filterable>
+          <el-option
+            v-for="item in projectCategorys"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="项目级别" prop="projectLevel">
+        <el-select v-model="queryParams.projectLevel" placeholder="请选择项目级别" clearable filterable>
+          <el-option
+            v-for="item in projectLevels"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -78,7 +80,6 @@
 
     <el-table v-loading="loading" :data="researchList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="adminFlag" label="项目id" align="center" prop="researchId" />
       <el-table-column label="项目编号" align="center" prop="projectNumber" />
       <el-table-column label="项目类别" align="center" prop="projectCategory" />
       <el-table-column label="项目级别" align="center" prop="projectLevel" />
@@ -106,19 +107,9 @@
         </template>
       </el-table-column>
       <el-table-column label="项目状态" align="center" prop="projectStatus" />
-      <el-table-column label="结题状态" align="center" prop="completionStatus" />
       <el-table-column label="研究领域" align="center" prop="researchField" />
-      <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+<el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -217,17 +208,6 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="结题状态" prop="completionStatus">
-          <el-select v-model="form.completionStatus" placeholder="请选择结题状态" style="width: 100%">
-            <el-option
-              v-for="item in completionStatuss"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
         <el-form-item label="项目名称" prop="projectName">
           <el-input v-model="form.projectName" type="textarea" placeholder="请输入项目名称（支持中英文、数字及常用标点）" />
         </el-form-item>
@@ -302,6 +282,17 @@
 
         <el-form-item label="研究领域" prop="researchField">
           <el-input v-model="form.researchField" placeholder="请输入研究领域" />
+        </el-form-item>
+
+        <el-form-item v-if="showArchivalTypeField" label="归档类别" prop="archivalType">
+          <el-select v-model="form.archivalType" placeholder="请选择归档类别" style="width: 100%">
+            <el-option
+              v-for="item in archivalTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="上传文件">
@@ -430,6 +421,7 @@ export default {
          AudisVisible:false,
          //管理员标识
          adminFlag:false,
+      isStudentUser: false,
           //导出记录
           idsCount:0,
           //上传文件组件
@@ -517,27 +509,21 @@ export default {
             label: '项目状态'
           },
           {
-            value: 'completionStatus',
-            label: '结题状态'
-          },
-          {
             value: 'researchField',
             label: '研究领域'
           },
           {
+        value:'archivalType',
+        label:'归档类别'
+      }, {
             value: 'auditStatus',
             label: '审核状态'
-          },
-          {
-            value: 'createdAt',
-            label: '创建时间'
-          },
-          {
-            value: 'updatedAt',
-            label: '更新时间'
-          }
-        ],
+          },],
           selectClist:[],
+      archivalTypes: [
+        { label: "教育教学改革", value: "教育教学改革" },
+        { label: "课程设计", value: "课程设计" }
+      ],
        // 1. 项目类别 (对应数据库 enum: '纵向项目','横向项目')
         projectCategorys: [
           { label: "纵向项目", value: "纵向项目" },
@@ -559,18 +545,7 @@ export default {
           { label: "在研", value: "在研" },
           { label: "已结题", value: "已结题" },
           { label: "延期", value: "延期" },
-          { label: "终止", value: "终止" },
-          { label: "验收中", value: "验收中" },
-          { label: "申报中", value: "申报中" }
-        ],
-
-        // 4. 结题状态 (对应数据库 enum: '未结题','已结题','结题优秀','结题合格','结题不合格')
-        completionStatuss: [
-          { label: "未结题", value: "未结题" },
-          { label: "已结题", value: "已结题" },
-          { label: "结题优秀", value: "结题优秀" },
-          { label: "结题合格", value: "结题合格" },
-          { label: "结题不合格", value: "结题不合格" }
+          { label: "终止", value: "终止" }
         ],
       // 遮罩层
       loading: true,
@@ -596,6 +571,8 @@ export default {
         pageSize: 10,
         projectNumber: null,
         projectName: null,
+        projectCategory: null,
+        projectLevel: null,
         principal: null,
         totalFunding: null,
         projectStatus: null,
@@ -617,7 +594,7 @@ export default {
           }
         ],
         projectCategory: [
-          { required: true, message: "请选择项目类别", trigger: "change" }
+          { required: true, message: "请选择归档类别", trigger: "change" }
         ],
         projectLevel: [
           { required: true, message: "请选择项目级别", trigger: "change" }
@@ -625,6 +602,9 @@ export default {
         projectType: [
           { required: true, message: "项目类型不能为空", trigger: "blur" },
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
+        ],
+        projectStatus: [
+          { required: true, message: "项目状态不能为空", trigger: "change" }
         ],
         projectName: [
           { required: true, message: "项目名称不能为空", trigger: "blur" },
@@ -693,6 +673,7 @@ export default {
   },
   created() {
     this.getList()
+    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -700,7 +681,30 @@ export default {
       this.adminFlag = true
     }
   },
+  computed: {
+    showArchivalTypeField() {
+      return !this.isStudentUser
+    },
+    searchCheckList() {
+      return this.checkList.filter((item) => {
+        if (/id$/i.test(item.value)) {
+          return false
+        }
+        if (item.value === "archivalType" && this.isStudentUser) {
+          return false
+        }
+        if ((item.value === "updatedAt" || item.value === "createdAt") && !this.adminFlag) {
+          return false
+        }
+        return true
+      })
+    }
+  },
   methods: {
+    initUserRoleScope() {
+      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+    },
     /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       console.log(res)
@@ -784,36 +788,34 @@ export default {
         endDate: null,
         actualEndDate: null,
         projectStatus: null,
-        completionStatus: null,
         researchField: null,
         auditStatus: null,
         createdAt: null,
-        updatedAt: null
+        updatedAt: null,
+        archivalType: null
       }
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
+    clearCurrentSearch() {
+      if (this.SelectQueryParams) {
+        this.queryParams[this.SelectQueryParams] = null
+      }
+      this.SelectQueryParamsValue = null
+      this.TimeFlag = false
+    },
 
   /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.projectName = null
+      this.queryParams.projectCategory = null
+      this.queryParams.projectLevel = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -842,6 +844,18 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (!this.showArchivalTypeField) {
+            this.form.archivalType = null
+          } else {
+            if (!this.form.archivalType) {
+              this.$modal.msgError("归档类别为必填项")
+              return
+            }
+            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+              this.$modal.msgError("归档类别无效，请重新选择")
+              return
+            }
+          }
           if (this.form.researchId != null) {
             updateResearch(this.form).then(response => {
               if(response.researchId!=null)
@@ -1001,4 +1015,3 @@ export default {
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-
