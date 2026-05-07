@@ -1,5 +1,6 @@
 -- 权限分配（依据 /Users/frog/Desktop/权限分配文件.xls）
 -- 执行时间：2026-04-17
+-- 注意：该脚本已被 2026-05-08-role-permission-allocation.sql 取代；新部署请执行 2026-05-08 版本。
 -- 说明：
 -- 1) 仅调整“成果管理”相关菜单/按钮权限
 -- 2) 不改动角色数据范围（data_scope）和角色-部门关系（sys_role_dept）
@@ -56,7 +57,7 @@ WHERE m.menu_id = 2000
    );
 
 -- 108 教学科研负责人：
--- 保留全成果模块“查看/导出”（对应 list/query/export）
+-- 保留教学/科研成果模块“查看/导出”（对应 list/query/export），不授予学生竞赛权限。
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
 SELECT 108, m.menu_id
 FROM sys_menu m
@@ -64,7 +65,6 @@ WHERE m.menu_id = 2000
    OR m.perms IN (
      'paper:paper:list','paper:paper:query','paper:paper:export',
      'award:award:list','award:award:query','award:award:export',
-     'competition:competition:list','competition:competition:query','competition:competition:export',
      'patent:patent:list','patent:patent:query','patent:patent:export',
      'research:research:list','research:research:query','research:research:export',
      'software:software:list','software:software:query','software:software:export',
@@ -74,4 +74,3 @@ WHERE m.menu_id = 2000
    );
 
 COMMIT;
-

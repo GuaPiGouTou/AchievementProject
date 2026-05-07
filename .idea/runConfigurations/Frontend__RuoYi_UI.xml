@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Frontend - RuoYi UI" type="js.build_tools.npm" factoryName="npm">
+    <package-json value="$PROJECT_DIR$/RuoYi-Vue-master/ruoyi-ui/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="dev:idea" />
+    </scripts>
+    <node-interpreter value="/usr/local/bin/node" />
+    <package-manager value="/usr/local/bin/npm" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

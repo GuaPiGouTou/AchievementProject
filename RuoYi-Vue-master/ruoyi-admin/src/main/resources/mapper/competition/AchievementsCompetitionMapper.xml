@@ -34,16 +34,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsCompetitionList" parameterType="AchievementsCompetition" resultMap="AchievementsCompetitionResult">
         <include refid="selectAchievementsCompetitionVo"/>
         <where>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="competitionName != null  and competitionName != ''"> and competition_name like concat('%', #{competitionName}, '%')</if>
             <if test="competitionLevel != null  and competitionLevel != ''"> and competition_level = #{competitionLevel}</if>
             <if test="competitionType != null  and competitionType != ''"> and competition_type = #{competitionType}</if>
             <if test="competitionTime != null "> and competition_time = #{competitionTime}</if>
+            <if test="params.beginCompetitionTime != null and params.beginCompetitionTime != ''"> and competition_time &gt;= #{params.beginCompetitionTime}</if>
+            <if test="params.endCompetitionTime != null and params.endCompetitionTime != ''"> and competition_time &lt;= #{params.endCompetitionTime}</if>
             <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
             <if test="awardDate != null "> and award_date = #{awardDate}</if>
+            <if test="params.beginAwardDate != null and params.beginAwardDate != ''"> and award_date &gt;= #{params.beginAwardDate}</if>
+            <if test="params.endAwardDate != null and params.endAwardDate != ''"> and award_date &lt;= #{params.endAwardDate}</if>
             <if test="competitionCategory != null  and competitionCategory != ''"> and competition_category = #{competitionCategory}</if>
             <if test="teamName != null  and teamName != ''"> and team_name like concat('%', #{teamName}, '%')</if>
             <if test="studentParticipants != null  and studentParticipants != ''"> and student_participants = #{studentParticipants}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
 

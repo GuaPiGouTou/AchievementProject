@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form class="patent-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+     <el-form class="achievement-search-form patent-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
         <el-form-item label="专利名称" prop="patentName">
           <el-input v-model.trim="queryParams.patentName" placeholder="请输入专利名称关键词" clearable />
         </el-form-item>
@@ -24,8 +24,72 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="证书类型" prop="certificateType">
+          <el-select v-model="queryParams.certificateType" placeholder="请选择证书类型" clearable filterable>
+            <el-option
+              v-for="item in certificateTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="审核状态" prop="auditStatus">
+          <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+            <el-option
+              v-for="item in audisItems"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="技术领域" prop="technicalField">
           <el-input v-model.trim="queryParams.technicalField" placeholder="请输入技术领域关键词" clearable />
+        </el-form-item>
+        <el-form-item label="申请日期">
+          <el-date-picker
+            v-model="applicationDateRange"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="授权日期">
+          <el-date-picker
+            v-model="authorizationDateRange"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="公布日期">
+          <el-date-picker
+            v-model="publicationDateRange"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="有效期">
+          <el-date-picker
+            v-model="patentValidityRange"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            clearable
+          />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -93,18 +157,22 @@
           <span>{{ parseTime(scope.row.applicationDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="授权日期" align="center" prop="authorizationDate" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.authorizationDate, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="授权号" align="center" prop="authorizationNo" min-width="140">
+        <template slot-scope="scope">
+          <span>{{ scope.row.authorizationNo }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="公布日期" align="center" prop="publicationDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.publicationDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="公布号" align="center" prop="publicationNo" />
-      <el-table-column label="授权日期" align="center" prop="authorizationDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.authorizationDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="授权号" align="center" prop="authorizationNo" />
       <el-table-column label="专利有效期" align="center" prop="patentValidity" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.patentValidity, '{y}-{m}-{d}') }}</span>
@@ -112,7 +180,7 @@
       </el-table-column>
       <el-table-column label="专利所属学科" align="center" prop="patentSubject" />
       <el-table-column label="技术领域" align="center" prop="technicalField" />
-      <el-table-column label="证书类型" align="center" prop="certificateType" />
+      <el-table-column label="证书类型" align="center" prop="certificateType" :formatter="formatCertificateType" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -121,12 +189,13 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
-      <el-table-column v-if="andminFlag" label="审核" align="center" width="100">
+      <el-table-column v-if="$auth.hasPermi('patent:patent:edit')" label="审核" align="center" width="100">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -219,15 +288,6 @@
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="公布日期" prop="publicationDate">
-          <el-date-picker clearable
-            v-model="form.publicationDate"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择公布日期">
-          </el-date-picker>
-        </el-form-item>
-
         <el-form-item label="授权日期" prop="authorizationDate">
           <el-date-picker clearable
             v-model="form.authorizationDate"
@@ -238,6 +298,14 @@
         </el-form-item>
         <el-form-item label="授权号" prop="authorizationNo">
           <el-input v-model="form.authorizationNo" placeholder="请输入授权号 (如: CN101234567A)" />
+        </el-form-item>
+        <el-form-item label="公布日期" prop="publicationDate">
+          <el-date-picker clearable
+            v-model="form.publicationDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择公布日期">
+          </el-date-picker>
         </el-form-item>
         <el-form-item label="公布号" prop="publicationNo">
           <el-input v-model="form.publicationNo" placeholder="请输入公布号 (如: CN101234567A)" />
@@ -359,6 +427,8 @@
 import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listPatent, getPatent, delPatent, addPatent, updatePatent } from "@/api/patent/patent"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Patent",
   data() {
@@ -372,6 +442,10 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      applicationDateRange: [],
+      publicationDateRange: [],
+      authorizationDateRange: [],
+      patentValidityRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -413,12 +487,20 @@ export default {
           label: '发明人顺序'
         },
         {
+          value: 'patentStatus',
+          label: '专利状态'
+        },
+        {
           value: 'applicationDate',
           label: '申请日期'
         },
         {
           value: 'authorizationDate',
           label: '授权日期'
+        },
+        {
+          value: 'authorizationNo',
+          label: '授权号'
         },
         {
           value: 'publicationDate',
@@ -435,14 +517,6 @@ export default {
         {
           value: 'patentSubject',
           label: '专利所属学科'
-        },
-        {
-          value: 'patentStatus',
-          label: '专利状态'
-        },
-        {
-          value: 'authorizationNo',
-          label: '授权号'
         },
         {
           value: 'technicalField',
@@ -475,16 +549,7 @@ export default {
         { label: "已失效", value: "已失效" }
       ],
 
-      // 3. 专利法律状态 (对应数据库 legal_status)
-      legalStatuss: [
-        { label: "申请中", value: "申请中" },
-        { label: "已授权", value: "已授权" },
-        { label: "有效", value: "有效" },
-        { label: "失效", value: "失效" },
-        { label: "终止", value: "终止" }
-      ],
-
-      // 4. 证书类型 (对应数据库 certificate_type)
+      // 3. 证书类型 (对应数据库 certificate_type)
       certificateTypes: [
         { label: "受理通知书", value: "application_notice" },
         { label: "发明专利申请公布通知书", value: "publication_notice" },
@@ -516,12 +581,14 @@ export default {
         patentName: null,
         patentType: null,
         patentStatus: null,
+        certificateType: null,
         technicalField: null,
         auditStatus: null,
         createdAt: null,
       },
       // 表单参数
       form: {},
+      originalForm: {},
      // 表单校验
      rules: {
        patentName: [
@@ -636,7 +703,10 @@ export default {
     {
       if (this.form.patentId != null) {
         this.form.auditStatus = audis
-        updatePatent(this.form).then(response => {
+        updatePatent({
+          patentId: this.form.patentId,
+          auditStatus: audis
+        }).then(response => {
           if(response.patentId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -662,10 +732,18 @@ export default {
     /** 查询专利成果列表 */
     getList() {
       this.loading = true
-      listPatent(this.queryParams).then(response => {
-        this.patentList = response.rows
+      listPatent(this.buildQueryParams()).then(response => {
+        this.patentList = (response.rows || []).map(this.normalizePatentRow)
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        ApplicationDate: this.applicationDateRange,
+        PublicationDate: this.publicationDateRange,
+        AuthorizationDate: this.authorizationDateRange,
+        PatentValidity: this.patentValidityRange
       })
     },
     // 取消按钮
@@ -687,6 +765,7 @@ export default {
         authorizationDate: null,
         publicationDate: null,
         publicationNo: null,
+        authorizationNo: null,
         patentValidity: null,
         patentSubject: null,
         patentStatus: null,
@@ -696,6 +775,7 @@ export default {
         createdAt: null,
         updatedAt: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -711,8 +791,14 @@ export default {
       this.queryParams.patentName = null
       this.queryParams.patentType = null
       this.queryParams.patentStatus = null
+      this.queryParams.certificateType = null
       this.queryParams.technicalField = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.applicationDateRange = []
+      this.publicationDateRange = []
+      this.authorizationDateRange = []
+      this.patentValidityRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -732,7 +818,8 @@ export default {
       this.reset()
       const patentId = row.patentId || this.ids
       getPatent(patentId).then(response => {
-        this.form = response.data
+        this.form = this.normalizePatentRow(response.data || {})
+        this.originalForm = cloneForm(this.form)
         this.open = true
         this.title = "修改专利成果"
       })
@@ -742,7 +829,15 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.patentId != null) {
-            updatePatent(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "patentId", {
+              excludeFields: ["legalStatus"]
+            })
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            updatePayload.patentStatus = this.form.patentStatus
+            updatePatent(updatePayload).then(response => {
               if(response.patentId!=null)
               {
                  this.$refs.file.submitUpload(response.patentId,"patent");
@@ -755,6 +850,7 @@ export default {
               this.getList()
             })
           } else {
+            this.form.legalStatus = null
             addPatent(this.form).then(response => {
               if(response.patentId!=null)
               {
@@ -770,6 +866,18 @@ export default {
           }
         }
       })
+    },
+    normalizePatentRow(row) {
+      if (!row) {
+        return row
+      }
+      const normalized = { ...row }
+      normalized.authorizationNo = normalized.authorizationNo || normalized.authorization_no || ""
+      return normalized
+    },
+    formatCertificateType(row, column, value) {
+      const item = this.certificateTypes.find(option => option.value === value)
+      return item ? item.label : value
     },
     /** 删除按钮操作 */
     handleDelete(row) {
@@ -827,11 +935,11 @@ export default {
           }
          const requestData = {
           idList:this.ids,
-           showColumns: this.selectClist || [],
-           data: {
-             ...this.queryParams
-           }
-          };
+	           showColumns: this.selectClist || [],
+	           data: {
+	             ...this.buildQueryParams()
+	           }
+	          };
            const jsonRequestBody = JSON.stringify(requestData);
            this.exceldownload('patent/patent/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
        }

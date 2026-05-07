@@ -35,13 +35,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectAchievementsPaperVo"/>
         <where>  
             <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
             <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
             <if test="paperStatus != null  and paperStatus != ''"> and paper_status = #{paperStatus}</if>
+            <if test="acceptanceDate != null"> and acceptance_date = #{acceptanceDate}</if>
+            <if test="params.beginAcceptanceDate != null and params.beginAcceptanceDate != ''"> and acceptance_date &gt;= #{params.beginAcceptanceDate}</if>
+            <if test="params.endAcceptanceDate != null and params.endAcceptanceDate != ''"> and acceptance_date &lt;= #{params.endAcceptanceDate}</if>
             <if test="researchDirection != null  and researchDirection != ''"> and research_direction like concat('%', #{researchDirection}, '%')</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="params.beginPublishDate != null and params.beginPublishDate != ''"> and publish_date &gt;= #{params.beginPublishDate}</if>
+            <if test="params.endPublishDate != null and params.endPublishDate != ''"> and publish_date &lt;= #{params.endPublishDate}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
             <if test="archivalType != null  and archivalType != ''"> and archival_type = #{archivalType}</if>
             <if test="achievementsType != null  and achievementsType != ''"> and achievements_type = #{achievementsType}</if>
         </where>
@@ -105,11 +120,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paperTitle != null and paperTitle != ''">paper_title = #{paperTitle},</if>
             <if test="paperCategory != null and paperCategory != ''">paper_category = #{paperCategory},</if>
             <if test="paperStatus != null and paperStatus != ''">paper_status = #{paperStatus},</if>
-            <if test="acceptanceDate != null">acceptance_date = #{acceptanceDate},</if>
+            <choose>
+                <when test="paperStatus != null and paperStatus == '已录用'">
+                    acceptance_date = #{acceptanceDate},
+                    publish_date = null,
+                </when>
+                <when test="paperStatus != null and paperStatus == '已发表'">
+                    acceptance_date = null,
+                    publish_date = #{publishDate},
+                </when>
+                <otherwise>
+                    <if test="acceptanceDate != null">acceptance_date = #{acceptanceDate},</if>
+                    <if test="publishDate != null">publish_date = #{publishDate},</if>
+                </otherwise>
+            </choose>
             <if test="researchDirection != null">research_direction = #{researchDirection},</if>
             <if test="authorInformation != null and authorInformation != ''">author_information = #{authorInformation},</if>
             <if test="journal != null and journal != ''">journal = #{journal},</if>
-            <if test="publishDate != null">publish_date = #{publishDate},</if>
             <if test="volume != null">volume = #{volume},</if>
             <if test="issue != null">issue = #{issue},</if>
             <if test="pageRange != null">page_range = #{pageRange},</if>

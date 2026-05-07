@@ -37,12 +37,37 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsPatentList" parameterType="AchievementsPatent" resultMap="AchievementsPatentResult">
         <include refid="selectAchievementsPatentVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="patentName != null  and patentName != ''"> and patent_name like concat('%', #{patentName}, '%')</if>
             <if test="patentType != null  and patentType != ''"> and patent_type = #{patentType}</if>
             <if test="patentStatus != null  and patentStatus != ''"> and patent_status = #{patentStatus}</if>
+            <if test="certificateType != null  and certificateType != ''"> and certificate_type = #{certificateType}</if>
             <if test="technicalField != null  and technicalField != ''"> and technical_field like concat('%', #{technicalField}, '%')</if>
+            <if test="applicationDate != null"> and application_date = #{applicationDate}</if>
+            <if test="params.beginApplicationDate != null and params.beginApplicationDate != ''"> and application_date &gt;= #{params.beginApplicationDate}</if>
+            <if test="params.endApplicationDate != null and params.endApplicationDate != ''"> and application_date &lt;= #{params.endApplicationDate}</if>
+            <if test="authorizationDate != null"> and authorization_date = #{authorizationDate}</if>
+            <if test="params.beginAuthorizationDate != null and params.beginAuthorizationDate != ''"> and authorization_date &gt;= #{params.beginAuthorizationDate}</if>
+            <if test="params.endAuthorizationDate != null and params.endAuthorizationDate != ''"> and authorization_date &lt;= #{params.endAuthorizationDate}</if>
+            <if test="publicationDate != null"> and publication_date = #{publicationDate}</if>
+            <if test="params.beginPublicationDate != null and params.beginPublicationDate != ''"> and publication_date &gt;= #{params.beginPublicationDate}</if>
+            <if test="params.endPublicationDate != null and params.endPublicationDate != ''"> and publication_date &lt;= #{params.endPublicationDate}</if>
+            <if test="patentValidity != null"> and patent_validity = #{patentValidity}</if>
+            <if test="params.beginPatentValidity != null and params.beginPatentValidity != ''"> and patent_validity &gt;= #{params.beginPatentValidity}</if>
+            <if test="params.endPatentValidity != null and params.endPatentValidity != ''"> and patent_validity &lt;= #{params.endPatentValidity}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
             <if test="archivalType != null  and archivalType != ''"> and archival_type = #{archivalType}</if>
             <if test="achievementsType != null  and achievementsType != ''"> and achievements_type = #{achievementsType}</if>
         </where>
@@ -72,7 +97,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="patentSubject != null">patent_subject,</if>
             <if test="patentStatus != null">patent_status,</if>
             <if test="technicalField != null">technical_field,</if>
-            <if test="legalStatus != null">legal_status,</if>
             <if test="certificateType != null and certificateType != ''">certificate_type,</if>
             <if test="auditStatus != null">audit_status,</if>
             <if test="createdAt != null">created_at,</if>
@@ -97,7 +121,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="patentSubject != null">#{patentSubject},</if>
             <if test="patentStatus != null">#{patentStatus},</if>
             <if test="technicalField != null">#{technicalField},</if>
-            <if test="legalStatus != null">#{legalStatus},</if>
             <if test="certificateType != null and certificateType != ''">#{certificateType},</if>
             <if test="auditStatus != null">#{auditStatus},</if>
             <if test="createdAt != null">#{createdAt},</if>
@@ -125,7 +148,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="patentSubject != null">patent_subject = #{patentSubject},</if>
             <if test="patentStatus != null">patent_status = #{patentStatus},</if>
             <if test="technicalField != null">technical_field = #{technicalField},</if>
-            <if test="legalStatus != null">legal_status = #{legalStatus},</if>
             <if test="certificateType != null and certificateType != ''">certificate_type = #{certificateType},</if>
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="createdAt != null">created_at = #{createdAt},</if>

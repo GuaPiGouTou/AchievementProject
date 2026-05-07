@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+     <el-form class="achievement-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="成果名称" prop="achievementName">
         <el-input v-model.trim="queryParams.achievementName" placeholder="请输入成果名称关键词" clearable />
       </el-form-item>
@@ -8,6 +8,16 @@
         <el-select v-model="queryParams.achievementType" placeholder="请选择成果类型" clearable filterable>
           <el-option
             v-for="item in achievementTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="转化方式" prop="transferMethod">
+        <el-select v-model="queryParams.transferMethod" placeholder="请选择转化方式" clearable filterable>
+          <el-option
+            v-for="item in transferMethods"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -23,6 +33,27 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="转化日期">
+        <el-date-picker
+          v-model="transferDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -110,12 +141,13 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
-        <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+        <el-table-column v-if="$auth.hasPermi('transfer:transfer:edit')" label="审核" align="center" width="100">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -351,6 +383,8 @@
 <script>
 import { listTransfer, getTransfer, delTransfer, addTransfer, updateTransfer } from "@/api/transfer/transfer"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Transfer",
   data() {
@@ -364,6 +398,7 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      transferDateRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -524,6 +559,7 @@ export default {
         transferId: null,
         achievementName: null,
         achievementType: null,
+        transferMethod: null,
         transferAmount: null,
         transferStatus: null,
         contactPerson: null,
@@ -533,6 +569,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
         achievementName: [
@@ -653,7 +690,10 @@ export default {
     {
       if (this.form.transferId != null) {
         this.form.auditStatus = audis
-        updateTransfer(this.form).then(response => {
+        updateTransfer({
+          transferId: this.form.transferId,
+          auditStatus: audis
+        }).then(response => {
           if(response.transferId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -679,10 +719,15 @@ export default {
     /** 查询成果转化列表 */
     getList() {
       this.loading = true
-      listTransfer(this.queryParams).then(response => {
+      listTransfer(this.buildQueryParams()).then(response => {
         this.transferList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        TransferDate: this.transferDateRange
       })
     },
     // 取消按钮
@@ -718,6 +763,7 @@ export default {
         updatedAt: null,
         archivalType: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -740,8 +786,11 @@ export default {
       this.queryParams.transferId = null
       this.queryParams.achievementName = null
       this.queryParams.achievementType = null
+      this.queryParams.transferMethod = null
       this.queryParams.transferStatus = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.transferDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -762,6 +811,7 @@ export default {
       const transferId = row.transferId || this.ids
       getTransfer(transferId).then(response => {
         this.form = response.data
+        this.originalForm = cloneForm(response.data)
         this.open = true
         this.title = "修改成果转化"
       })
@@ -783,7 +833,12 @@ export default {
             }
           }
           if (this.form.transferId != null) {
-            updateTransfer(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "transferId")
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            updateTransfer(updatePayload).then(response => {
               if(response.transferId!=null)
               {
                  this.$refs.file.submitUpload(response.transferId,"transfer");
@@ -867,11 +922,11 @@ export default {
            }
           const requestData = {
            idList:this.ids,
-           showColumns: this.selectClist || [],
-           data: {
-             ...this.queryParams
-           }
-          };
+	          showColumns: this.selectClist || [],
+	          data: {
+	             ...this.buildQueryParams()
+	          }
+	         };
            const jsonRequestBody = JSON.stringify(requestData);
            this.exceldownload('transfer/transfer/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
        }

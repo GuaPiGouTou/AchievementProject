@@ -32,15 +32,35 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsSoftwareList" parameterType="AchievementsSoftware" resultMap="AchievementsSoftwareResult">
         <include refid="selectAchievementsSoftwareVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="softwareName != null  and softwareName != ''"> and software_name like concat('%', #{softwareName}, '%')</if>
             <if test="softwareVersion != null  and softwareVersion != ''"> and software_version = #{softwareVersion}</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="params.beginPublishDate != null and params.beginPublishDate != ''"> and publish_date &gt;= #{params.beginPublishDate}</if>
+            <if test="params.endPublishDate != null and params.endPublishDate != ''"> and publish_date &lt;= #{params.endPublishDate}</if>
+            <if test="registerDate != null"> and register_date = #{registerDate}</if>
+            <if test="params.beginRegisterDate != null and params.beginRegisterDate != ''"> and register_date &gt;= #{params.beginRegisterDate}</if>
+            <if test="params.endRegisterDate != null and params.endRegisterDate != ''"> and register_date &lt;= #{params.endRegisterDate}</if>
+            <if test="developmentDate != null"> and development_date = #{developmentDate}</if>
+            <if test="params.beginDevelopmentDate != null and params.beginDevelopmentDate != ''"> and development_date &gt;= #{params.beginDevelopmentDate}</if>
+            <if test="params.endDevelopmentDate != null and params.endDevelopmentDate != ''"> and development_date &lt;= #{params.endDevelopmentDate}</if>
             <if test="programmingLanguage != null  and programmingLanguage != ''"> and programming_language = #{programmingLanguage}</if>
             <if test="softwareType != null  and softwareType != ''"> and software_type = #{softwareType}</if>
             <if test="softwareCopyrightCertificateLevel != null  and softwareCopyrightCertificateLevel != ''"> and software_copyright_certificate_level = #{softwareCopyrightCertificateLevel}</if>
             <if test="certificateType != null  and certificateType != ''"> and certificate_type = #{certificateType}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
     

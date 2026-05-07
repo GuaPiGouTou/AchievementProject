@@ -93,5 +93,13 @@ ALTER TABLE achievements_competition
 ALTER TABLE achievements_patent
   MODIFY patent_status enum('申请中','公开状态','实质审查','已授权','已转让','已失效') NULL COMMENT '专利状态';
 
+UPDATE achievements_patent
+SET patent_status = '申请中'
+WHERE patent_status IS NULL
+   OR patent_status = '';
+
+ALTER TABLE achievements_patent
+  MODIFY patent_status enum('申请中','公开状态','实质审查','已授权','已转让','已失效') NOT NULL COMMENT '专利状态';
+
 ALTER TABLE achievements_patent
   MODIFY certificate_type enum('application_notice','publication_notice','authorization_certificate') NOT NULL COMMENT '证书类型';

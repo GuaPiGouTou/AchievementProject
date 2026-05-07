@@ -41,9 +41,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fileCategory != null  and fileCategory != ''"> and file_category = #{fileCategory}</if>
             <if test="description != null  and description != ''"> and description = #{description}</if>
             <if test="uploadTime != null "> and upload_time = #{uploadTime}</if>
+            <if test="params.beginUploadTime != null and params.beginUploadTime != ''"> and upload_time &gt;= #{params.beginUploadTime}</if>
+            <if test="params.endUploadTime != null and params.endUploadTime != ''"> and upload_time &lt;= #{params.endUploadTime}</if>
             <if test="uploadUserId != null  and uploadUserId != ''"> and upload_user_id = #{uploadUserId}</if>
             <if test="downloadCount != null "> and download_count = #{downloadCount}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != ''"> and create_time &gt;= #{params.beginCreateTime}</if>
+            <if test="params.endCreateTime != null and params.endCreateTime != ''"> and create_time &lt;= #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != ''"> and update_time &gt;= #{params.beginUpdateTime}</if>
+            <if test="params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time &lt;= #{params.endUpdateTime}</if>
             <if test="resourceId != null "> and resource_id = #{resourceId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
             <if test="deptId != null "> and dept_id = #{deptId}</if>
         </where>
     </select>

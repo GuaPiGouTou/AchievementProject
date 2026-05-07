@@ -105,6 +105,7 @@ export default {
         Authorization: "Bearer " + getToken(),
       },
       fileList: [],
+      fileSortable: null,
       uploadData: {
             paperId: '' ,// 初始化 paper 参数
             attachmenttype:''
@@ -112,18 +113,12 @@ export default {
     }
   },
   mounted() {
-    if (this.drag && !this.disabled) {
-      this.$nextTick(() => {
-        const element = this.$refs.uploadFileList?.$el || this.$refs.uploadFileList
-        Sortable.create(element, {
-          ghostClass: 'file-upload-darg',
-          onEnd: (evt) => {
-            const movedItem = this.fileList.splice(evt.oldIndex, 1)[0]
-            this.fileList.splice(evt.newIndex, 0, movedItem)
-            this.$emit("input", this.listToString(this.fileList))
-          }
-        })
-      })
+    this.initSortable()
+  },
+  beforeDestroy() {
+    if (this.fileSortable) {
+      this.fileSortable.destroy()
+      this.fileSortable = null
     }
   },
   watch: {
@@ -157,6 +152,36 @@ export default {
     },
   },
   methods: {
+    initSortable() {
+      if (!this.drag || this.disabled) {
+        return
+      }
+      this.$nextTick(() => {
+        const element = this.$refs.fileUpload && this.$refs.fileUpload.$el
+          ? this.$refs.fileUpload.$el.querySelector('.el-upload-list')
+          : null
+        if (!element) {
+          return
+        }
+        if (this.fileSortable) {
+          this.fileSortable.destroy()
+        }
+        this.fileSortable = Sortable.create(element, {
+          ghostClass: 'file-upload-darg',
+          onEnd: (evt) => {
+            if (evt.oldIndex === evt.newIndex) {
+              return
+            }
+            const movedItem = this.fileList.splice(evt.oldIndex, 1)[0]
+            if (!movedItem) {
+              return
+            }
+            this.fileList.splice(evt.newIndex, 0, movedItem)
+            this.$emit("input", this.listToString(this.fileList))
+          }
+        })
+      })
+    },
 
      // 修改后的submitUpload方法
      submitUpload(paperId,type) {

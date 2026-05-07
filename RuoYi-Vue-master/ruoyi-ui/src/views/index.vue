@@ -16,10 +16,10 @@
         <div class="metric-label">待处理</div>
         <div class="metric-value">{{ overview.pending }}</div>
       </div>
-      <div class="metric-card purple">
-        <div class="metric-icon">类</div>
-        <div class="metric-label">成果类型</div>
-        <div class="metric-value">{{ overview.typeData.length }}</div>
+      <div class="metric-card purple clickable" @click="openMyDialog">
+        <div class="metric-icon">我</div>
+        <div class="metric-label">我的成果</div>
+        <div class="metric-value">{{ overview.mine }}</div>
       </div>
     </div>
 
@@ -75,6 +75,7 @@
       <el-table v-loading="pendingLoading" :data="pendingList" border>
         <el-table-column label="成果模块" prop="module" min-width="120" />
         <el-table-column label="标题/名称" prop="title" min-width="300" show-overflow-tooltip />
+        <el-table-column label="职责类型" prop="taskType" min-width="100" />
         <el-table-column label="审核状态" prop="auditStatus" min-width="120" />
         <el-table-column label="提交时间" prop="createdAt" min-width="180" />
         <el-table-column label="操作" width="120" align="center">
@@ -88,6 +89,26 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="pendingDialogOpen = false">关闭</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog title="我的成果状态" :visible.sync="myDialogOpen" width="960px" append-to-body>
+      <el-table v-loading="myLoading" :data="myList" border>
+        <el-table-column label="成果模块" prop="module" min-width="120" />
+        <el-table-column label="标题/名称" prop="title" min-width="300" show-overflow-tooltip />
+        <el-table-column label="审核状态" prop="auditStatus" min-width="120" />
+        <el-table-column label="提交时间" prop="createdAt" min-width="180" />
+        <el-table-column label="操作" width="120" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" size="mini" @click="handleMyJump(scope.row)">查看</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div v-if="!myLoading && !myList.length" class="pending-empty">
+        <el-empty :image-size="80" description="当前没有本人提交的成果" />
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="myDialogOpen = false">关闭</el-button>
       </span>
     </el-dialog>
   </div>
@@ -122,6 +143,14 @@ function getPendingAchievementList(params) {
   })
 }
 
+function getMyAchievementList(params) {
+  return request({
+    url: '/dashboard/achievement/my',
+    method: 'get',
+    params
+  })
+}
+
 function getHomeNoticeDetail(noticeId) {
   return request({
     url: '/dashboard/notices/' + noticeId,
@@ -133,6 +162,7 @@ const defaultOverview = {
   total: 0,
   approved: 0,
   pending: 0,
+  mine: 0,
   typeData: [
     { name: '论文成果', value: 0 },
     { name: '获奖成果', value: 0 },
@@ -160,9 +190,12 @@ export default {
       noticeDialogOpen: false,
       pendingDialogOpen: false,
       pendingLoading: false,
+      myDialogOpen: false,
+      myLoading: false,
       charts: {},
       notices: [],
       pendingList: [],
+      myList: [],
       activeNotice: {},
       overview: this.buildDefaultOverview()
     }
@@ -340,11 +373,35 @@ export default {
         this.pendingLoading = false
       })
     },
+    openMyDialog() {
+      this.myDialogOpen = true
+      this.getMyList()
+    },
+    getMyList() {
+      this.myLoading = true
+      getMyAchievementList({ limit: 80 }).then(response => {
+        this.myList = response.data || []
+      }).catch(() => {
+        this.myList = []
+      }).finally(() => {
+        this.myLoading = false
+      })
+    },
     handlePendingJump(row) {
       if (!row || !row.routePath) {
         return
       }
       this.pendingDialogOpen = false
+      this.jumpToAchievement(row)
+    },
+    handleMyJump(row) {
+      if (!row || !row.routePath) {
+        return
+      }
+      this.myDialogOpen = false
+      this.jumpToAchievement(row)
+    },
+    jumpToAchievement(row) {
       const routePathMap = {
         '/paper/paper': '/achievement/paper',
         '/award/award': '/achievement/award',
@@ -359,9 +416,9 @@ export default {
       this.$router.push({
         path: routePathMap[row.routePath] || row.routePath,
         query: {
-          pending: '1',
           recordId: row.recordId,
           recordIdField: row.recordIdField,
+          taskType: row.taskType,
           auditStatus: row.auditStatus || '待审核'
         }
       }).catch(() => {})

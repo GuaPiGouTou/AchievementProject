@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+     <el-form class="achievement-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
               <el-form-item label="搜索字段" prop="competitionName">
                 <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
                     <el-option
                       v-for="item in checkList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                      >
+	                      :key="item.value"
+	                      :label="item.label"
+	                      :value="item.value"
+	                      v-if="item.value=='updateTime'||item.value=='createTime'?adminFlag:true"
+	                      >
                     </el-option>
                 </el-select>
 
@@ -19,9 +19,11 @@
                 <el-date-picker v-else
                   clearable
                   v-model="SelectQueryParamsValue"
-                  :type="TimeType"
-                  :value-format="TimeFormat"
-                  placeholder="请选择时间">
+                  type="datetimerange"
+                  value-format="yyyy-MM-ddTHH:mm:ss"
+                  range-separator="至"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间">
                 </el-date-picker>
               </el-form-item>
 
@@ -233,6 +235,7 @@
 <script>
 import { listAttachment, getAttachment, delAttachment, addAttachment, updateAttachment } from "@/api/attachment/attachment"
 import Cookies from "js-cookie"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Attachment",
   data() {
@@ -246,6 +249,7 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      lastSearchField: null,
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -416,17 +420,10 @@ export default {
   methods: {
     /*查询输入字段验证时间组件*/
     changeQueryParams(res){
+      this.clearCurrentSearch()
       this.SelectQueryParamsValue = null;
-      if(res=="updatedAt"||res=="createdAt"||res=="uploadTime")
+      if(res=="updateTime"||res=="createTime"||res=="uploadTime")
       {
-        if(res=="null")
-        {
-          this.TimeFormat = "yyyy-MM-dd"
-          this.TimeType = "date"
-        }else{
-           this.TimeFormat = "yyyy-MM-ddTHH:mm:ss"
-           this.TimeType = "datetime"
-        }
         this.TimeFlag = true
       }else{
          this.TimeFlag = false
@@ -435,11 +432,32 @@ export default {
     /** 查询成果附件列表 */
     getList() {
       this.loading = true
-      listAttachment(this.queryParams).then(response => {
+      listAttachment(this.buildQueryParams()).then(response => {
         this.attachmentList = response.rows
         this.total = response.total
         this.loading = false
       })
+    },
+    buildQueryParams() {
+      if (this.TimeFlag && this.SelectQueryParams) {
+        const propName = this.SelectQueryParams.charAt(0).toUpperCase() + this.SelectQueryParams.slice(1)
+        return buildDateRangeQuery(this.queryParams, {
+          [propName]: this.SelectQueryParamsValue
+        })
+      }
+      return buildDateRangeQuery(this.queryParams, {})
+    },
+    clearCurrentSearch() {
+      const field = this.lastSearchField || this.SelectQueryParams
+      if (field) {
+        this.queryParams[field] = null
+        const propName = field.charAt(0).toUpperCase() + field.slice(1)
+        if (this.queryParams.params) {
+          delete this.queryParams.params[`begin${propName}`]
+          delete this.queryParams.params[`end${propName}`]
+        }
+      }
+      this.queryParams.params = {}
     },
     // 取消按钮
     cancel() {
@@ -473,7 +491,11 @@ export default {
     handleQuery() {
      if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
      {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
+     this.clearCurrentSearch()
+     if (!this.TimeFlag) {
+       this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
+     }
+     this.lastSearchField = this.SelectQueryParams
      this.queryParams.pageNum = 1
      this.getList()
      }else{
@@ -489,7 +511,13 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
-      this.handleQuery()
+      this.clearCurrentSearch()
+      this.SelectQueryParams = null
+      this.SelectQueryParamsValue = null
+      this.TimeFlag = false
+      this.lastSearchField = null
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -553,12 +581,12 @@ export default {
     DowExcel(){
 
        const requestData = {
-        showColumns: this.selectClist || [],
-        data: {
-          Ids:this.ids,
-          ...this.queryParams
-        }
-       };
+	        showColumns: this.selectClist || [],
+	        data: {
+	          Ids:this.ids,
+	          ...this.buildQueryParams()
+	        }
+	       };
       const jsonRequestBody = JSON.stringify(requestData);
       this.exceldownload('attachment/attachment/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
     },

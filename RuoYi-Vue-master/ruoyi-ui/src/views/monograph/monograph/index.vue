@@ -1,8 +1,18 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+     <el-form class="achievement-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="专著名称" prop="monographTitle">
         <el-input v-model.trim="queryParams.monographTitle" placeholder="请输入专著名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="作者角色" prop="authorRole">
+        <el-select v-model="queryParams.authorRole" placeholder="请选择作者角色" clearable filterable>
+          <el-option
+            v-for="item in authorRoles"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="专著类型" prop="monographType">
         <el-select v-model="queryParams.monographType" placeholder="请选择专著类型" clearable filterable>
@@ -14,8 +24,49 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="著作语言" prop="language">
+        <el-select v-model="queryParams.language" placeholder="请选择著作语言" clearable filterable>
+          <el-option
+            v-for="item in languages"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="是否收录" prop="isIncluded">
+        <el-select v-model="queryParams.isIncluded" placeholder="请选择是否收录" clearable>
+          <el-option
+            v-for="item in isIncludedOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="学科分类" prop="subjectCategory">
         <el-input v-model.trim="queryParams.subjectCategory" placeholder="请输入学科分类关键词" clearable />
+      </el-form-item>
+      <el-form-item label="出版时间">
+        <el-date-picker
+          v-model="publishDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -88,7 +139,7 @@
       <el-table-column label="页数" align="center" prop="pageCount" />
       <el-table-column label="著作语言" align="center" prop="language" />
       <el-table-column label="学科分类" align="center" prop="subjectCategory" />
-      <el-table-column label="是否被收录" align="center" prop="isIncluded" />
+      <el-table-column label="是否被收录" align="center" prop="isIncluded" :formatter="formatIsIncluded" />
       <el-table-column label="收录数据库" align="center" prop="includedDatabase" />
       <el-table-column label="获奖情况" align="center" prop="awardSituation" />
       <el-table-column label="合著者信息" align="center" prop="coAuthors" />
@@ -103,13 +154,14 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
 
-          <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+          <el-table-column v-if="$auth.hasPermi('monograph:monograph:edit')" label="审核" align="center" width="100">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
@@ -223,7 +275,14 @@
               <el-input v-model="form.subjectCategory" placeholder="请输入学科分类" />
             </el-form-item>
             <el-form-item label="是否被收录" prop="isIncluded">
-              <el-input v-model="form.isIncluded" placeholder="请输入是否被收录" />
+              <el-select v-model="form.isIncluded" placeholder="请选择是否被收录" style="width: 100%">
+                <el-option
+                  v-for="item in isIncludedOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
             </el-form-item>
             <el-form-item label="收录数据库" prop="includedDatabase">
               <el-input v-model="form.includedDatabase" placeholder="请输入收录数据库" />
@@ -341,6 +400,7 @@
 import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listMonograph, getMonograph, delMonograph, addMonograph, updateMonograph } from "@/api/monograph/monograph"
 import Cookies from "js-cookie"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Monograph",
   data() {
@@ -354,6 +414,7 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      publishDateRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -473,6 +534,10 @@ export default {
 		  { label: "英文", value: "英文" },
 		  { label: "其他", value: "其他" }
 		],
+      isIncludedOptions: [
+        { label: "是", value: 1 },
+        { label: "否", value: 0 }
+      ],
       // 遮罩层
       loading: true,
       // 选中数组
@@ -500,30 +565,33 @@ export default {
         authorRole: null,
         publishDate: null,
         monographType: null,
+        language: null,
+        isIncluded: null,
         subjectCategory: null,
         auditStatus: null,
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
-        monographTitle: [
-          { required: true, message: "专著名称不能为空", trigger: "blur" },
-          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
-          {
-            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9《》\(\)（）\：:\-\s、]+$/,
-            message: "专著名称格式错误（仅允许中英文、数字、书名号、括号、冒号、顿号及横杠）",
-            trigger: "blur"
-          }
-        ],
+	        monographTitle: [
+	          { required: true, message: "专著名称不能为空", trigger: "blur" },
+	          { min: 1, max: 200, message: "长度不能超过 200 个字符", trigger: "blur" },
+	          {
+	            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9《》\(\)（）\：:，,。；;\-\s、·\.]+$/,
+	            message: "专著名称格式错误（仅允许中英文、数字及常见中文标点）",
+	            trigger: "blur"
+	          }
+	        ],
         authorRole: [
           { required: true, message: "作者角色不能为空", trigger: "change" }
         ],
-        pressName: [
-          { required: true, message: "出版社不能为空", trigger: "blur" },
-          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\s]+$/, message: "出版社名称格式错误（仅允许中英文、数字、括号及点号）", trigger: "blur" }
-        ],
+	        pressName: [
+	          { required: true, message: "出版社不能为空", trigger: "blur" },
+	          { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" },
+	          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\(\)（）\.\-\s、·]+$/, message: "出版社名称格式错误（仅允许中英文、数字及常见标点）", trigger: "blur" }
+	        ],
         isbnNumber: [
           { required: true, message: "ISBN号不能为空", trigger: "blur" },
           { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "ISBN格式错误，示例: 978-7-123-45678-9", trigger: "blur" }
@@ -534,14 +602,14 @@ export default {
         monographType: [
           { required: true, message: "专著类型不能为空", trigger: "change" }
         ],
-        edition: [
-          { required: false, message: "请输入版次", trigger: "blur" },
-          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
-          {
-            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.\(\)（）]+$/,
-            message: "版次格式错误，示例：第3版第2次印刷（2025年修订版）",
-            trigger: "blur"
-          }
+	        edition: [
+	          { required: false, message: "请输入版次", trigger: "blur" },
+	          { max: 50, message: "长度不能超过 50 个字符", trigger: "blur" },
+	          {
+	            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s\.\-\(\)（）：:，,]+$/,
+	            message: "版次格式错误，示例：第3版第2次印刷（2025年修订版）",
+	            trigger: "blur"
+	          }
         ],
         wordCount: [
           { required: false, message: "请输入字数", trigger: "blur" },
@@ -562,14 +630,14 @@ export default {
           { required: false, message: "请输入收录数据库", trigger: "blur" },
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
-        coAuthors: [
-          { required: false, message: "请输入合著者信息", trigger: "blur" },
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z\s,;，；\.]+$/, message: "格式错误，多个合著者请用逗号或分号分隔", trigger: "blur" }
-        ],
-        chinaClassificationNumber: [
-          { required: false, message: "请输入中国分类号", trigger: "blur" },
-          { pattern: /^[A-Z][A-Z0-9\.]*$/, message: "分类号格式错误 (例如: TP311)", trigger: "blur" }
-        ],
+	        coAuthors: [
+	          { required: false, message: "请输入合著者信息", trigger: "blur" },
+	          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9\s,;，；\.·]+$/, message: "格式错误，多个合著者请用逗号或分号分隔", trigger: "blur" }
+	        ],
+	        chinaClassificationNumber: [
+	          { required: false, message: "请输入中国分类号", trigger: "blur" },
+	          { pattern: /^[a-zA-Z][a-zA-Z0-9\.]*$/, message: "分类号格式错误 (例如: TP311)", trigger: "blur" }
+	        ],
         internationalStandardBookNumber: [
           { required: false, message: "请输入国际标准书号", trigger: "blur" },
           { pattern: /^[0-9\-\s]{9,17}[0-9xX]$/, message: "标准书号格式不正确", trigger: "blur" }
@@ -618,16 +686,67 @@ export default {
 	        this.queryParams.auditStatus = query.auditStatus
 	      }
 	    },
-	    formatArchivalType(row, column, value) {
-      const item = this.archivalTypes.find(option => option.value === value)
-      return item ? item.label : value
-    },
-    initUserRoleScope() {
-      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
-      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
-    },
-    /*查询输入字段验证时间组件*/
-    changeQueryParams(res){
+		    formatArchivalType(row, column, value) {
+	      const item = this.archivalTypes.find(option => option.value === value)
+	      return item ? item.label : value
+	    },
+	    formatIsIncluded(row, column, value) {
+	      const item = this.isIncludedOptions.find(option => String(option.value) === String(value))
+	      return item ? item.label : value
+	    },
+		    initUserRoleScope() {
+	      const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
+	      this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
+	    },
+	    handleApiError(error) {
+	      console.error(error)
+	    },
+	    cloneForm(data) {
+	      return JSON.parse(JSON.stringify(data || {}))
+	    },
+	    normalizeCompareValue(value) {
+	      return value === undefined ? null : value
+	    },
+	    buildMonographUpdatePayload() {
+	      const fields = [
+	        "monographTitle",
+	        "authorRole",
+	        "pressName",
+	        "isbnNumber",
+	        "publishDate",
+	        "monographType",
+	        "edition",
+	        "wordCount",
+	        "pageCount",
+	        "language",
+	        "subjectCategory",
+	        "isIncluded",
+	        "includedDatabase",
+	        "awardSituation",
+	        "coAuthors",
+	        "internationalStandardBookNumber",
+	        "chinaClassificationNumber",
+	        "auditStatus"
+	      ]
+	      const payload = { monographId: this.form.monographId }
+	      fields.forEach(field => {
+	        const currentValue = this.normalizeCompareValue(this.form[field])
+	        const originalValue = this.normalizeCompareValue(this.originalForm[field])
+	        if (String(currentValue) !== String(originalValue)) {
+	          payload[field] = this.form[field]
+	        }
+	      })
+	      return payload
+	    },
+	    showFirstValidationError(fields) {
+	      const firstField = fields && Object.keys(fields)[0]
+	      const firstError = firstField && fields[firstField] && fields[firstField][0]
+	      if (firstError && firstError.message) {
+	        this.$modal.msgError(firstError.message)
+	      }
+	    },
+	    /*查询输入字段验证时间组件*/
+	    changeQueryParams(res){
       this.SelectQueryParamsValue = null;
       if(res=="updatedAt"||res=="createdAt"||res=="competitionTime"||res=="awardDate")
       {
@@ -647,9 +766,12 @@ export default {
     /*审核提交*/
     EditAudios(audis)
     {
-      if (this.form.monographId != null) {
-        this.form.auditStatus = audis
-        updateMonograph(this.form).then(response => {
+	  if (this.form.monographId != null) {
+	    this.form.auditStatus = audis
+	    updateMonograph({
+	      monographId: this.form.monographId,
+	      auditStatus: audis
+	    }).then(response => {
           if(response.monographId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -657,11 +779,11 @@ export default {
               this.$modal.msgSuccess("修改成功，上传文件失败")
           }
 
-          this.AudisVisible = false
-          this.getList()
-        })
-      }
-    },
+	          this.AudisVisible = false
+	          this.getList()
+	        }).catch(error => this.handleApiError(error))
+	      }
+	    },
     /*审核批改*/
     handleAudis(row){
       this.AudisStatis=row.auditStatus
@@ -675,10 +797,15 @@ export default {
     /** 查询成果专著列表 */
     getList() {
       this.loading = true
-      listMonograph(this.queryParams).then(response => {
+      listMonograph(this.buildQueryParams()).then(response => {
         this.monographList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        PublishDate: this.publishDateRange
       })
     },
     // 取消按钮
@@ -688,7 +815,7 @@ export default {
     },
     // 表单重置
     reset() {
-      this.form = {
+	      this.form = {
         monographId: null,
         userId: null,
         deptId: null,
@@ -712,10 +839,11 @@ export default {
         auditStatus: null,
         createdAt: null,
         updatedAt: null,
-        archivalType: null
-      }
-      this.files = []; // 清空绑定的文件数组
-      this.resetForm("form")
+	        archivalType: null
+	      }
+	      this.originalForm = {}
+	      this.files = []; // 清空绑定的文件数组
+	      this.resetForm("form")
     },
     clearCurrentSearch() {
       if (this.SelectQueryParams) {
@@ -735,9 +863,15 @@ export default {
       this.resetForm("queryForm")
       this.queryParams.monographId = null
       this.queryParams.monographTitle = null
+      this.queryParams.authorRole = null
+      this.queryParams.publishDate = null
       this.queryParams.monographType = null
+      this.queryParams.language = null
+      this.queryParams.isIncluded = null
       this.queryParams.subjectCategory = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.publishDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -755,20 +889,24 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      const monographId = row.monographId || this.ids
-      getMonograph(monographId).then(response => {
-        this.form = response.data
-        this.open = true
-        this.title = "修改成果专著"
-      })
+	      const monographId = row.monographId || this.ids
+	      getMonograph(monographId).then(response => {
+	        this.form = response.data
+	        this.originalForm = this.cloneForm(response.data)
+	        this.open = true
+	        this.title = "修改成果专著"
+	      })
     },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (!this.showArchivalTypeField) {
-            this.form.archivalType = null
-          } else {
+	    /** 提交按钮 */
+	    submitForm() {
+	      this.$refs["form"].validate((valid, fields) => {
+	        if (!valid) {
+	          this.showFirstValidationError(fields)
+	          return
+	        }
+	          if (!this.showArchivalTypeField) {
+	            this.form.archivalType = null
+	          } else {
             if (!this.form.archivalType) {
               this.$modal.msgError("归档类别为必填项")
               return
@@ -778,8 +916,13 @@ export default {
               return
             }
           }
-              if (this.form.monographId != null) {
-              updateMonograph(this.form).then(response => {
+	              if (this.form.monographId != null) {
+	              const updatePayload = this.buildMonographUpdatePayload()
+	              if (Object.keys(updatePayload).length === 1) {
+	                this.$modal.msgWarning("没有检测到修改内容")
+	                return
+	              }
+	              updateMonograph(updatePayload).then(response => {
               if(response.monographId!=null)
               {
                   this.$refs.file.submitUpload(response.monographId,"monograph");
@@ -788,11 +931,11 @@ export default {
                   this.$modal.msgSuccess("修改成功,上传文件失败")
               }
 
-              this.open = false
-              this.getList()
-            })
-          } else {
-            addMonograph(this.form).then(response => {
+	              this.open = false
+	              this.getList()
+	            }).catch(error => this.handleApiError(error))
+	          } else {
+	            addMonograph(this.form).then(response => {
               if(response.monographId!=null)
               {
                  this.$refs.file.submitUpload(response.monographId,"monograph");
@@ -801,13 +944,12 @@ export default {
                   this.$modal.msgSuccess("新增成功,上传文件失败")
               }
 
-              this.open = false
-              this.getList()
-            })
-          }
-        }
-      })
-    },
+	              this.open = false
+	              this.getList()
+	            }).catch(error => this.handleApiError(error))
+	          }
+	      })
+	    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const monographIds = row.monographId || this.ids
@@ -864,11 +1006,11 @@ export default {
           }
          const requestData = {
           idList:this.ids,
-           showColumns: this.selectClist || [],
-           data: {
-             ...this.queryParams
-           }
-          };
+	           showColumns: this.selectClist || [],
+	           data: {
+	             ...this.buildQueryParams()
+	           }
+	          };
            const jsonRequestBody = JSON.stringify(requestData);
            this.exceldownload('monograph/monograph/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
        },

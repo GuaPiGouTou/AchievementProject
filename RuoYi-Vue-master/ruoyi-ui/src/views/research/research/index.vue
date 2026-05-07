@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+     <el-form class="achievement-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="项目名称" prop="projectName">
         <el-input v-model.trim="queryParams.projectName" placeholder="请输入项目名称关键词" clearable />
       </el-form-item>
@@ -23,6 +23,59 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="项目状态" prop="projectStatus">
+        <el-select v-model="queryParams.projectStatus" placeholder="请选择项目状态" clearable filterable>
+          <el-option
+            v-for="item in projectStatuss"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="开始时间">
+        <el-date-picker
+          v-model="startDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="结束时间">
+        <el-date-picker
+          v-model="endDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="结题时间">
+        <el-date-picker
+          v-model="actualEndDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -117,12 +170,13 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
-        <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+        <el-table-column v-if="$auth.hasPermi('research:research:edit')" label="审核" align="center" width="100">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -398,6 +452,8 @@
 import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listResearch, getResearch, delResearch, addResearch, updateResearch } from "@/api/research/research"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Research",
   data() {
@@ -411,6 +467,9 @@ export default {
          SelectQueryParamsValue:null,
          //搜索字段
          SelectQueryParams:null,
+         startDateRange: [],
+         endDateRange: [],
+         actualEndDateRange: [],
          //审核选择项
          AudisStatis:"待审核",
          //审核选项列表 '通过','驳回','待审核','退回'
@@ -571,6 +630,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
         projectNumber: [
@@ -734,7 +794,10 @@ export default {
     {
       if (this.form.researchId != null) {
         this.form.auditStatus = audis
-        updateResearch(this.form).then(response => {
+        updateResearch({
+          researchId: this.form.researchId,
+          auditStatus: audis
+        }).then(response => {
           if(response.researchId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -760,15 +823,25 @@ export default {
     /** 查询项目成果列表 */
     getList() {
       this.loading = true
-      listResearch(this.queryParams).then(response => {
+      listResearch(this.buildQueryParams()).then(response => {
         this.researchList = response.rows
         this.total = response.total
         this.loading = false
       })
     },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        StartDate: this.startDateRange,
+        EndDate: this.endDateRange,
+        ActualEndDate: this.actualEndDateRange
+      })
+    },
     checkProjectNumberUnique() {
       const projectNumber = this.form.projectNumber
       if (!projectNumber) {
+        return Promise.resolve(true)
+      }
+      if (this.form.researchId != null && String(projectNumber) === String(this.originalForm.projectNumber)) {
         return Promise.resolve(true)
       }
       return listResearch({
@@ -821,6 +894,7 @@ export default {
         updatedAt: null,
         archivalType: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -844,7 +918,12 @@ export default {
       this.queryParams.projectName = null
       this.queryParams.projectCategory = null
       this.queryParams.projectLevel = null
+      this.queryParams.projectStatus = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.startDateRange = []
+      this.endDateRange = []
+      this.actualEndDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -865,6 +944,7 @@ export default {
       const researchId = row.researchId || this.ids
       getResearch(researchId).then(response => {
         this.form = response.data
+        this.originalForm = cloneForm(response.data)
         this.open = true
         this.title = "修改项目成果"
       })
@@ -890,7 +970,12 @@ export default {
               }
             }
             if (this.form.researchId != null) {
-              updateResearch(this.form).then(response => {
+              const updatePayload = buildChangedPayload(this.form, this.originalForm, "researchId")
+              if (Object.keys(updatePayload).length === 1) {
+                this.$modal.msgWarning("没有检测到修改内容")
+                return
+              }
+              updateResearch(updatePayload).then(response => {
                 if(response.researchId!=null)
                 {
                    this.$refs.file.submitUpload(response.researchId,"research");
@@ -974,11 +1059,11 @@ export default {
           }
          const requestData = {
           idList:this.ids,
-           showColumns: this.selectClist || [],
-           data: {
-             ...this.queryParams
-           }
-          };
+	           showColumns: this.selectClist || [],
+	           data: {
+	             ...this.buildQueryParams()
+	           }
+	          };
            const jsonRequestBody = JSON.stringify(requestData);
            this.exceldownload('research/research/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
        }

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+     <el-form class="achievement-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="奖项名称" prop="awardName">
         <el-input v-model.trim="queryParams.awardName" placeholder="请输入奖项名称关键词" clearable />
       </el-form-item>
@@ -16,6 +16,27 @@
       </el-form-item>
       <el-form-item label="奖项类别" prop="awardCategory">
         <el-input v-model.trim="queryParams.awardCategory" placeholder="请输入奖项类别关键词" clearable />
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="获奖时间">
+        <el-date-picker
+          v-model="awardDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -93,13 +114,14 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
 
-          <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+          <el-table-column v-if="$auth.hasPermi('award:award:edit')" label="审核" align="center" width="100">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
@@ -297,6 +319,8 @@
 <script>
 import { listAward, getAward, delAward, addAward, updateAward } from "@/api/award/award"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Award",
   data() {
@@ -310,6 +334,7 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      awardDateRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -450,6 +475,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
             rules: {
               awardName: [
@@ -566,7 +592,10 @@ export default {
     {
       if (this.form.awardId != null) {
         this.form.auditStatus = audis
-        updateAward(this.form).then(response => {
+        updateAward({
+          awardId: this.form.awardId,
+          auditStatus: audis
+        }).then(response => {
           if(response.awardId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -592,10 +621,15 @@ export default {
     /** 查询获奖成果列表 */
     getList() {
       this.loading = true
-      listAward(this.queryParams).then(response => {
+      listAward(this.buildQueryParams()).then(response => {
         this.awardList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        AwardDate: this.awardDateRange
       })
     },
     // 取消按钮
@@ -621,6 +655,7 @@ export default {
         updatedAt: null,
         archivalType: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -642,9 +677,12 @@ export default {
       this.resetForm("queryForm")
       this.queryParams.awardId = null
       this.queryParams.awardName = null
+      this.queryParams.awardDate = null
       this.queryParams.awardLevel = null
       this.queryParams.awardCategory = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.awardDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -665,6 +703,7 @@ export default {
       const awardId = row.awardId || this.ids
       getAward(awardId).then(response => {
         this.form = response.data
+        this.originalForm = cloneForm(response.data)
         this.open = true
         this.title = "修改获奖成果"
       })
@@ -687,7 +726,12 @@ export default {
           }
            const msg = ""
           if (this.form.awardId != null) {
-            updateAward(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "awardId")
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            updateAward(updatePayload).then(response => {
               if(response.awardId!=null)
               {
                  this.$refs.file.submitUpload(response.awardId,"award");
@@ -770,13 +814,13 @@ export default {
        {
          this.ids = this.awardList.map(item=>item.awardId)
        }
-      const requestData = {
-         idList:this.ids,
-         showColumns: this.selectClist || [],
-         data: {
-           ...this.queryParams
-         }
-       };
+	      const requestData = {
+	         idList:this.ids,
+	         showColumns: this.selectClist || [],
+	         data: {
+	           ...this.buildQueryParams()
+	         }
+	       };
        const jsonRequestBody = JSON.stringify(requestData);
        this.exceldownload('award/award/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`);
     },

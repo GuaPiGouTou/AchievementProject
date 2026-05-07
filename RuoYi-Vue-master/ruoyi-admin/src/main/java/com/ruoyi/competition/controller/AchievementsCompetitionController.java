@@ -1,18 +1,12 @@
 package com.ruoyi.competition.controller;
 
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
-import com.ruoyi.ContestFeign.IdsRequest;
-import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.common.utils.AchievementDataScopeUtils;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-
-import com.ruoyi.monograph.domain.AchievementsMonograph;
-import com.ruoyi.textbook.domain.AchievementsTextbook;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,18 +40,13 @@ public class AchievementsCompetitionController extends BaseController
     @PreAuthorize("@ss.hasPermi('competition:competition:list')")
     @GetMapping("/list")
     public AjaxResult list(AchievementsCompetition achievementsCompetition) {
-        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
-        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
-        AjaxResult res = new AjaxResult();
-        System.out.println(achievementsCompetition);
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsCompetition.setUserId(getUserId());
-            achievementsCompetition.setDeptId(getDeptId());
-            res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize, achievementsCompetition);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        AchievementDataScopeUtils.applyAchievementListScope(achievementsCompetition, "competition:competition");
+        startPage();
+        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(achievementsCompetition);
+        TableDataInfo tableData = getDataTable(list);
+        AjaxResult res = AjaxResult.success();
+        res.put("rows", tableData.getRows());
+        res.put("total", tableData.getTotal());
         return res;
     }
 
@@ -74,26 +63,14 @@ public class AchievementsCompetitionController extends BaseController
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
+        AchievementsCompetition query = exportRequestDTO.getData() == null ? new AchievementsCompetition() : exportRequestDTO.getData();
+        AchievementDataScopeUtils.applyAchievementListScope(query, "competition:competition");
+        List<AchievementsCompetition> list = achievementsCompetitionService.selectAchievementsCompetitionList(query);
+        list = AchievementDataScopeUtils.filterByIds(list, ids, "getCompetitionId");
 
-        // 2. 构造请求 (使用上面修改后的 IdsRequest)
-        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
-
-        // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectContestByIds(idsRequest);
-
-        // 4. 判断 total (处理 null 和 类型转换)
-        Object totalObj = result.get("total");
-        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
-
-        if (total == 0) {
+        if (list == null || list.isEmpty()) {
             return AjaxResult.warn("未查询到数据");
         }
-
-        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
-        Object rows = result.get("rows");
-        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
-        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
-        List<AchievementsCompetition> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsCompetition.class);
 
         // 6. 导出 Excel
         ExcelUtil<AchievementsCompetition> util = new ExcelUtil<>(AchievementsCompetition.class);
@@ -115,14 +92,11 @@ public class AchievementsCompetitionController extends BaseController
     @GetMapping(value = "/{competitionId}")
     public AjaxResult getInfo(@PathVariable("competitionId") Long competitionId)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            res = contestFeignClient.getContestById(getUserId(),getDeptId(),competitionId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        AchievementsCompetition achievementsCompetition = achievementsCompetitionService.selectAchievementsCompetitionByCompetitionId(competitionId);
+        if (!AchievementDataScopeUtils.canAccessAchievementRecord(achievementsCompetition, "competition:competition")) {
+            return AjaxResult.error("无权限访问该数据");
         }
-        return res;
+        return AjaxResult.success(achievementsCompetition);
     }
 
     /**
@@ -156,17 +130,17 @@ public class AchievementsCompetitionController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsCompetition achievementsCompetition)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsCompetition.setUserId(getUserId());
-            achievementsCompetition.setDeptId(getDeptId());
-
-            res = contestFeignClient.updateContest(achievementsCompetition);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        achievementsCompetition.setUserId(null);
+        achievementsCompetition.setDeptId(null);
+        achievementsCompetition.setCreatedAt(null);
+        achievementsCompetition.setUpdatedAt(null);
+        int rows = achievementsCompetitionService.updateAchievementsCompetition(achievementsCompetition);
+        if (rows > 0) {
+            AjaxResult result = AjaxResult.success("修改成功");
+            result.put("competitionId", achievementsCompetition.getCompetitionId());
+            return result;
         }
-        return res;
+        return AjaxResult.error("修改失败");
     }
 
     /**

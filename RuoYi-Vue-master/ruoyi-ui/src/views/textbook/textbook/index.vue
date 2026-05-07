@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form class="textbook-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+     <el-form class="achievement-search-form textbook-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
       <el-form-item label="教材名称" prop="textbookName">
         <el-input v-model.trim="queryParams.textbookName" placeholder="请输入教材名称关键词" clearable />
       </el-form-item>
@@ -33,6 +33,27 @@
             :value="item.value"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="出版时间">
+        <el-date-picker
+          v-model="publishDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -114,13 +135,14 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
 
-          <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+          <el-table-column v-if="$auth.hasPermi('textbook:textbook:edit')" label="审核" align="center" width="100">
               <template slot-scope="scope">
                 <el-button
                   size="mini"
@@ -328,6 +350,8 @@
 <script>
 import { listTextbook, getTextbook, delTextbook, addTextbook, updateTextbook } from "@/api/textbook/textbook"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Textbook",
   data() {
@@ -341,6 +365,7 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      publishDateRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -488,6 +513,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
         textbookName: [
@@ -590,7 +616,10 @@ export default {
     {
       if (this.form.textbookId != null) {
         this.form.auditStatus = audis
-        updateTextbook(this.form).then(response => {
+        updateTextbook({
+          textbookId: this.form.textbookId,
+          auditStatus: audis
+        }).then(response => {
           if(response.textbookId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -616,10 +645,15 @@ export default {
     /** 查询教材著作列表 */
     getList() {
       this.loading = true
-      listTextbook(this.queryParams).then(response => {
+      listTextbook(this.buildQueryParams()).then(response => {
         this.textbookList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        PublishDate: this.publishDateRange
       })
     },
     // 取消按钮
@@ -649,6 +683,7 @@ export default {
         createdAt: null,
         updatedAt: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -664,9 +699,12 @@ export default {
       this.queryParams.textbookId = null
       this.queryParams.textbookName = null
       this.queryParams.authorRole = null
+      this.queryParams.publishDate = null
       this.queryParams.textbookType = null
       this.queryParams.textbookLevel = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.publishDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -687,6 +725,7 @@ export default {
       const textbookId = row.textbookId || this.ids
       getTextbook(textbookId).then(response => {
         this.form = response.data
+        this.originalForm = cloneForm(response.data)
         this.open = true
         this.title = "修改教材著作"
       })
@@ -696,7 +735,12 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.textbookId != null) {
-            updateTextbook(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "textbookId")
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            updateTextbook(updatePayload).then(response => {
               if(response.textbookId!=null)
               {
 
@@ -783,11 +827,11 @@ export default {
         }
        const requestData = {
         idList:this.ids,
-          showColumns: this.selectClist || [],
-          data: {
-            ...this.queryParams
-          }
-         };
+	          showColumns: this.selectClist || [],
+	          data: {
+	            ...this.buildQueryParams()
+	          }
+	         };
          const jsonRequestBody = JSON.stringify(requestData);
          this.exceldownload('textbook/textbook/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`);
       },

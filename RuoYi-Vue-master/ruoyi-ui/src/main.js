@@ -81,6 +81,19 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 
+const consoleWarn = console.warn
+console.warn = function(...args) {
+  if (args[0] === 'async-validator:' || args[0] === 'sync-validator:') {
+    return
+  }
+  consoleWarn.apply(console, args)
+}
+
+window.addEventListener('unhandledrejection', event => {
+  console.error(event.reason)
+  event.preventDefault()
+})
+
 new Vue({
   el: '#app',
   router,

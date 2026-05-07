@@ -58,6 +58,7 @@
               下载
             </el-button>
             <el-button
+              v-if="$auth.hasPermi('attachment:attachment:remove')"
               size="mini"
               type="text"
               @click="handleDelete(row)"

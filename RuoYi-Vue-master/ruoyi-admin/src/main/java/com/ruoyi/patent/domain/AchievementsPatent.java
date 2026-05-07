@@ -73,7 +73,7 @@ public class AchievementsPatent extends BaseEntity
         this.authorizationNo = authorizationNo;
     }
 
-    /** 公布号 */
+    /** 授权号 */
     @Excel(name = "授权号")
     private String authorizationNo;
 
@@ -94,8 +94,7 @@ public class AchievementsPatent extends BaseEntity
     @Excel(name = "技术领域")
     private String technicalField;
 
-    /** 专利法律状态 */
-    @Excel(name = "专利法律状态")
+    /** 专利法律状态，仅保留用于兼容旧数据和 C++ 接口返回。 */
     private String legalStatus;
 
     /** 证书类型 */

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form class="software-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+     <el-form class="achievement-search-form software-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
       <el-form-item label="软件名称" prop="softwareName">
         <el-input v-model.trim="queryParams.softwareName" placeholder="请输入软件名称关键词" clearable />
       </el-form-item>
@@ -24,8 +24,61 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="证书类型" prop="certificateType">
+        <el-select v-model="queryParams.certificateType" placeholder="请选择证书类型" clearable filterable>
+          <el-option
+            v-for="item in certificateTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="应用领域" prop="applicationField">
         <el-input v-model.trim="queryParams.applicationField" placeholder="请输入应用领域关键词" clearable />
+      </el-form-item>
+      <el-form-item label="发表日期">
+        <el-date-picker
+          v-model="publishDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="登记日期">
+        <el-date-picker
+          v-model="registerDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="完成日期">
+        <el-date-picker
+          v-model="developmentDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -115,12 +168,13 @@
                 type="text"
                 icon="el-icon-paperclip"
                 @click="handleAttachment(scope.row)"
+                v-hasPermi="['attachment:attachment:query']"
               >
                 附件
               </el-button>
             </template>
           </el-table-column>
-      <el-table-column v-if="andminFlag" label="审核" align="center" width="100">
+      <el-table-column v-if="$auth.hasPermi('software:software:edit')" label="审核" align="center" width="100">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -315,6 +369,8 @@
 import AttachmentManagement from "@/components/AttManage/AttachmentManagement.vue"
 import { listSoftware, getSoftware, delSoftware, addSoftware, updateSoftware } from "@/api/software/software"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Software",
   data() {
@@ -328,6 +384,9 @@ export default {
       SelectQueryParamsValue:null,
       //搜索字段
       SelectQueryParams:null,
+      publishDateRange: [],
+      registerDateRange: [],
+      developmentDateRange: [],
       //审核选择项
       AudisStatis:"待审核",
       //审核选项列表 '通过','驳回','待审核','退回'
@@ -450,6 +509,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
         softwareName: [
@@ -554,7 +614,10 @@ export default {
     {
       if (this.form.softwareId != null) {
         this.form.auditStatus = audis
-        updateSoftware(this.form).then(response => {
+        updateSoftware({
+          softwareId: this.form.softwareId,
+          auditStatus: audis
+        }).then(response => {
           if(response.softwareId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -580,10 +643,17 @@ export default {
     /** 查询软著成果列表 */
     getList() {
       this.loading = true
-      listSoftware(this.queryParams).then(response => {
+      listSoftware(this.buildQueryParams()).then(response => {
         this.softwareList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        PublishDate: this.publishDateRange,
+        RegisterDate: this.registerDateRange,
+        DevelopmentDate: this.developmentDateRange
       })
     },
     // 取消按钮
@@ -613,6 +683,7 @@ export default {
         createdAt: null,
         updatedAt: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -626,10 +697,16 @@ export default {
       this.resetForm("queryForm")
       this.queryParams.softwareId = null
       this.queryParams.softwareName = null
+      this.queryParams.publishDate = null
       this.queryParams.softwareType = null
       this.queryParams.softwareCopyrightCertificateLevel = null
+      this.queryParams.certificateType = null
       this.queryParams.applicationField = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.publishDateRange = []
+      this.registerDateRange = []
+      this.developmentDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -650,6 +727,7 @@ export default {
       const softwareId = row.softwareId || this.ids
       getSoftware(softwareId).then(response => {
         this.form = response.data
+        this.originalForm = cloneForm(response.data)
         this.open = true
         this.title = "修改软著成果"
       })
@@ -659,7 +737,12 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.softwareId != null) {
-            updateSoftware(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "softwareId")
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            updateSoftware(updatePayload).then(response => {
               console.log(response)
               if(response.softwareId!=null)
               {
@@ -746,11 +829,11 @@ export default {
            }
           const requestData = {
            idList:this.ids,
-           showColumns: this.selectClist || [],
-           data: {
-             ...this.queryParams
-           }
-          };
+	          showColumns: this.selectClist || [],
+	          data: {
+	             ...this.buildQueryParams()
+	          }
+	         };
            const jsonRequestBody = JSON.stringify(requestData);
            this.exceldownload('software/software/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
        }

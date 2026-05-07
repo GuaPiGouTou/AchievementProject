@@ -128,11 +128,12 @@ aside {
     white-space: nowrap;
   }
 
-  // 搜索区域：强制同一排显示，超出时横向滚动
+  // 搜索区域：允许换行，避免筛选项过多时横向撑长
   .el-form--inline {
     display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 2px;
   }
 
   .el-form--inline .el-form-item {
@@ -141,17 +142,52 @@ aside {
     margin-bottom: 8px;
   }
 
-  // 统一搜索输入宽度，避免挤占导致按钮换行
+  // 统一搜索输入宽度
   .el-form--inline .el-form-item .el-input,
   .el-form--inline .el-form-item .el-select {
     width: 170px;
   }
 
-  // 小屏进一步压缩，优先保证搜索框和按钮同排
+  .el-form--inline .el-form-item .el-date-editor.el-input,
+  .el-form--inline .el-form-item .el-date-editor.el-input__inner {
+    width: 240px;
+  }
+
+  .achievement-search-form.el-form--inline {
+    max-width: 100%;
+    width: min(1120px, 100%);
+  }
+
+  .achievement-search-form.el-form--inline .el-form-item {
+    margin-right: 12px;
+    margin-bottom: 8px;
+  }
+
+  .achievement-search-form.el-form--inline .el-form-item .el-input,
+  .achievement-search-form.el-form--inline .el-form-item .el-select {
+    width: 150px;
+  }
+
+  .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input,
+  .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input__inner {
+    width: 230px;
+  }
+
+  // 小屏进一步压缩
   @media (max-width: 1600px) {
     .el-form--inline .el-form-item .el-input,
     .el-form--inline .el-form-item .el-select {
       width: 150px;
+    }
+
+    .achievement-search-form.el-form--inline .el-form-item .el-input,
+    .achievement-search-form.el-form--inline .el-form-item .el-select {
+      width: 136px;
+    }
+
+    .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input,
+    .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input__inner {
+      width: 210px;
     }
   }
 
@@ -159,6 +195,16 @@ aside {
     .el-form--inline .el-form-item .el-input,
     .el-form--inline .el-form-item .el-select {
       width: 130px;
+    }
+
+    .achievement-search-form.el-form--inline .el-form-item .el-input,
+    .achievement-search-form.el-form--inline .el-form-item .el-select {
+      width: 128px;
+    }
+
+    .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input,
+    .achievement-search-form.el-form--inline .el-form-item .el-date-editor.el-input__inner {
+      width: 200px;
     }
   }
 }

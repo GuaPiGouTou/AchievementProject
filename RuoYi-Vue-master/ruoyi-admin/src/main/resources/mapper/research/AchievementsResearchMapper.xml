@@ -37,16 +37,37 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsResearchList" parameterType="AchievementsResearch" resultMap="AchievementsResearchResult">
         <include refid="selectAchievementsResearchVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="projectNumber != null  and projectNumber != ''"> and project_number = #{projectNumber}</if>
             <if test="projectName != null  and projectName != ''"> and project_name like concat('%', #{projectName}, '%')</if>
             <if test="projectCategory != null  and projectCategory != ''"> and project_category = #{projectCategory}</if>
             <if test="projectLevel != null  and projectLevel != ''"> and project_level = #{projectLevel}</if>
             <if test="principal != null  and principal != ''"> and principal = #{principal}</if>
             <if test="totalFunding != null "> and total_funding = #{totalFunding}</if>
+            <if test="startDate != null"> and start_date = #{startDate}</if>
+            <if test="params.beginStartDate != null and params.beginStartDate != ''"> and start_date &gt;= #{params.beginStartDate}</if>
+            <if test="params.endStartDate != null and params.endStartDate != ''"> and start_date &lt;= #{params.endStartDate}</if>
+            <if test="endDate != null"> and end_date = #{endDate}</if>
+            <if test="params.beginEndDate != null and params.beginEndDate != ''"> and end_date &gt;= #{params.beginEndDate}</if>
+            <if test="params.endEndDate != null and params.endEndDate != ''"> and end_date &lt;= #{params.endEndDate}</if>
+            <if test="actualEndDate != null"> and actual_end_date = #{actualEndDate}</if>
+            <if test="params.beginActualEndDate != null and params.beginActualEndDate != ''"> and actual_end_date &gt;= #{params.beginActualEndDate}</if>
+            <if test="params.endActualEndDate != null and params.endActualEndDate != ''"> and actual_end_date &lt;= #{params.endActualEndDate}</if>
             <if test="projectStatus != null  and projectStatus != ''"> and project_status = #{projectStatus}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
             <if test="updatedAt != null "> and updated_at = #{updatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
     

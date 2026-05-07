@@ -5,11 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
-import com.ruoyi.ContestFeign.IdsRequest;
-import com.ruoyi.attachment.domain.AchievementsAttachment;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.competition.domain.AchievementsCompetition;
+import com.ruoyi.common.utils.AchievementDataScopeUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,18 +40,13 @@ public class AchievementsTextbookController extends BaseController
     @GetMapping("/list")
     public AjaxResult list(AchievementsTextbook achievementsTextbook)
     {
-        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
-        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsTextbook.setUserId(getUserId());
-            achievementsTextbook.setDeptId(getDeptId());
-            res = contestFeignClient.getTextbookList(getUserId(), getDeptId(), pageNum, pageSize, achievementsTextbook);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        AchievementDataScopeUtils.applyAchievementListScope(achievementsTextbook, "textbook:textbook");
+        startPage();
+        List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(achievementsTextbook);
+        TableDataInfo tableData = getDataTable(list);
+        AjaxResult res = AjaxResult.success();
+        res.put("rows", tableData.getRows());
+        res.put("total", tableData.getTotal());
         return res;
     }
 
@@ -70,26 +62,14 @@ public class AchievementsTextbookController extends BaseController
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
+        AchievementsTextbook query = exportRequestDTO.getData() == null ? new AchievementsTextbook() : exportRequestDTO.getData();
+        AchievementDataScopeUtils.applyAchievementListScope(query, "textbook:textbook");
+        List<AchievementsTextbook> list = achievementsTextbookService.selectAchievementsTextbookList(query);
+        list = AchievementDataScopeUtils.filterByIds(list, ids, "getTextbookId");
 
-        // 2. 构造请求 (使用上面修改后的 IdsRequest)
-        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
-
-        // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectTextbookByIds(idsRequest);
-
-        // 4. 判断 total (处理 null 和 类型转换)
-        Object totalObj = result.get("total");
-        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
-
-        if (total == 0) {
+        if (list == null || list.isEmpty()) {
             return AjaxResult.warn("未查询到数据");
         }
-
-        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
-        Object rows = result.get("rows");
-        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
-        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
-        List<AchievementsTextbook> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsTextbook.class);
 
         // 6. 导出 Excel
         ExcelUtil<AchievementsTextbook> util = new ExcelUtil<>(AchievementsTextbook.class);
@@ -110,16 +90,11 @@ public class AchievementsTextbookController extends BaseController
     @GetMapping(value = "/{textbookId}")
     public AjaxResult getInfo(@PathVariable("textbookId") Long textbookId)
     {
-        AjaxResult res = new AjaxResult();
-
-        // 使用Feign客户端调用远程服务
-        try {
-            res = contestFeignClient.getTextbookById(getUserId(), getDeptId(),textbookId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        AchievementsTextbook achievementsTextbook = achievementsTextbookService.selectAchievementsTextbookByTextbookId(textbookId);
+        if (!AchievementDataScopeUtils.canAccessAchievementRecord(achievementsTextbook, "textbook:textbook")) {
+            return AjaxResult.error("无权限访问该数据");
         }
-
-        return res;
+        return AjaxResult.success(achievementsTextbook);
     }
 
     /**
@@ -153,17 +128,17 @@ public class AchievementsTextbookController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsTextbook achievementsTextbook)
     {
-        AjaxResult res = new AjaxResult();
-        achievementsTextbook.setUserId(getUserId());
-        achievementsTextbook.setDeptId(getDeptId());
-        // 使用Feign客户端调用远程服务
-        try {
-            res = contestFeignClient.updateTextbook(achievementsTextbook);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        achievementsTextbook.setUserId(null);
+        achievementsTextbook.setDeptId(null);
+        achievementsTextbook.setCreatedAt(null);
+        achievementsTextbook.setUpdatedAt(null);
+        int rows = achievementsTextbookService.updateAchievementsTextbook(achievementsTextbook);
+        if (rows > 0) {
+            AjaxResult result = AjaxResult.success("修改成功");
+            result.put("textbookId", achievementsTextbook.getTextbookId());
+            return result;
         }
-
-        return res;
+        return AjaxResult.error("修改失败");
     }
 
     /**

@@ -38,14 +38,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsTransferList" parameterType="AchievementsTransfer" resultMap="AchievementsTransferResult">
         <include refid="selectAchievementsTransferVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="achievementName != null  and achievementName != ''"> and achievement_name like concat('%', #{achievementName}, '%')</if>
             <if test="achievementType != null  and achievementType != ''"> and achievement_type = #{achievementType}</if>
+            <if test="transferMethod != null  and transferMethod != ''"> and transfer_method = #{transferMethod}</if>
             <if test="transferAmount != null "> and transfer_amount = #{transferAmount}</if>
+            <if test="transferDate != null"> and transfer_date = #{transferDate}</if>
+            <if test="params.beginTransferDate != null and params.beginTransferDate != ''"> and transfer_date &gt;= #{params.beginTransferDate}</if>
+            <if test="params.endTransferDate != null and params.endTransferDate != ''"> and transfer_date &lt;= #{params.endTransferDate}</if>
             <if test="transferStatus != null  and transferStatus != ''"> and transfer_status = #{transferStatus}</if>
             <if test="contactPerson != null  and contactPerson != ''"> and contact_person = #{contactPerson}</if>
             <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
     

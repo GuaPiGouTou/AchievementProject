@@ -29,14 +29,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsAwardList" parameterType="AchievementsAward" resultMap="AchievementsAwardResult">
         <include refid="selectAchievementsAwardVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="awardName != null  and awardName != ''"> and award_name like concat('%', #{awardName}, '%')</if>
             <if test="awardWinner != null  and awardWinner != ''"> and award_winner = #{awardWinner}</if>
             <if test="awardDate != null "> and award_date = #{awardDate}</if>
+            <if test="params.beginAwardDate != null and params.beginAwardDate != ''"> and award_date &gt;= #{params.beginAwardDate}</if>
+            <if test="params.endAwardDate != null and params.endAwardDate != ''"> and award_date &lt;= #{params.endAwardDate}</if>
+            <if test="params.beginAwardCeremonyDate != null and params.beginAwardCeremonyDate != ''"> and award_ceremony_date &gt;= #{params.beginAwardCeremonyDate}</if>
+            <if test="params.endAwardCeremonyDate != null and params.endAwardCeremonyDate != ''"> and award_ceremony_date &lt;= #{params.endAwardCeremonyDate}</if>
             <if test="awardLevel != null  and awardLevel != ''"> and award_level = #{awardLevel}</if>
             <if test="awardCategory != null  and awardCategory != ''"> and award_category like concat('%', #{awardCategory}, '%')</if>
             <if test="awardRanking != null  and awardRanking != ''"> and award_ranking = #{awardRanking}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
             <if test="createdAt != null "> and created_at = #{createdAt}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
     

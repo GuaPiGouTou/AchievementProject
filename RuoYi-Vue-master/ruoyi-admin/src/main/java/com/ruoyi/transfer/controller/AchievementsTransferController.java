@@ -5,10 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
-import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.patent.domain.AchievementsPatent;
+import com.ruoyi.common.utils.AchievementDataScopeUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,17 +47,13 @@ public class AchievementsTransferController extends BaseController
     @GetMapping("/list")
     public AjaxResult list(AchievementsTransfer achievementsTransfer)
     {
-        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
-        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsTransfer.setUserId(getUserId());
-            achievementsTransfer.setDeptId(getDeptId());
-            res = contestFeignClient.selectTransferList(getUserId(), getDeptId(), pageNum, pageSize, achievementsTransfer);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        AchievementDataScopeUtils.applyAchievementListScope(achievementsTransfer, "transfer:transfer");
+        startPage();
+        List<AchievementsTransfer> list = achievementsTransferService.selectAchievementsTransferList(achievementsTransfer);
+        TableDataInfo tableData = getDataTable(list);
+        AjaxResult res = AjaxResult.success();
+        res.put("rows", tableData.getRows());
+        res.put("total", tableData.getTotal());
         return res;
     }
 
@@ -74,26 +68,14 @@ public class AchievementsTransferController extends BaseController
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
+        AchievementsTransfer query = exportRequestDTO.getData() == null ? new AchievementsTransfer() : exportRequestDTO.getData();
+        AchievementDataScopeUtils.applyAchievementListScope(query, "transfer:transfer");
+        List<AchievementsTransfer> list = achievementsTransferService.selectAchievementsTransferList(query);
+        list = AchievementDataScopeUtils.filterByIds(list, ids, "getTransferId");
 
-        // 2. 构造请求
-        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
-
-        // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectTransferByIds(idsRequest);
-
-        // 4. 判断 total (处理 null 和 类型转换)
-        Object totalObj = result.get("total");
-        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
-
-        if (total == 0) {
+        if (list == null || list.isEmpty()) {
             return AjaxResult.warn("未查询到数据");
         }
-
-        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
-        Object rows = result.get("rows");
-        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
-        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
-        List<AchievementsTransfer> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsTransfer.class);
 
         // 6. 导出 Excel
         ExcelUtil<AchievementsTransfer> util = new ExcelUtil<>(AchievementsTransfer.class);
@@ -115,14 +97,12 @@ public class AchievementsTransferController extends BaseController
     @GetMapping(value = "/{transferId}")
     public AjaxResult getInfo(@PathVariable("transferId") Long transferId)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            res = contestFeignClient.selectTransferById(getUserId(),getDeptId(),transferId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        AchievementsTransfer achievementsTransfer = achievementsTransferService.selectAchievementsTransferByTransferId(transferId);
+        if (!AchievementDataScopeUtils.canAccessAchievementRecord(achievementsTransfer, "transfer:transfer")) {
+            return AjaxResult.error("无权限访问该数据");
         }
-        return res;    }
+        return AjaxResult.success(achievementsTransfer);
+    }
 
     /**
      * 新增成果转化
@@ -154,17 +134,18 @@ public class AchievementsTransferController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsTransfer achievementsTransfer)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsTransfer.setUserId(getUserId());
-            achievementsTransfer.setDeptId(getDeptId());
-
-            res = contestFeignClient.updateTransfer(achievementsTransfer);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        achievementsTransfer.setUserId(null);
+        achievementsTransfer.setDeptId(null);
+        achievementsTransfer.setCreatedAt(null);
+        achievementsTransfer.setUpdatedAt(null);
+        int rows = achievementsTransferService.updateAchievementsTransfer(achievementsTransfer);
+        if (rows > 0) {
+            AjaxResult result = AjaxResult.success("修改成功");
+            result.put("transferId", achievementsTransfer.getTransferId());
+            return result;
         }
-        return res;    }
+        return AjaxResult.error("修改失败");
+    }
 
     /**
      * 删除成果转化

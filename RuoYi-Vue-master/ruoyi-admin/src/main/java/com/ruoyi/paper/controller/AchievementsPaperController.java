@@ -5,10 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
-import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.competition.domain.AchievementsCompetition;
+import com.ruoyi.common.utils.AchievementDataScopeUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +18,7 @@ import com.ruoyi.paper.domain.AchievementsPaper;
 import com.ruoyi.paper.service.IAchievementsPaperService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 论文成果Controller
@@ -31,6 +30,9 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RequestMapping("/paper/paper")
 public class AchievementsPaperController extends BaseController
 {
+    private static final String PAPER_STATUS_ACCEPTED = "已录用";
+    private static final String PAPER_STATUS_PUBLISHED = "已发表";
+
     @Autowired
     private IAchievementsPaperService achievementsPaperService;
     @Autowired
@@ -42,10 +44,7 @@ public class AchievementsPaperController extends BaseController
     @GetMapping("/list")
     public AjaxResult list(AchievementsPaper achievementsPaper)
     {
-        if (!getLoginUser().getUser().isAdmin()) {
-            achievementsPaper.setUserId(getUserId());
-            achievementsPaper.setDeptId(getDeptId());
-        }
+        AchievementDataScopeUtils.applyAchievementListScope(achievementsPaper, "paper:paper");
         startPage();
         List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(achievementsPaper);
         TableDataInfo tableData = getDataTable(list);
@@ -67,26 +66,14 @@ public class AchievementsPaperController extends BaseController
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
-        System.out.println(exportRequestDTO);
-        // 2. 构造请求 (使用上面修改后的 IdsRequest)
-        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
+        AchievementsPaper query = exportRequestDTO.getData() == null ? new AchievementsPaper() : exportRequestDTO.getData();
+        AchievementDataScopeUtils.applyAchievementListScope(query, "paper:paper");
+        List<AchievementsPaper> list = achievementsPaperService.selectAchievementsPaperList(query);
+        list = AchievementDataScopeUtils.filterByIds(list, ids, "getPaperId");
 
-        // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectPaperByIds(idsRequest);
-        System.out.println(result);
-        // 4. 判断 total (处理 null 和 类型转换)
-        Object totalObj = result.get("total");
-        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
-
-        if (total == 0) {
+        if (list == null || list.isEmpty()) {
             return AjaxResult.warn("未查询到数据");
         }
-
-        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
-        Object rows = result.get("rows");
-        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
-        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
-        List<AchievementsPaper> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsPaper.class);
 
         // 6. 导出 Excel
         ExcelUtil<AchievementsPaper> util = new ExcelUtil<>(AchievementsPaper.class);
@@ -108,7 +95,11 @@ public class AchievementsPaperController extends BaseController
     @GetMapping(value = "/{paperId}")
     public AjaxResult getInfo(@PathVariable("paperId") Long paperId)
     {
-        return AjaxResult.success(achievementsPaperService.selectAchievementsPaperByPaperId(paperId));
+        AchievementsPaper achievementsPaper = achievementsPaperService.selectAchievementsPaperByPaperId(paperId);
+        if (!AchievementDataScopeUtils.canAccessAchievementRecord(achievementsPaper, "paper:paper")) {
+            return AjaxResult.error("无权限访问该数据");
+        }
+        return AjaxResult.success(achievementsPaper);
     }
 
     /**
@@ -119,6 +110,10 @@ public class AchievementsPaperController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPaper achievementsPaper)
     {
+        AjaxResult validationResult = validateAndNormalizePaperStatus(achievementsPaper);
+        if (validationResult != null) {
+            return validationResult;
+        }
         achievementsPaper.setUserId(getUserId());
         achievementsPaper.setDeptId(getDeptId());
         achievementsPaperService.insertAchievementsPaper(achievementsPaper);
@@ -135,12 +130,21 @@ public class AchievementsPaperController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsPaper achievementsPaper)
     {
-        achievementsPaper.setUserId(getUserId());
-        achievementsPaper.setDeptId(getDeptId());
-        achievementsPaperService.updateAchievementsPaper(achievementsPaper);
-        AjaxResult res = AjaxResult.success();
-        res.put("paperId", achievementsPaper.getPaperId());
-        return res;
+        AjaxResult validationResult = validateAndNormalizePaperStatusForUpdate(achievementsPaper);
+        if (validationResult != null) {
+            return validationResult;
+        }
+        achievementsPaper.setUserId(null);
+        achievementsPaper.setDeptId(null);
+        achievementsPaper.setCreatedAt(null);
+        achievementsPaper.setUpdatedAt(null);
+        int rows = achievementsPaperService.updateAchievementsPaper(achievementsPaper);
+        if (rows > 0) {
+            AjaxResult result = AjaxResult.success("修改成功");
+            result.put("paperId", achievementsPaper.getPaperId());
+            return result;
+        }
+        return AjaxResult.error("修改失败");
     }
 
     /**
@@ -152,5 +156,36 @@ public class AchievementsPaperController extends BaseController
     public AjaxResult remove(@PathVariable Long[] paperIds)
     {
         return toAjax(achievementsPaperService.deleteAchievementsPaperByPaperIds(paperIds));
+    }
+
+    private AjaxResult validateAndNormalizePaperStatusForUpdate(AchievementsPaper achievementsPaper)
+    {
+        if (StringUtils.isBlank(achievementsPaper.getPaperStatus())) {
+            return null;
+        }
+        return validateAndNormalizePaperStatus(achievementsPaper);
+    }
+
+    private AjaxResult validateAndNormalizePaperStatus(AchievementsPaper achievementsPaper)
+    {
+        String paperStatus = achievementsPaper.getPaperStatus();
+        if (StringUtils.isBlank(paperStatus)) {
+            return AjaxResult.error("论文状态不能为空");
+        }
+        if (PAPER_STATUS_ACCEPTED.equals(paperStatus)) {
+            if (achievementsPaper.getAcceptanceDate() == null) {
+                return AjaxResult.error("已录用论文必须填写录用时间");
+            }
+            achievementsPaper.setPublishDate(null);
+            return null;
+        }
+        if (PAPER_STATUS_PUBLISHED.equals(paperStatus)) {
+            if (achievementsPaper.getPublishDate() == null) {
+                return AjaxResult.error("已发表论文必须填写发表时间");
+            }
+            achievementsPaper.setAcceptanceDate(null);
+            return null;
+        }
+        return AjaxResult.error("论文状态只能选择已录用或已发表");
     }
 }

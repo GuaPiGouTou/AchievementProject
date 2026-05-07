@@ -5,10 +5,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.ContestFeign.ContestFeignClient;
 import com.ruoyi.ContestFeign.DeleteRequest;
-import com.ruoyi.ContestFeign.IdsRequest;
 import com.ruoyi.attachment.domain.ExportRequestDTO;
-import com.ruoyi.common.utils.ServletUtils;
-import com.ruoyi.paper.domain.AchievementsPaper;
+import com.ruoyi.common.utils.AchievementDataScopeUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +25,7 @@ import com.ruoyi.patent.domain.AchievementsPatent;
 import com.ruoyi.patent.service.IAchievementsPatentService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 专利成果Controller
@@ -38,6 +37,8 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RequestMapping("/patent/patent")
 public class AchievementsPatentController extends BaseController
 {
+    private static final String[] VALID_PATENT_STATUSES = {"申请中", "公开状态", "实质审查", "已授权", "已转让", "已失效"};
+
     @Autowired
     private IAchievementsPatentService achievementsPatentService;
     @Autowired
@@ -49,17 +50,13 @@ public class AchievementsPatentController extends BaseController
     @GetMapping("/list")
     public AjaxResult list(AchievementsPatent achievementsPatent)
     {
-        Integer pageNum = ServletUtils.getParameterToInt("pageNum");
-        Integer pageSize = ServletUtils.getParameterToInt("pageSize");
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsPatent.setUserId(getUserId());
-            achievementsPatent.setDeptId(getDeptId());
-            res = contestFeignClient.selectPatentList(getUserId(), getDeptId(), pageNum, pageSize, achievementsPatent);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        AchievementDataScopeUtils.applyAchievementListScope(achievementsPatent, "patent:patent");
+        startPage();
+        List<AchievementsPatent> list = achievementsPatentService.selectAchievementsPatentList(achievementsPatent);
+        TableDataInfo tableData = getDataTable(list);
+        AjaxResult res = AjaxResult.success();
+        res.put("rows", tableData.getRows());
+        res.put("total", tableData.getTotal());
         return res;
     }
 
@@ -74,26 +71,14 @@ public class AchievementsPatentController extends BaseController
         // 1. 获取参数
         List<String> hiddenColumns = exportRequestDTO.getShowColumns();
         Long[] ids = exportRequestDTO.getIdList();
+        AchievementsPatent query = exportRequestDTO.getData() == null ? new AchievementsPatent() : exportRequestDTO.getData();
+        AchievementDataScopeUtils.applyAchievementListScope(query, "patent:patent");
+        List<AchievementsPatent> list = achievementsPatentService.selectAchievementsPatentList(query);
+        list = AchievementDataScopeUtils.filterByIds(list, ids, "getPatentId");
 
-        // 2. 构造请求 (使用上面修改后的 IdsRequest)
-        IdsRequest idsRequest = new IdsRequest(getUserId(), getDeptId(), ids);
-
-        // 3. Feign 调用
-        AjaxResult result = contestFeignClient.selectPatentByIds(idsRequest);
-
-        // 4. 判断 total (处理 null 和 类型转换)
-        Object totalObj = result.get("total");
-        int total = (totalObj == null) ? 0 : Integer.parseInt(totalObj.toString());
-
-        if (total == 0) {
+        if (list == null || list.isEmpty()) {
             return AjaxResult.warn("未查询到数据");
         }
-
-        // 5. 转换 List (从 LinkedHashMap 转为 实体对象)
-        Object rows = result.get("rows");
-        // 利用 FastJson 或 Jackson 进行 "序列化再反序列化" 来转换对象
-        String jsonString = com.alibaba.fastjson2.JSON.toJSONString(rows);
-        List<AchievementsPatent> list = com.alibaba.fastjson2.JSON.parseArray(jsonString, AchievementsPatent.class);
 
         // 6. 导出 Excel
         ExcelUtil<AchievementsPatent> util = new ExcelUtil<>(AchievementsPatent.class);
@@ -115,14 +100,12 @@ public class AchievementsPatentController extends BaseController
     @GetMapping(value = "/{patentId}")
     public AjaxResult getInfo(@PathVariable("patentId") Long patentId)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            res = contestFeignClient.selectPatentById(getUserId(),getDeptId(),patentId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        AchievementsPatent achievementsPatent = achievementsPatentService.selectAchievementsPatentByPatentId(patentId);
+        if (!AchievementDataScopeUtils.canAccessAchievementRecord(achievementsPatent, "patent:patent")) {
+            return AjaxResult.error("无权限访问该数据");
         }
-        return res;    }
+        return AjaxResult.success(achievementsPatent);
+    }
 
     /**
      * 新增专利成果
@@ -132,11 +115,16 @@ public class AchievementsPatentController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody AchievementsPatent achievementsPatent)
     {
+        AjaxResult validationResult = validatePatentStatus(achievementsPatent, true);
+        if (validationResult != null) {
+            return validationResult;
+        }
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
             achievementsPatent.setUserId(getUserId());
             achievementsPatent.setDeptId(getDeptId());
+            achievementsPatent.setLegalStatus(null);
 
             System.out.println(achievementsPatent);
             res = contestFeignClient.insertPatent(achievementsPatent);
@@ -154,17 +142,23 @@ public class AchievementsPatentController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody AchievementsPatent achievementsPatent)
     {
-        AjaxResult res = new AjaxResult();
-        // 使用Feign客户端调用远程服务
-        try {
-            achievementsPatent.setUserId(getUserId());
-            achievementsPatent.setDeptId(getDeptId());
-
-            res = contestFeignClient.updatePatent(achievementsPatent);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        AjaxResult validationResult = validatePatentStatus(achievementsPatent, false);
+        if (validationResult != null) {
+            return validationResult;
         }
-        return res;    }
+        achievementsPatent.setUserId(null);
+        achievementsPatent.setDeptId(null);
+        achievementsPatent.setLegalStatus(null);
+        achievementsPatent.setCreatedAt(null);
+        achievementsPatent.setUpdatedAt(null);
+        int rows = achievementsPatentService.updateAchievementsPatent(achievementsPatent);
+        if (rows > 0) {
+            AjaxResult result = AjaxResult.success("修改成功");
+            result.put("patentId", achievementsPatent.getPatentId());
+            return result;
+        }
+        return AjaxResult.error("修改失败");
+    }
 
     /**
      * 删除专利成果
@@ -184,4 +178,18 @@ public class AchievementsPatentController extends BaseController
             throw new RuntimeException(e);
         }
         return res;    }
+
+    private AjaxResult validatePatentStatus(AchievementsPatent achievementsPatent, boolean required)
+    {
+        String patentStatus = achievementsPatent.getPatentStatus();
+        if (StringUtils.isBlank(patentStatus)) {
+            return required ? AjaxResult.error("专利状态不能为空") : null;
+        }
+        for (String validPatentStatus : VALID_PATENT_STATUSES) {
+            if (validPatentStatus.equals(patentStatus)) {
+                return null;
+            }
+        }
+        return AjaxResult.error("专利状态只能选择申请中、公开状态、实质审查、已授权、已转让或已失效");
+    }
 }

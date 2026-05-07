@@ -32,13 +32,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAchievementsTextbookList" parameterType="AchievementsTextbook" resultMap="AchievementsTextbookResult">
         <include refid="selectAchievementsTextbookVo"/>
         <where>  
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="params.scopedDeptIds != null and params.scopedDeptIds.size() &gt; 0">
+                and dept_id in
+                <foreach item="scopedDeptId" collection="params.scopedDeptIds" open="(" separator="," close=")">
+                    #{scopedDeptId}
+                </foreach>
+            </if>
+            <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="textbookName != null  and textbookName != ''"> and textbook_name like concat('%', #{textbookName}, '%')</if>
+            <if test="authorRole != null  and authorRole != ''"> and author_role = #{authorRole}</if>
             <if test="isbnNumber != null  and isbnNumber != ''"> and isbn_number = #{isbnNumber}</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
+            <if test="params.beginPublishDate != null and params.beginPublishDate != ''"> and publish_date &gt;= #{params.beginPublishDate}</if>
+            <if test="params.endPublishDate != null and params.endPublishDate != ''"> and publish_date &lt;= #{params.endPublishDate}</if>
             <if test="textbookType != null  and textbookType != ''"> and textbook_type = #{textbookType}</if>
+            <if test="textbookLevel != null  and textbookLevel != ''"> and textbook_level = #{textbookLevel}</if>
             <if test="edition != null  and edition != ''"> and edition = #{edition}</if>
             <if test="usingInstitutions != null  and usingInstitutions != ''"> and using_institutions = #{usingInstitutions}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="params.beginCreatedAt != null and params.beginCreatedAt != ''"> and created_at &gt;= #{params.beginCreatedAt}</if>
+            <if test="params.endCreatedAt != null and params.endCreatedAt != ''"> and created_at &lt;= #{params.endCreatedAt}</if>
+            <if test="params.beginUpdatedAt != null and params.beginUpdatedAt != ''"> and updated_at &gt;= #{params.beginUpdatedAt}</if>
+            <if test="params.endUpdatedAt != null and params.endUpdatedAt != ''"> and updated_at &lt;= #{params.endUpdatedAt}</if>
         </where>
     </select>
     

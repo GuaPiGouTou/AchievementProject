@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-     <el-form class="paper-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+     <el-form class="achievement-search-form paper-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
       <el-form-item label="论文标题" prop="paperTitle">
         <el-input v-model.trim="queryParams.paperTitle" placeholder="请输入论文标题关键词" clearable />
       </el-form-item>
@@ -34,8 +34,40 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="审核状态" prop="auditStatus">
+        <el-select v-model="queryParams.auditStatus" placeholder="请选择审核状态" clearable filterable>
+          <el-option
+            v-for="item in audisItems"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="研究方向" prop="researchDirection">
         <el-input v-model.trim="queryParams.researchDirection" placeholder="请输入研究方向关键词" clearable />
+      </el-form-item>
+      <el-form-item label="录用时间">
+        <el-date-picker
+          v-model="acceptanceDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
+      </el-form-item>
+      <el-form-item label="发表时间">
+        <el-date-picker
+          v-model="publishDateRange"
+          type="daterange"
+          value-format="yyyy-MM-dd"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          clearable
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -123,11 +155,11 @@
                 type="text"
                 icon="el-icon-edit"
                 @click="handleAttachment(scope.row)"
-                v-hasPermi="['paper:paper:edit']"
+                v-hasPermi="['attachment:attachment:query']"
               >附件</el-button>
               </template>
             </el-table-column>
-        <el-table-column v-if="adminFlag" label="审核" align="center" width="100">
+        <el-table-column v-if="$auth.hasPermi('paper:paper:edit')" label="审核" align="center" width="100">
             <template slot-scope="scope">
               <el-button
                 size="mini"
@@ -221,7 +253,7 @@
                placeholder="请选择录用时间">
              </el-date-picker>
            </el-form-item>
-           <el-form-item v-if="form.paperStatus !== '已录用'" label="发表时间" prop="publishDate">
+           <el-form-item v-if="form.paperStatus === '已发表'" label="发表时间" prop="publishDate">
              <el-date-picker clearable
                v-model="form.publishDate"
                type="date"
@@ -353,6 +385,8 @@
 
 import { listPaper, getPaper, delPaper, addPaper, updatePaper } from "@/api/paper/paper"
 import Cookies from "js-cookie"
+import { buildChangedPayload, cloneForm } from "@/utils/achievementUpdate"
+import { buildDateRangeQuery } from "@/utils/dateRangeQuery"
 export default {
   name: "Paper",
   data() {
@@ -368,6 +402,8 @@ export default {
       //管理员标识
       adminFlag:false,
       isStudentUser: false,
+      acceptanceDateRange: [],
+      publishDateRange: [],
       //导出记录
       idsCount:0,
       //导出弹窗
@@ -504,6 +540,7 @@ export default {
       },
       // 表单参数
       form: {},
+      originalForm: {},
       // 表单校验
       rules: {
         paperTitle: [
@@ -520,7 +557,13 @@ export default {
           { required: true, message: "论文状态不能为空", trigger: "change" }
         ],
         acceptanceDate: [
-          { required: true, message: "录用时间不能为空", trigger: "change" }
+          { validator: (rule, value, callback) => {
+            if (this.form.paperStatus === "已录用" && !value) {
+              callback(new Error("已录用论文必须填写录用时间"))
+              return
+            }
+            callback()
+          }, trigger: "change" }
         ],
         researchDirection: [
           { required: false, message: "请输入研究方向", trigger: "blur" },
@@ -538,7 +581,13 @@ export default {
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         publishDate: [
-          { required: true, message: "发表时间不能为空", trigger: "change" }
+          { validator: (rule, value, callback) => {
+            if (this.form.paperStatus === "已发表" && !value) {
+              callback(new Error("已发表论文必须填写发表时间"))
+              return
+            }
+            callback()
+          }, trigger: "change" }
         ],
         volume: [
           { pattern: /^[a-zA-Z0-9\-\.\s]+$/, message: "卷号格式错误 (可包含数字、字母、点、横杠及空格)", trigger: "blur" },
@@ -589,12 +638,18 @@ export default {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
     },
+    handleApiError(error) {
+      console.error(error)
+    },
 /*审核提交*/
 EditAudios(audis)
 {
   if (this.form.paperId != null) {
     this.form.auditStatus = audis
-    updatePaper(this.form).then(response => {
+    updatePaper({
+      paperId: this.form.paperId,
+      auditStatus: audis
+    }).then(response => {
       if(response.paperId!=null)
       {
          this.$modal.msgSuccess("修改成功")
@@ -604,7 +659,7 @@ EditAudios(audis)
 
       this.AudisVisible = false
       this.getList()
-    })
+    }).catch(error => this.handleApiError(error))
   }
 },
 /*审核批改*/
@@ -620,10 +675,16 @@ handleAudis(row){
     /** 查询论文成果列表 */
     getList() {
       this.loading = true
-      listPaper(this.queryParams).then(response => {
+      listPaper(this.buildQueryParams()).then(response => {
         this.paperList = response.rows
         this.total = response.total
         this.loading = false
+      })
+    },
+    buildQueryParams() {
+      return buildDateRangeQuery(this.queryParams, {
+        AcceptanceDate: this.acceptanceDateRange,
+        PublishDate: this.publishDateRange
       })
     },
     // 取消按钮
@@ -655,6 +716,7 @@ handleAudis(row){
         archivalType: null,
         deptId: null
       }
+      this.originalForm = {}
       this.files = []; // 清空绑定的文件数组
       this.resetForm("form")
     },
@@ -672,7 +734,11 @@ handleAudis(row){
       this.queryParams.achievementsType = null
       this.queryParams.paperStatus = null
       this.queryParams.researchDirection = null
+      this.queryParams.publishDate = null
       this.queryParams.auditStatus = null
+      this.queryParams.params = {}
+      this.acceptanceDateRange = []
+      this.publishDateRange = []
       this.handleQuery()
     },
     // 多选框选中数据
@@ -697,6 +763,7 @@ handleAudis(row){
         if (!this.form.paperStatus) {
           this.form.paperStatus = this.form.acceptanceDate && !this.form.publishDate ? "已录用" : "已发表"
         }
+        this.originalForm = cloneForm(this.form)
         this.open = true
         this.title = "修改论文成果"
       })
@@ -705,11 +772,7 @@ handleAudis(row){
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.paperStatus === "已录用") {
-            this.form.publishDate = null
-          } else {
-            this.form.acceptanceDate = null
-          }
+          this.normalizePaperStatusFields()
           if (!this.showArchivalTypeField) {
             this.form.archivalType = null
           } else {
@@ -723,7 +786,13 @@ handleAudis(row){
             }
           }
           if (this.form.paperId != null) {
-            updatePaper(this.form).then(response => {
+            const updatePayload = buildChangedPayload(this.form, this.originalForm, "paperId")
+            if (Object.keys(updatePayload).length === 1) {
+              this.$modal.msgWarning("没有检测到修改内容")
+              return
+            }
+            this.fillPaperStatusPayload(updatePayload)
+            updatePaper(updatePayload).then(response => {
               console.log(response)
               if(response.paperId!=null)
               {
@@ -736,7 +805,7 @@ handleAudis(row){
 
               this.open = false
               this.getList()
-            })
+            }).catch(error => this.handleApiError(error))
           } else {
             addPaper(this.form).then(response => {
               if(response.paperId!=null)
@@ -749,7 +818,7 @@ handleAudis(row){
               }
               this.open = false
               this.getList()
-            })
+            }).catch(error => this.handleApiError(error))
           }
         }
       })
@@ -757,12 +826,32 @@ handleAudis(row){
     handlePaperStatusChange(value) {
       if (value === "已录用") {
         this.form.publishDate = null
+      } else if (value === "已发表") {
+        this.form.acceptanceDate = null
       } else {
         this.form.acceptanceDate = null
+        this.form.publishDate = null
       }
       this.$nextTick(() => {
         this.$refs.form && this.$refs.form.clearValidate(["publishDate", "acceptanceDate"])
       })
+    },
+    normalizePaperStatusFields() {
+      if (this.form.paperStatus === "已录用") {
+        this.form.publishDate = null
+      } else if (this.form.paperStatus === "已发表") {
+        this.form.acceptanceDate = null
+      }
+    },
+    fillPaperStatusPayload(payload) {
+      payload.paperStatus = this.form.paperStatus
+      if (this.form.paperStatus === "已录用") {
+        payload.acceptanceDate = this.form.acceptanceDate
+        payload.publishDate = null
+      } else if (this.form.paperStatus === "已发表") {
+        payload.publishDate = this.form.publishDate
+        payload.acceptanceDate = null
+      }
     },
     formatArchivalType(row, column, value) {
       const item = this.archivalTypes.find(option => option.value === value)
@@ -794,11 +883,11 @@ handleAudis(row){
       }
        const requestData = {
         idList:this.ids,
-        showColumns: this.selectClist || [],
-        data: {
-          ...this.queryParams
-        }
-       };
+	        showColumns: this.selectClist || [],
+	        data: {
+	          ...this.buildQueryParams()
+	        }
+	       };
       const jsonRequestBody = JSON.stringify(requestData);
       this.exceldownload('paper/paper/export', jsonRequestBody, `competition_${new Date().getTime()}.xlsx`)
     },
