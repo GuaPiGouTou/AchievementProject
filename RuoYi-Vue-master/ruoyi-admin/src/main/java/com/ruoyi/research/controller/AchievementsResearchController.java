@@ -54,7 +54,9 @@ public class AchievementsResearchController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.selectResearchList(getUserId(), getDeptId(), pageNum, pageSize);
+            achievementsResearch.setUserId(getUserId());
+            achievementsResearch.setDeptId(getDeptId());
+            res = contestFeignClient.selectResearchList(getUserId(), getDeptId(), pageNum, pageSize, achievementsResearch);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

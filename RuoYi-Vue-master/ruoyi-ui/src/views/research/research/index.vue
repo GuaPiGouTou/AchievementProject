@@ -108,7 +108,7 @@
       </el-table-column>
       <el-table-column label="项目状态" align="center" prop="projectStatus" />
       <el-table-column label="研究领域" align="center" prop="researchField" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -437,18 +437,6 @@ export default {
           //导出选择字段
           checkList: [
           {
-            value: 'researchId',
-            label: '项目id'
-          },
-          {
-            value: 'userId',
-            label: '用户ID'
-          },
-          {
-            value: 'deptId',
-            label: '部门ID'
-          },
-          {
             value: 'projectNumber',
             label: '项目编号'
           },
@@ -521,8 +509,8 @@ export default {
           },],
           selectClist:[],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
       ],
        // 1. 项目类别 (对应数据库 enum: '纵向项目','横向项目')
         projectCategorys: [
@@ -569,6 +557,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        researchId: null,
         projectNumber: null,
         projectName: null,
         projectCategory: null,
@@ -671,9 +660,10 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -700,7 +690,21 @@ export default {
       })
     }
   },
-  methods: {
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "researchId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
     initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
@@ -762,6 +766,29 @@ export default {
         this.loading = false
       })
     },
+    checkProjectNumberUnique() {
+      const projectNumber = this.form.projectNumber
+      if (!projectNumber) {
+        return Promise.resolve(true)
+      }
+      return listResearch({
+        pageNum: 1,
+        pageSize: 10,
+        projectNumber
+      }).then(response => {
+        const rows = response.rows || []
+        const currentId = this.form.researchId == null ? null : String(this.form.researchId)
+        const duplicate = rows.some(item => {
+          return item.projectNumber === projectNumber &&
+            (currentId === null || String(item.researchId) !== currentId)
+        })
+        if (duplicate) {
+          this.$modal.msgError(`项目编号“${projectNumber}”已存在，请更换后再提交`)
+          return false
+        }
+        return true
+      })
+    },
     // 取消按钮
     cancel() {
       this.open = false
@@ -813,9 +840,11 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.researchId = null
       this.queryParams.projectName = null
       this.queryParams.projectCategory = null
       this.queryParams.projectLevel = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -844,43 +873,48 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (!this.showArchivalTypeField) {
-            this.form.archivalType = null
-          } else {
-            if (!this.form.archivalType) {
-              this.$modal.msgError("归档类别为必填项")
+          this.checkProjectNumberUnique().then(unique => {
+            if (!unique) {
               return
             }
-            if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
-              this.$modal.msgError("归档类别无效，请重新选择")
-              return
+            if (!this.showArchivalTypeField) {
+              this.form.archivalType = null
+            } else {
+              if (!this.form.archivalType) {
+                this.$modal.msgError("归档类别为必填项")
+                return
+              }
+              if (!this.archivalTypes.find(item => item.value === this.form.archivalType)) {
+                this.$modal.msgError("归档类别无效，请重新选择")
+                return
+              }
             }
-          }
-          if (this.form.researchId != null) {
-            updateResearch(this.form).then(response => {
-              if(response.researchId!=null)
-              {
-                 this.$refs.file.submitUpload(response.researchId,"research");
-                 this.$modal.msgSuccess("修改成功")
-              }else{
-                  this.$modal.msgSuccess("修改成功,上传文件失败")
-              }
-              this.open = false
-              this.getList()
-            })
-          } else {
-            addResearch(this.form).then(response => {
-              if(response.researchId!=null)
-              {
-                 this.$refs.file.submitUpload(response.researchId,"research");
-                 this.$modal.msgSuccess("新增成功")
-              }else{
-                  this.$modal.msgSuccess("新增成功,上传文件失败")
-              }
-              this.open = false
-              this.getList()
-            })
-          }
+            if (this.form.researchId != null) {
+              updateResearch(this.form).then(response => {
+                if(response.researchId!=null)
+                {
+                   this.$refs.file.submitUpload(response.researchId,"research");
+                   this.$modal.msgSuccess("修改成功")
+                }else{
+                    this.$modal.msgSuccess("修改成功,上传文件失败")
+                }
+                this.open = false
+                this.getList()
+              })
+            } else {
+              addResearch(this.form).then(response => {
+                if(response.researchId!=null)
+                {
+                   this.$refs.file.submitUpload(response.researchId,"research");
+                   this.$modal.msgSuccess("新增成功")
+                }else{
+                    this.$modal.msgSuccess("新增成功,上传文件失败")
+                }
+                this.open = false
+                this.getList()
+              })
+            }
+          })
         }
       })
     },

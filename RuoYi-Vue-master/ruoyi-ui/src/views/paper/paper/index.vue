@@ -14,6 +14,26 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="论文归类" prop="achievementsType">
+        <el-select v-model="queryParams.achievementsType" placeholder="请选择论文归类" clearable filterable>
+          <el-option
+            v-for="item in achievementTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="论文状态" prop="paperStatus">
+        <el-select v-model="queryParams.paperStatus" placeholder="请选择论文状态" clearable filterable>
+          <el-option
+            v-for="item in paperStatuss"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="研究方向" prop="researchDirection">
         <el-input v-model.trim="queryParams.researchDirection" placeholder="请输入研究方向关键词" clearable />
       </el-form-item>
@@ -75,9 +95,16 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="论文标题" align="center" prop="paperTitle" />
       <el-table-column label="论文类别" align="center" prop="paperCategory" />
+      <el-table-column label="论文归类" align="center" prop="achievementsType" :formatter="formatAchievementType" />
+      <el-table-column label="论文状态" align="center" prop="paperStatus" />
       <el-table-column label="研究方向" align="center" prop="researchDirection" />
       <el-table-column label="作者信息" align="center" prop="authorInformation" />
       <el-table-column label="期刊名称" align="center" prop="journal" />
+      <el-table-column label="录用时间" align="center" prop="acceptanceDate" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.acceptanceDate, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="发表时间" align="center" prop="publishDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.publishDate, '{y}-{m}-{d}') }}</span>
@@ -87,7 +114,7 @@
       <el-table-column label="期号" align="center" prop="issue" />
       <el-table-column label="页码范围" align="center" prop="pageRange" />
       <el-table-column label="DOI号" align="center" prop="doi" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
        <el-table-column label="附件列表" align="center" prop="updatedAt" width="180">
               <template slot-scope="scope">
@@ -156,6 +183,26 @@
                   />
                 </el-select>
              </el-form-item>
+           <el-form-item label="论文归类" prop="achievementsType">
+              <el-select v-model="form.achievementsType" placeholder="请选择论文归类" style="width: 240px">
+                  <el-option
+                    v-for="item in achievementTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+             </el-form-item>
+           <el-form-item label="论文状态" prop="paperStatus">
+              <el-select v-model="form.paperStatus" placeholder="请选择论文状态" style="width: 240px" @change="handlePaperStatusChange">
+                  <el-option
+                    v-for="item in paperStatuss"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+             </el-form-item>
 
            <el-form-item label="研究方向" prop="researchDirection">
              <el-input v-model="form.researchDirection" placeholder="请输入研究方向（如：人工智能, 深度学习）" />
@@ -166,7 +213,15 @@
            <el-form-item label="期刊名称" prop="journal">
              <el-input v-model="form.journal" placeholder="请输入期刊/会议全称" />
            </el-form-item>
-           <el-form-item label="发表时间" prop="publishDate">
+           <el-form-item v-if="form.paperStatus === '已录用'" label="录用时间" prop="acceptanceDate">
+             <el-date-picker clearable
+               v-model="form.acceptanceDate"
+               type="date"
+               value-format="yyyy-MM-dd"
+               placeholder="请选择录用时间">
+             </el-date-picker>
+           </el-form-item>
+           <el-form-item v-if="form.paperStatus !== '已录用'" label="发表时间" prop="publishDate">
              <el-date-picker clearable
                v-model="form.publishDate"
                type="date"
@@ -321,20 +376,20 @@ export default {
       // 论文成果选择字段数组
           checkList: [
             {
-              value: 'paperId',
-              label: '论文id'
-            }, {
-              value: 'deptId',
-              label: '部门id'
-            }, {
-              value: 'userId',
-              label: '用户ID'
-            }, {
               value: 'paperTitle',
               label: '论文标题'
             }, {
               value: 'paperCategory',
               label: '论文类别'
+            }, {
+              value: 'achievementsType',
+              label: '论文归类'
+            }, {
+              value: 'paperStatus',
+              label: '论文状态'
+            }, {
+              value: 'acceptanceDate',
+              label: '录用时间'
             }, {
               value: 'researchDirection',
               label: '研究方向'
@@ -370,8 +425,16 @@ export default {
       //导出选择字段
       selectClist:[],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
+      ],
+      achievementTypes: [
+        { label: "教改论文", value: "教改项目" },
+        { label: "科研论文", value: "科研项目" }
+      ],
+      paperStatuss: [
+        { label: "已录用", value: "已录用" },
+        { label: "已发表", value: "已发表" }
       ],
       //上传文件组件
       files:[],
@@ -430,8 +493,11 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        paperId: null,
         paperTitle: null,
         paperCategory: null,
+        achievementsType: null,
+        paperStatus: null,
         researchDirection: null,
         publishDate: null,
         auditStatus: null,
@@ -446,6 +512,15 @@ export default {
         ],
         paperCategory: [
           { required: true, message: "论文类别不能为空", trigger: "change" }
+        ],
+        achievementsType: [
+          { required: true, message: "论文归类不能为空", trigger: "change" }
+        ],
+        paperStatus: [
+          { required: true, message: "论文状态不能为空", trigger: "change" }
+        ],
+        acceptanceDate: [
+          { required: true, message: "录用时间不能为空", trigger: "change" }
         ],
         researchDirection: [
           { required: false, message: "请输入研究方向", trigger: "blur" },
@@ -463,7 +538,7 @@ export default {
           { max: 100, message: "长度不能超过 100 个字符", trigger: "blur" }
         ],
         publishDate: [
-          { required: true, message: "发表时间不能为空", trigger: "blur" }
+          { required: true, message: "发表时间不能为空", trigger: "change" }
         ],
         volume: [
           { pattern: /^[a-zA-Z0-9\-\.\s]+$/, message: "卷号格式错误 (可包含数字、字母、点、横杠及空格)", trigger: "blur" },
@@ -483,9 +558,10 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -498,8 +574,18 @@ export default {
       return !this.isStudentUser
     }
   },
-  methods: {
-    initUserRoleScope() {
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "paperId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
     },
@@ -552,6 +638,9 @@ handleAudis(row){
         userId: null,
         paperTitle: null,
         paperCategory: null,
+        achievementsType: null,
+        paperStatus: null,
+        acceptanceDate: null,
         researchDirection: null,
         authorInformation: null,
         journal: null,
@@ -577,9 +666,13 @@ handleAudis(row){
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.paperId = null
       this.queryParams.paperTitle = null
       this.queryParams.paperCategory = null
+      this.queryParams.achievementsType = null
+      this.queryParams.paperStatus = null
       this.queryParams.researchDirection = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -591,6 +684,7 @@ handleAudis(row){
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      this.form.paperStatus = "已发表"
       this.open = true
       this.title = "添加论文成果"
     },
@@ -600,6 +694,9 @@ handleAudis(row){
       const paperId = row.paperId || this.ids
       getPaper(paperId).then(response => {
         this.form = response.data
+        if (!this.form.paperStatus) {
+          this.form.paperStatus = this.form.acceptanceDate && !this.form.publishDate ? "已录用" : "已发表"
+        }
         this.open = true
         this.title = "修改论文成果"
       })
@@ -608,6 +705,11 @@ handleAudis(row){
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          if (this.form.paperStatus === "已录用") {
+            this.form.publishDate = null
+          } else {
+            this.form.acceptanceDate = null
+          }
           if (!this.showArchivalTypeField) {
             this.form.archivalType = null
           } else {
@@ -651,6 +753,24 @@ handleAudis(row){
           }
         }
       })
+    },
+    handlePaperStatusChange(value) {
+      if (value === "已录用") {
+        this.form.publishDate = null
+      } else {
+        this.form.acceptanceDate = null
+      }
+      this.$nextTick(() => {
+        this.$refs.form && this.$refs.form.clearValidate(["publishDate", "acceptanceDate"])
+      })
+    },
+    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
+    formatAchievementType(row, column, value) {
+      const item = this.achievementTypes.find(option => option.value === value)
+      return item ? item.label : value
     },
     /** 删除按钮操作 */
     handleDelete(row) {

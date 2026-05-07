@@ -101,7 +101,7 @@
       <el-table-column label="社会效益" align="center" prop="socialBenefits" />
       <el-table-column label="联系人" align="center" prop="contactPerson" />
       <el-table-column label="联系电话" align="center" prop="contactPhone" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -390,18 +390,6 @@ export default {
       // 导出选择字段
       checkList: [
         {
-          value: 'transferId',
-          label: '转化id'
-        },
-        {
-          value: 'userId',
-          label: '用户ID'
-        },
-        {
-          value: 'deptId',
-          label: '部门ID'
-        },
-        {
           value: 'achievementName',
           label: '成果名称'
         },
@@ -487,8 +475,8 @@ export default {
         { label: "其他", value: "其他" }
       ],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
       ],
 
       // 2. 转化方式 (对应数据库 transfer_method)
@@ -533,6 +521,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        transferId: null,
         achievementName: null,
         achievementType: null,
         transferAmount: null,
@@ -592,9 +581,10 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -621,7 +611,21 @@ export default {
       })
     }
   },
-  methods: {
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "transferId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
     initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
@@ -733,9 +737,11 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.transferId = null
       this.queryParams.achievementName = null
       this.queryParams.achievementType = null
       this.queryParams.transferStatus = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据

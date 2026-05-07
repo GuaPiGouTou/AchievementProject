@@ -1,32 +1,39 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-              <el-form-item label="搜索字段" prop="competitionName">
-                <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-                    <el-option
-                      v-for="item in checkList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                </el-select>
-
-              </el-form-item>
-              <el-form-item >
-                <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-                <el-date-picker v-else
-                  clearable
-                  v-model="SelectQueryParamsValue"
-                  :type="TimeType"
-                  :value-format="TimeFormat"
-                  placeholder="请选择时间">
-                </el-date-picker>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-              </el-form-item>
-            </el-form>
+     <el-form class="software-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+      <el-form-item label="软件名称" prop="softwareName">
+        <el-input v-model.trim="queryParams.softwareName" placeholder="请输入软件名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="软件类型" prop="softwareType">
+        <el-select v-model="queryParams.softwareType" placeholder="请选择软件类型" clearable filterable>
+          <el-option
+            v-for="item in softwareTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="软著等级" prop="softwareCopyrightCertificateLevel">
+        <el-select v-model="queryParams.softwareCopyrightCertificateLevel" placeholder="请选择软著等级" clearable filterable>
+          <el-option
+            v-for="item in softwareCopyrightCertificateLevels"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="应用领域" prop="applicationField">
+        <el-input v-model.trim="queryParams.applicationField" placeholder="请输入应用领域关键词" clearable />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -76,7 +83,6 @@
 
     <el-table v-loading="loading" :data="softwareList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="andminFlag" label="软著id" align="center" prop="softwareId" />
       <el-table-column label="软件名称" align="center" prop="softwareName" />
       <el-table-column label="软件版本" align="center" prop="softwareVersion" />
       <el-table-column label="登记号" align="center" prop="certificateNo" />
@@ -102,16 +108,6 @@
       <el-table-column label="主要功能" align="center" prop="mainFunction" />
       <el-table-column label="应用领域" align="center" prop="applicationField" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="andminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="andminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -357,9 +353,6 @@ export default {
       //导出选择字段
        checkList: [
              {
-               value: 'softwareId',
-               label: '软著id'
-             }, {
                value: 'softwareName',
                label: '软件名称'
              }, {
@@ -398,12 +391,6 @@ export default {
              }, {
                value: 'auditStatus',
                label: '审核状态'
-             }, {
-               value: 'createdAt',
-               label: '创建时间'
-             }, {
-               value: 'updatedAt',
-               label: '更新时间'
              }
            ],
       selectClist:[],
@@ -450,6 +437,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        softwareId: null,
         softwareName: null,
         softwareVersion: null,
         publishDate: null,
@@ -520,8 +508,9 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -529,8 +518,18 @@ export default {
       this.andminFlag = true
     }
   },
-  methods: {
-    /*查询输入字段验证时间组件*/
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "softwareId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       console.log(res)
       this.SelectQueryParamsValue = null;
@@ -619,24 +618,18 @@ export default {
     },
     /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.softwareId = null
+      this.queryParams.softwareName = null
+      this.queryParams.softwareType = null
+      this.queryParams.softwareCopyrightCertificateLevel = null
+      this.queryParams.applicationField = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -828,4 +821,3 @@ export default {
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-

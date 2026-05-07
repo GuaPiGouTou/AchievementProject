@@ -116,6 +116,14 @@ public class AchievementsPatent extends BaseEntity
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-M-d'T'H:m:s")
     private Date updatedAt;
 
+    /** 归档类别 */
+    @Excel(name = "归档类别")
+    private String archivalType;
+
+    /** 成果项目类型 */
+    @Excel(name = "成果项目类型")
+    private String achievementsType;
+
     public void setPatentId(Long patentId) 
     {
         this.patentId = patentId;
@@ -317,6 +325,26 @@ public class AchievementsPatent extends BaseEntity
         return updatedAt;
     }
 
+    public void setArchivalType(String archivalType)
+    {
+        this.archivalType = archivalType;
+    }
+
+    public String getArchivalType()
+    {
+        return archivalType;
+    }
+
+    public void setAchievementsType(String achievementsType)
+    {
+        this.achievementsType = achievementsType;
+    }
+
+    public String getAchievementsType()
+    {
+        return achievementsType;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -331,6 +359,7 @@ public class AchievementsPatent extends BaseEntity
             .append("authorizationDate", getAuthorizationDate())
             .append("publicationDate", getPublicationDate())
             .append("publicationNo", getPublicationNo())
+            .append("authorizationNo", getAuthorizationNo())
             .append("patentValidity", getPatentValidity())
             .append("patentSubject", getPatentSubject())
             .append("patentStatus", getPatentStatus())
@@ -340,6 +369,8 @@ public class AchievementsPatent extends BaseEntity
             .append("auditStatus", getAuditStatus())
             .append("createdAt", getCreatedAt())
             .append("updatedAt", getUpdatedAt())
+            .append("archivalType", getArchivalType())
+            .append("achievementsType", getAchievementsType())
             .toString();
     }
 }

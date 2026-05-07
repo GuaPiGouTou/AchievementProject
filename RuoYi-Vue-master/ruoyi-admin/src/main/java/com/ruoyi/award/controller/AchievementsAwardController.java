@@ -51,7 +51,7 @@ public class AchievementsAwardController extends BaseController
             achievementsAward.setUserId(getUserId());
             achievementsAward.setDeptId(getDeptId());
 
-            res = contestFeignClient.getAwardList(getUserId(), getDeptId(), pageNum, pageSize);
+            res = contestFeignClient.getAwardList(getUserId(), getDeptId(), pageNum, pageSize, achievementsAward);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

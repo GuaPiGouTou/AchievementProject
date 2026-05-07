@@ -84,7 +84,7 @@
       <el-table-column label="奖项级别" align="center" prop="awardLevel" />
       <el-table-column label="奖项类别" align="center" prop="awardCategory" />
       <el-table-column label="获奖等次" align="center" prop="awardRanking" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -383,8 +383,8 @@ export default {
       },],
       selectClist:[],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
       ],
       //上传文件组件
       files:[],
@@ -438,6 +438,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        awardId: null,
         awardName: null,
         awardWinner: null,
         awardDate: null,
@@ -499,9 +500,10 @@ export default {
             }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -528,7 +530,21 @@ export default {
       })
     }
   },
-  methods: {
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "awardId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
     initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
@@ -624,9 +640,11 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.awardId = null
       this.queryParams.awardName = null
       this.queryParams.awardLevel = null
       this.queryParams.awardCategory = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据

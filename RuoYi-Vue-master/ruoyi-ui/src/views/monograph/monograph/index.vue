@@ -94,7 +94,7 @@
       <el-table-column label="合著者信息" align="center" prop="coAuthors" />
       <el-table-column label="国际标准书号" align="center" prop="internationalStandardBookNumber" />
       <el-table-column label="中国分类号" align="center" prop="chinaClassificationNumber" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -436,8 +436,8 @@ export default {
             ],
       selectClist:[],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
       ],
       //附件弹窗参数
       currentPaperId:null,
@@ -495,6 +495,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        monographId: null,
         monographTitle: null,
         authorRole: null,
         publishDate: null,
@@ -576,9 +577,10 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -605,7 +607,21 @@ export default {
       })
     }
   },
-  methods: {
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "monographId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
     initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
@@ -717,9 +733,11 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.monographId = null
       this.queryParams.monographTitle = null
       this.queryParams.monographType = null
       this.queryParams.subjectCategory = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据

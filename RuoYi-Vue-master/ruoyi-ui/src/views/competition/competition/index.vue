@@ -102,7 +102,7 @@
       <el-table-column label="参赛队员" align="center" prop="studentParticipants" />
       <el-table-column label="获奖证书编号" align="center" prop="awardCertificateNo" />
       <el-table-column label="竞赛官网" align="center" prop="competitionWebsite" />
-            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" />
+            <el-table-column v-if="showArchivalTypeField" label="归档类别" align="center" prop="archivalType" :formatter="formatArchivalType" />
 <el-table-column label="审核状态" align="center" prop="auditStatus" />
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
@@ -402,9 +402,6 @@ export default {
       //导出选择字段
       checkList:[
         {
-          value:'competitionId',
-          label:'竞赛id'
-        },{
           value:'competitionName',
           label:'竞赛名称'
         },{
@@ -456,8 +453,8 @@ export default {
       ],
       selectClist:[],
       archivalTypes: [
-        { label: "教育教学改革", value: "教育教学改革" },
-        { label: "课程设计", value: "课程设计" }
+        { label: "教育教学改革", value: "teachingCategory" },
+        { label: "课程设计", value: "researchOriented" }
       ],
       competitionTypes:[
         { value:'教师竞赛', label:'教师竞赛' },
@@ -526,8 +523,20 @@ export default {
         value:'参赛者',
         label:'参赛者'
       },{
-        value:'指导教师',
-        label:'指导教师'
+        value:'队长',
+        label:'队长'
+      },{
+        value:'队员',
+        label:'队员'
+      },{
+        value:'指导老师',
+        label:'指导老师'
+      },{
+        value:'评委',
+        label:'评委'
+      },{
+        value:'组织者',
+        label:'组织者'
       }],
       //竞赛级别
       competitionLevels:[{
@@ -573,15 +582,17 @@ export default {
         pageSize: 10,
         competitionName: null,
         competitionLevel: null,
-        competitionType: null,
-        competitionTime: null,
+	        competitionType: null,
+	        roleType: null,
+	        competitionTime: null,
         awardLevel: null,
         awardDate: null,
         competitionCategory: null,
         teamName: null,
         studentParticipants: null,
-        auditStatus: null,
-      },
+	        auditStatus: null,
+	        competitionId: null,
+	      },
       // 表单参数
       form: {},
       // 表单校验
@@ -648,9 +659,10 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
-    this.initUserRoleScope()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
+	    this.initUserRoleScope()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -678,7 +690,42 @@ export default {
       })
     }
   },
-  methods: {
+	  methods: {
+	    normalizeRoleType(value) {
+	      const roleMap = {
+	        "指导教师": "指导老师",
+	        "指导教师角色": "指导老师"
+	      }
+	      return roleMap[value] || value
+	    },
+	    normalizeCompetitionData(data) {
+	      if (Array.isArray(data)) {
+	        return data.map(item => this.normalizeCompetitionData(item))
+	      }
+	      const target = Object.assign({}, data || {})
+	      if (target.roleType) {
+	        target.roleType = this.normalizeRoleType(target.roleType)
+	      }
+	      return target
+	    },
+	    normalizeCompetitionDetail(data) {
+	      const detail = Array.isArray(data) ? data[0] : data
+	      return this.normalizeCompetitionData(detail)
+	    },
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "competitionId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    formatArchivalType(row, column, value) {
+      const item = this.archivalTypes.find(option => option.value === value)
+      return item ? item.label : value
+    },
     initUserRoleScope() {
       const roleKeys = (this.$store.getters.roles || []).map(item => String(item))
       this.isStudentUser = roleKeys.includes("student") || roleKeys.includes("studentAdministrator")
@@ -725,7 +772,8 @@ export default {
     {
       if (this.form.competitionId != null) {
         this.form.auditStatus = audis
-        updateCompetition(this.form).then(response => {
+        const form = this.normalizeCompetitionDetail(this.form)
+        updateCompetition(form).then(response => {
           if(response.competitionId!=null)
           {
              this.$modal.msgSuccess("修改成功")
@@ -739,24 +787,25 @@ export default {
       }
     },
     /*审核批改*/
-    handleAudis(row){
-      this.AudisStatis=row.auditStatus
-       this.reset()
-       const competitionId = row.competitionId || this.ids
-       getCompetition(competitionId).then(response => {
-         this.form = response.data
-         this.AudisVisible=true
-       })
-    },
+	    handleAudis(row){
+	      this.AudisStatis=row.auditStatus
+	       this.reset()
+	       const competitionId = row.competitionId || this.ids
+	       getCompetition(competitionId).then(response => {
+	         this.form = this.normalizeCompetitionDetail(response.data)
+	         this.AudisVisible=true
+	       })
+	    },
     /** 查询竞赛成果列表 */
-    getList() {
-      this.loading = true
-      listCompetition(this.queryParams).then(response => {
-        this.competitionList = response.rows
-        this.total = response.total
-        this.loading = false
-      })
-    },
+	    getList() {
+	      this.loading = true
+	      const params = this.normalizeCompetitionData(this.queryParams)
+	      listCompetition(params).then(response => {
+	        this.competitionList = (response.rows || []).map(item => this.normalizeCompetitionData(item))
+	        this.total = response.total
+	        this.loading = false
+	      })
+	    },
     // 取消按钮
     cancel() {
       this.open = false
@@ -805,11 +854,18 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
-      this.queryParams.competitionName = null
-      this.queryParams.competitionLevel = null
-      this.queryParams.competitionCategory = null
-      this.handleQuery()
-    },
+	      this.queryParams.competitionName = null
+	      this.queryParams.competitionLevel = null
+	      this.queryParams.competitionCategory = null
+	      this.queryParams.competitionType = null
+	      this.queryParams.roleType = null
+	      this.queryParams.awardLevel = null
+	      this.queryParams.teamName = null
+	      this.queryParams.studentParticipants = null
+	      this.queryParams.auditStatus = null
+	      this.queryParams.competitionId = null
+	      this.handleQuery()
+	    },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.competitionId)
@@ -825,23 +881,22 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset()
-      const competitionId = row.competitionId || this.ids
-      getCompetition(competitionId).then(response => {
-          console.log("竞赛详细信息")
-          console.log(response.data[0])
-        this.form = response.data
-        this.open = true
-        this.title = "修改竞赛成果"
-      })
+	      this.reset()
+	      const competitionId = row.competitionId || this.ids
+	      getCompetition(competitionId).then(response => {
+	        this.form = this.normalizeCompetitionDetail(response.data)
+	        this.open = true
+	        this.title = "修改竞赛成果"
+	      })
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
 
-        if (valid) {
-          if (!this.showArchivalTypeField) {
-            this.form.archivalType = null
+	        if (valid) {
+	          this.form = this.normalizeCompetitionDetail(this.form)
+	          if (!this.showArchivalTypeField) {
+	            this.form.archivalType = null
           } else {
             if (!this.form.archivalType) {
               this.$modal.msgError("归档类别为必填项")

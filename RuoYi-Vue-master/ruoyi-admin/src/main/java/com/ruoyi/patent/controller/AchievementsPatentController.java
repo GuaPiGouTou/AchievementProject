@@ -54,7 +54,9 @@ public class AchievementsPatentController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.selectPatentList(getUserId(), getDeptId(), pageNum, pageSize);
+            achievementsPatent.setUserId(getUserId());
+            achievementsPatent.setDeptId(getDeptId());
+            res = contestFeignClient.selectPatentList(getUserId(), getDeptId(), pageNum, pageSize, achievementsPatent);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

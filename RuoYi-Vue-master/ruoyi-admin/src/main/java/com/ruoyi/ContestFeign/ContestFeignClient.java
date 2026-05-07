@@ -26,7 +26,7 @@ public interface ContestFeignClient {
     /**
      * 查询竞赛列表
      */
-    @GetMapping("/api/selectContestList")
+    @PostMapping("/api/selectContestList")
     AjaxResult getContestList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
@@ -73,12 +73,13 @@ public interface ContestFeignClient {
     /**
      * 查询教材列表
      */
-    @GetMapping("/api/selectTextbookList")
+    @PostMapping("/api/selectTextbookList")
     AjaxResult getTextbookList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsTextbook achievementsTextbook
         );
 
     /**
@@ -118,12 +119,13 @@ public interface ContestFeignClient {
     /**
      * 查询获奖列表
      */
-    @GetMapping("/api/selectAwardkList")
+    @PostMapping("/api/selectAwardkList")
     AjaxResult getAwardList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsAward achievementsAward
         );
 
     /**
@@ -163,12 +165,13 @@ public interface ContestFeignClient {
     /**
      * 查询论文列表
      */
-    @GetMapping("/api/selectPaperList")
+    @PostMapping("/api/selectPaperList")
     AjaxResult getPaperList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsPaper achievementsPaper
     );
 
     /**
@@ -257,12 +260,13 @@ public interface ContestFeignClient {
     /**
      * 查询专著列表
      */
-    @GetMapping("/api/selectMonographList")
+    @PostMapping("/api/selectMonographList")
     AjaxResult selectMonographList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsMonograph achievementsMonograph
     );
 
     /**
@@ -304,12 +308,13 @@ public interface ContestFeignClient {
     /**
      * 查询软著列表
      */
-    @GetMapping("/api/selectSoftwareList")
+    @PostMapping("/api/selectSoftwareList")
     AjaxResult selectSoftwareList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsSoftware achievementsSoftware
     );
 
     /**
@@ -351,12 +356,13 @@ public interface ContestFeignClient {
     /**
      * 查询成果转化列表
      */
-    @GetMapping("/api/selectTransferList")
+    @PostMapping("/api/selectTransferList")
     AjaxResult selectTransferList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsTransfer achievementsTransfer
     );
 
     /**
@@ -398,12 +404,13 @@ public interface ContestFeignClient {
     /**
      * 查询专利列表
      */
-    @GetMapping("/api/selectPatentList")
+    @PostMapping("/api/selectPatentList")
     AjaxResult selectPatentList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsPatent achievementsPatent
     );
 
     /**
@@ -445,12 +452,13 @@ public interface ContestFeignClient {
     /**
      * 查询研究列表
      */
-    @GetMapping("/api/selectResearchList")
+    @PostMapping("/api/selectResearchList")
     AjaxResult selectResearchList(
             @RequestParam("userId") Long userId,
             @RequestParam("deptId") Long deptId,
             @RequestParam("pageNum") Integer pageNum,
-            @RequestParam("pageSize") Integer pageSize
+            @RequestParam("pageSize") Integer pageSize,
+            @RequestBody AchievementsResearch achievementsResearch
     );
 
     /**

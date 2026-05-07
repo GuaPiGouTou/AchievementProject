@@ -9,6 +9,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userId"    column="user_id"    />
         <result property="paperTitle"    column="paper_title"    />
         <result property="paperCategory"    column="paper_category"    />
+        <result property="paperStatus"    column="paper_status"    />
+        <result property="acceptanceDate"    column="acceptance_date"    />
         <result property="researchDirection"    column="research_direction"    />
         <result property="authorInformation"    column="author_information"    />
         <result property="journal"    column="journal"    />
@@ -21,10 +23,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createdAt"    column="created_at"    />
         <result property="updatedAt"    column="updated_at"    />
         <result property="deptId"    column="dept_id"    />
+        <result property="archivalType"    column="archival_type"    />
+        <result property="achievementsType"    column="achievements_type"    />
     </resultMap>
 
     <sql id="selectAchievementsPaperVo">
-        select paper_id, user_id, paper_title, paper_category, research_direction, author_information, journal, publish_date, volume, issue, page_range, doi, audit_status, created_at, updated_at, dept_id from achievements_paper
+        select paper_id, user_id, paper_title, paper_category, paper_status, acceptance_date, research_direction, author_information, journal, publish_date, volume, issue, page_range, doi, audit_status, created_at, updated_at, dept_id, archival_type, achievements_type from achievements_paper
     </sql>
 
     <select id="selectAchievementsPaperList" parameterType="AchievementsPaper" resultMap="AchievementsPaperResult">
@@ -34,9 +38,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null"> and dept_id = #{deptId}</if>
             <if test="paperTitle != null  and paperTitle != ''"> and paper_title like concat('%', #{paperTitle}, '%')</if>
             <if test="paperCategory != null  and paperCategory != ''"> and paper_category = #{paperCategory}</if>
+            <if test="paperStatus != null  and paperStatus != ''"> and paper_status = #{paperStatus}</if>
             <if test="researchDirection != null  and researchDirection != ''"> and research_direction like concat('%', #{researchDirection}, '%')</if>
             <if test="publishDate != null "> and publish_date = #{publishDate}</if>
             <if test="auditStatus != null  and auditStatus != ''"> and audit_status = #{auditStatus}</if>
+            <if test="archivalType != null  and archivalType != ''"> and archival_type = #{archivalType}</if>
+            <if test="achievementsType != null  and achievementsType != ''"> and achievements_type = #{achievementsType}</if>
         </where>
     </select>
     
@@ -51,6 +58,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id,</if>
             <if test="paperTitle != null and paperTitle != ''">paper_title,</if>
             <if test="paperCategory != null and paperCategory != ''">paper_category,</if>
+            <if test="paperStatus != null and paperStatus != ''">paper_status,</if>
+            <if test="acceptanceDate != null">acceptance_date,</if>
             <if test="researchDirection != null">research_direction,</if>
             <if test="authorInformation != null and authorInformation != ''">author_information,</if>
             <if test="journal != null and journal != ''">journal,</if>
@@ -63,11 +72,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createdAt != null">created_at,</if>
             <if test="updatedAt != null">updated_at,</if>
             <if test="deptId != null">dept_id,</if>
+            <if test="archivalType != null and archivalType != ''">archival_type,</if>
+            <if test="achievementsType != null and achievementsType != ''">achievements_type,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="paperTitle != null and paperTitle != ''">#{paperTitle},</if>
             <if test="paperCategory != null and paperCategory != ''">#{paperCategory},</if>
+            <if test="paperStatus != null and paperStatus != ''">#{paperStatus},</if>
+            <if test="acceptanceDate != null">#{acceptanceDate},</if>
             <if test="researchDirection != null">#{researchDirection},</if>
             <if test="authorInformation != null and authorInformation != ''">#{authorInformation},</if>
             <if test="journal != null and journal != ''">#{journal},</if>
@@ -80,6 +93,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createdAt != null">#{createdAt},</if>
             <if test="updatedAt != null">#{updatedAt},</if>
             <if test="deptId != null">#{deptId},</if>
+            <if test="archivalType != null and archivalType != ''">#{archivalType},</if>
+            <if test="achievementsType != null and achievementsType != ''">#{achievementsType},</if>
          </trim>
     </insert>
 
@@ -89,6 +104,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userId != null">user_id = #{userId},</if>
             <if test="paperTitle != null and paperTitle != ''">paper_title = #{paperTitle},</if>
             <if test="paperCategory != null and paperCategory != ''">paper_category = #{paperCategory},</if>
+            <if test="paperStatus != null and paperStatus != ''">paper_status = #{paperStatus},</if>
+            <if test="acceptanceDate != null">acceptance_date = #{acceptanceDate},</if>
             <if test="researchDirection != null">research_direction = #{researchDirection},</if>
             <if test="authorInformation != null and authorInformation != ''">author_information = #{authorInformation},</if>
             <if test="journal != null and journal != ''">journal = #{journal},</if>
@@ -101,6 +118,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createdAt != null">created_at = #{createdAt},</if>
             <if test="updatedAt != null">updated_at = #{updatedAt},</if>
             <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="archivalType != null and archivalType != ''">archival_type = #{archivalType},</if>
+            <if test="achievementsType != null and achievementsType != ''">achievements_type = #{achievementsType},</if>
         </trim>
         where paper_id = #{paperId}
     </update>

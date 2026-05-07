@@ -345,7 +345,26 @@ export default {
         return
       }
       this.pendingDialogOpen = false
-      this.$router.push(row.routePath).catch(() => {})
+      const routePathMap = {
+        '/paper/paper': '/achievement/paper',
+        '/award/award': '/achievement/award',
+        '/competition/competition': '/achievement/competition',
+        '/patent/patent': '/achievement/patent',
+        '/research/research': '/achievement/research',
+        '/software/software': '/achievement/software',
+        '/textbook/textbook': '/achievement/textbook',
+        '/monograph/monograph': '/achievement/monograph',
+        '/transfer/transfer': '/achievement/transfer'
+      }
+      this.$router.push({
+        path: routePathMap[row.routePath] || row.routePath,
+        query: {
+          pending: '1',
+          recordId: row.recordId,
+          recordIdField: row.recordIdField,
+          auditStatus: row.auditStatus || '待审核'
+        }
+      }).catch(() => {})
     }
   }
 }

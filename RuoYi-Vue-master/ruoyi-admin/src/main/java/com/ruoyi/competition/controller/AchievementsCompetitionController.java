@@ -52,6 +52,8 @@ public class AchievementsCompetitionController extends BaseController
         System.out.println(achievementsCompetition);
         // 使用Feign客户端调用远程服务
         try {
+            achievementsCompetition.setUserId(getUserId());
+            achievementsCompetition.setDeptId(getDeptId());
             res = contestFeignClient.getContestList(getUserId(), getDeptId(), pageNum, pageSize, achievementsCompetition);
         } catch (Exception e) {
             throw new RuntimeException(e);

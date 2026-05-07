@@ -11,6 +11,19 @@ let downloadLoadingInstance
 // 是否显示重新登录
 export let isRelogin = { show: false }
 
+function normalizeErrorMessage(message) {
+  if (!message) {
+    return message
+  }
+  if (message.includes("Duplicate entry") && message.includes("uk_project_number")) {
+    return "项目编号已存在，请更换后再提交"
+  }
+  if (message.includes("Duplicate entry")) {
+    return "唯一字段重复，请检查编号、证书号、ISBN 等字段是否已存在"
+  }
+  return message
+}
+
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 // 创建axios实例
 const service = axios.create({
@@ -77,7 +90,7 @@ service.interceptors.response.use(res => {
     // 未设置状态码则默认成功状态
     const code = res.data.code || 200
     // 获取错误信息
-    const msg = errorCode[code] || res.data.msg || errorCode['default']
+    const msg = normalizeErrorMessage(errorCode[code] || res.data.msg || errorCode['default'])
     // 二进制数据则直接返回
     if (res.request.responseType ===  'blob' || res.request.responseType ===  'arraybuffer') {
       return res.data
@@ -118,7 +131,7 @@ service.interceptors.response.use(res => {
     } else if (message.includes("Request failed with status code")) {
       message = "系统接口" + message.substr(message.length - 3) + "异常"
     }
-    Message({ message: message, type: 'error', duration: 5 * 1000 })
+    Message({ message: normalizeErrorMessage(message), type: 'error', duration: 5 * 1000 })
     return Promise.reject(error)
   }
 )

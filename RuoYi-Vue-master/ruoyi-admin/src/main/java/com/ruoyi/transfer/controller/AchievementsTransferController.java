@@ -54,7 +54,9 @@ public class AchievementsTransferController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.selectTransferList(getUserId(), getDeptId(), pageNum, pageSize);
+            achievementsTransfer.setUserId(getUserId());
+            achievementsTransfer.setDeptId(getDeptId());
+            res = contestFeignClient.selectTransferList(getUserId(), getDeptId(), pageNum, pageSize, achievementsTransfer);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

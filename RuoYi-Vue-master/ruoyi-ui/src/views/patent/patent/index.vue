@@ -1,30 +1,37 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-        <el-form-item label="搜索字段" prop="competitionName">
-          <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-              <el-option
-                v-for="item in checkList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
+     <el-form class="patent-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+        <el-form-item label="专利名称" prop="patentName">
+          <el-input v-model.trim="queryParams.patentName" placeholder="请输入专利名称关键词" clearable />
+        </el-form-item>
+        <el-form-item label="专利类型" prop="patentType">
+          <el-select v-model="queryParams.patentType" placeholder="请选择专利类型" clearable filterable>
+            <el-option
+              v-for="item in patentTypes"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
-
         </el-form-item>
-        <el-form-item >
-          <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-          <el-date-picker v-else
-            clearable
-            v-model="SelectQueryParamsValue"
-            :type="TimeType"
-            :value-format="TimeFormat"
-            placeholder="请选择竞赛时间">
-          </el-date-picker>
+        <el-form-item label="专利状态" prop="patentStatus">
+          <el-select v-model="queryParams.patentStatus" placeholder="请选择专利状态" clearable filterable>
+            <el-option
+              v-for="item in patentStatuss"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
-
+        <el-form-item label="技术领域" prop="technicalField">
+          <el-input v-model.trim="queryParams.technicalField" placeholder="请输入技术领域关键词" clearable />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
         </el-form-item>
       </el-form>
 
@@ -76,19 +83,14 @@
 
     <el-table v-loading="loading" :data="patentList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="andminFlag" label="专利id" align="center" prop="patentId" />
       <el-table-column label="专利名称" align="center" prop="patentName" />
       <el-table-column label="专利号" align="center" prop="patentNo" />
       <el-table-column label="专利类型" align="center" prop="patentType" />
       <el-table-column label="发明人顺序" align="center" prop="authorOrder" />
+      <el-table-column label="专利状态" align="center" prop="patentStatus" />
       <el-table-column label="申请日期" align="center" prop="applicationDate" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.applicationDate, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="授权日期" align="center" prop="authorizationDate" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.authorizationDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="公布日期" align="center" prop="publicationDate" width="180">
@@ -97,28 +99,21 @@
         </template>
       </el-table-column>
       <el-table-column label="公布号" align="center" prop="publicationNo" />
+      <el-table-column label="授权日期" align="center" prop="authorizationDate" width="180">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.authorizationDate, '{y}-{m}-{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="授权号" align="center" prop="authorizationNo" />
       <el-table-column label="专利有效期" align="center" prop="patentValidity" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.patentValidity, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="专利所属学科" align="center" prop="patentSubject" />
-      <el-table-column label="专利状态" align="center" prop="patentStatus" />
-      <el-table-column label="专利局" align="center" prop="patentOffice" />
       <el-table-column label="技术领域" align="center" prop="technicalField" />
-      <el-table-column label="专利法律状态" align="center" prop="legalStatus" />
       <el-table-column label="证书类型" align="center" prop="certificateType" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="andminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="andminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}-{h}:{m}:{ss}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -193,16 +188,6 @@
           <el-select v-model="form.patentStatus" placeholder="请选择专利状态">
               <el-option
                 v-for="item in patentStatuss"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="专利法律状态" prop="legalStatus">
-          <el-select v-model="form.legalStatus" placeholder="请选择专利法律状态">
-              <el-option
-                v-for="item in legalStatuss"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value">
@@ -412,18 +397,6 @@ export default {
       // 导出选择字段
       checkList: [
         {
-          value: 'patentId',
-          label: '专利id'
-        },
-        {
-          value: 'userId',
-          label: '用户ID'
-        },
-        {
-          value: 'deptId',
-          label: '部门ID'
-        },
-        {
           value: 'patentName',
           label: '专利名称'
         },
@@ -476,24 +449,12 @@ export default {
           label: '技术领域'
         },
         {
-          value: 'legalStatus',
-          label: '专利法律状态'
-        },
-        {
           value: 'certificateType',
           label: '证书类型'
         },
         {
           value: 'auditStatus',
           label: '审核状态'
-        },
-        {
-          value: 'createdAt',
-          label: '创建时间'
-        },
-        {
-          value: 'updatedAt',
-          label: '更新时间'
         }
       ],
       selectClist:[],
@@ -507,6 +468,7 @@ export default {
       // 2. 专利状态 (对应数据库 patent_status)
       patentStatuss: [
         { label: "申请中", value: "申请中" },
+        { label: "公开状态", value: "公开状态" },
         { label: "实质审查", value: "实质审查" },
         { label: "已授权", value: "已授权" },
         { label: "已转让", value: "已转让" },
@@ -525,6 +487,7 @@ export default {
       // 4. 证书类型 (对应数据库 certificate_type)
       certificateTypes: [
         { label: "受理通知书", value: "application_notice" },
+        { label: "发明专利申请公布通知书", value: "publication_notice" },
         { label: "授权证书", value: "authorization_certificate" }
       ],
       // 遮罩层
@@ -549,10 +512,10 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        patentId: null,
         patentName: null,
         patentType: null,
         patentStatus: null,
-        patentOffice: null,
         technicalField: null,
         auditStatus: null,
         createdAt: null,
@@ -579,6 +542,9 @@ export default {
        ],
        patentType: [
          { required: true, message: "专利类型不能为空", trigger: "change" }
+       ],
+       patentStatus: [
+         { required: true, message: "专利状态不能为空", trigger: "change" }
        ],
        authorOrder: [
          { required: true, message: "发明人顺序不能为空", trigger: "blur" },
@@ -624,8 +590,9 @@ export default {
      }
     }
   },
-  created() {
-    this.getList()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -633,8 +600,18 @@ export default {
       this.andminFlag = true
     }
   },
-  methods: {
-    /*查询输入字段验证时间组件*/
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "patentId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       console.log(res)
       this.SelectQueryParamsValue = null;
@@ -713,9 +690,7 @@ export default {
         patentValidity: null,
         patentSubject: null,
         patentStatus: null,
-        patentOffice: null,
         technicalField: null,
-        legalStatus: null,
         certificateType: null,
         auditStatus: null,
         createdAt: null,
@@ -726,24 +701,18 @@ export default {
     },
  /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.patentId = null
+      this.queryParams.patentName = null
+      this.queryParams.patentType = null
+      this.queryParams.patentStatus = null
+      this.queryParams.technicalField = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据
@@ -933,4 +902,3 @@ export default {
   border-color: #337ecc !important;       /* 边框色同步加深 */
 }
 </style>
-

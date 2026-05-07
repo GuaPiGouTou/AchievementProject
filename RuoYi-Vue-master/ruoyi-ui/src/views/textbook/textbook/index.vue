@@ -1,34 +1,46 @@
 <template>
   <div class="app-container">
-     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-              <el-form-item label="搜索字段" prop="competitionName">
-                <el-select v-model="SelectQueryParams" placeholder="请选择搜索字段" @change="changeQueryParams(SelectQueryParams)">
-                    <el-option
-                      v-for="item in checkList"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                      v-if="item.value=='updatedAt'||item.value=='createdAt'?adminFlag:true"
-                      >
-                    </el-option>
-                </el-select>
-
-              </el-form-item>
-              <el-form-item >
-                <el-input v-if="!TimeFlag" v-model="SelectQueryParamsValue" placeholder="请输入搜索内容" />
-                <el-date-picker v-else
-                  clearable
-                  v-model="SelectQueryParamsValue"
-                  :type="TimeType"
-                  :value-format="TimeFormat"
-                  placeholder="请选择时间">
-                </el-date-picker>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-              </el-form-item>
-            </el-form>
+     <el-form class="textbook-search-form" :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="88px">
+      <el-form-item label="教材名称" prop="textbookName">
+        <el-input v-model.trim="queryParams.textbookName" placeholder="请输入教材名称关键词" clearable />
+      </el-form-item>
+      <el-form-item label="作者角色" prop="authorRole">
+        <el-select v-model="queryParams.authorRole" placeholder="请选择作者角色" clearable filterable>
+          <el-option
+            v-for="item in authorRoles"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="教材类型" prop="textbookType">
+        <el-select v-model="queryParams.textbookType" placeholder="请选择教材类型" clearable filterable>
+          <el-option
+            v-for="item in textbookTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="教材层次" prop="textbookLevel">
+        <el-select v-model="queryParams.textbookLevel" placeholder="请选择教材层次" clearable filterable>
+          <el-option
+            v-for="item in textbookLevels"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">清空</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -78,7 +90,6 @@
 
     <el-table v-loading="loading" :data="textbookList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column v-if="adminFlag" label="教材id" align="center" prop="textbookId" />
       <el-table-column label="教材名称" align="center" prop="textbookName" />
       <el-table-column label="作者角色" align="center" prop="authorRole" />
       <el-table-column label="出版社" align="center" prop="pressName" />
@@ -96,16 +107,6 @@
       <el-table-column label="教材层次" align="center" prop="textbookLevel" />
       <el-table-column label="批准文号" align="center" prop="approvalNumber" />
       <el-table-column label="审核状态" align="center" prop="auditStatus" />
-      <el-table-column v-if="adminFlag" label="创建时间" align="center" prop="createdAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createdAt, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="adminFlag" label="更新时间" align="center" prop="updatedAt" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updatedAt, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="附件列表" align="center" width="100">
             <template slot-scope="scope">
               <el-button
@@ -360,15 +361,6 @@ export default {
       //导出选择字段列表
       checkList:[
       {
-        value: 'textbookId',
-        label: '教材id'
-      },{
-        value: 'userId',
-        label: '用户ID'
-      },{
-        value: 'deptId',
-        label: '部门ID'
-      },{
         value: 'textbookName',
         label: '教材名称'
       },{
@@ -407,12 +399,6 @@ export default {
       },{
         value: 'auditStatus',
         label: '审核状态'
-      },{
-        value: 'createdAt',
-        label: '创建时间'
-      },{
-        value: 'updatedAt',
-        label: '更新时间'
       }
       ],
       //上传文件组件
@@ -489,10 +475,13 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        textbookId: null,
         textbookName: null,
+        authorRole: null,
         isbnNumber: null,
         publishDate: null,
         textbookType: null,
+        textbookLevel: null,
         edition: null,
         usingInstitutions: null,
         auditStatus: null,
@@ -557,8 +546,9 @@ export default {
       }
     }
   },
-  created() {
-    this.getList()
+	  created() {
+	    this.applyRouteQuery()
+	    this.getList()
     /*管理权限标识符验证 显示隐藏组件*/
     const flag = Cookies.get("adminFlag")
     if(flag =="true")
@@ -566,8 +556,18 @@ export default {
       this.adminFlag = true
     }
   },
-  methods: {
-    /*查询输入字段验证时间组件*/
+	  methods: {
+	    applyRouteQuery() {
+	      const query = this.$route.query || {}
+	      const recordIdField = query.recordIdField || "textbookId"
+	      if (query.recordId && Object.prototype.hasOwnProperty.call(this.queryParams, recordIdField)) {
+	        this.queryParams[recordIdField] = query.recordId
+	      }
+	      if (query.auditStatus) {
+	        this.queryParams.auditStatus = query.auditStatus
+	      }
+	    },
+	    /*查询输入字段验证时间组件*/
     changeQueryParams(res){
       this.SelectQueryParamsValue = null;
       if(res=="updatedAt"||res=="createdAt"||res=="publishDate")
@@ -655,24 +655,18 @@ export default {
 
   /** 搜索按钮操作 */
     handleQuery() {
-     if(this.SelectQueryParams!=null&&this.SelectQueryParamsValue!=null)
-     {
-     this.queryParams[this.SelectQueryParams] = this.SelectQueryParamsValue
-     this.queryParams.pageNum = 1
-     this.getList()
-     }else{
-       if(this.SelectQueryParams==null)
-       {
-         this.$message.error("搜索字段不能为空")
-       }else{
-         this.$message.error("搜索值不能为空")
-       }
-
-     }
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      this.queryParams.textbookId = null
+      this.queryParams.textbookName = null
+      this.queryParams.authorRole = null
+      this.queryParams.textbookType = null
+      this.queryParams.textbookLevel = null
+      this.queryParams.auditStatus = null
       this.handleQuery()
     },
     // 多选框选中数据

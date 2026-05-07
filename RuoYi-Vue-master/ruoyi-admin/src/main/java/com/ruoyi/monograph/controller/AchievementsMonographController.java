@@ -56,7 +56,9 @@ public class AchievementsMonographController extends BaseController
         AjaxResult res = new AjaxResult();
         // 使用Feign客户端调用远程服务
         try {
-            res = contestFeignClient.selectMonographList(getUserId(), getDeptId(), pageNum, pageSize);
+            achievementsMonograph.setUserId(getUserId());
+            achievementsMonograph.setDeptId(getDeptId());
+            res = contestFeignClient.selectMonographList(getUserId(), getDeptId(), pageNum, pageSize, achievementsMonograph);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

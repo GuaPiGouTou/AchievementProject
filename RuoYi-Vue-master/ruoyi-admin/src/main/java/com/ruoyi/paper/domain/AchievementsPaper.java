@@ -33,6 +33,15 @@ public class AchievementsPaper extends BaseEntity
     @Excel(name = "论文类别")
     private String paperCategory;
 
+    /** 论文状态 */
+    @Excel(name = "论文状态")
+    private String paperStatus;
+
+    /** 录用时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "录用时间", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date acceptanceDate;
+
     /** 研究方向 */
     @Excel(name = "研究方向")
     private String researchDirection;
@@ -84,6 +93,14 @@ public class AchievementsPaper extends BaseEntity
     @Excel(name = "部门id")
     private Long deptId;
 
+    /** 归档类别 */
+    @Excel(name = "归档类别")
+    private String archivalType;
+
+    /** 成果项目类型 */
+    @Excel(name = "成果项目类型")
+    private String achievementsType;
+
     public void setPaperId(Long paperId)
     {
         this.paperId = paperId;
@@ -122,6 +139,26 @@ public class AchievementsPaper extends BaseEntity
     public String getPaperCategory()
     {
         return paperCategory;
+    }
+
+    public void setPaperStatus(String paperStatus)
+    {
+        this.paperStatus = paperStatus;
+    }
+
+    public String getPaperStatus()
+    {
+        return paperStatus;
+    }
+
+    public void setAcceptanceDate(Date acceptanceDate)
+    {
+        this.acceptanceDate = acceptanceDate;
+    }
+
+    public Date getAcceptanceDate()
+    {
+        return acceptanceDate;
     }
 
     public void setResearchDirection(String researchDirection)
@@ -244,6 +281,26 @@ public class AchievementsPaper extends BaseEntity
         return deptId;
     }
 
+    public void setArchivalType(String archivalType)
+    {
+        this.archivalType = archivalType;
+    }
+
+    public String getArchivalType()
+    {
+        return archivalType;
+    }
+
+    public void setAchievementsType(String achievementsType)
+    {
+        this.achievementsType = achievementsType;
+    }
+
+    public String getAchievementsType()
+    {
+        return achievementsType;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -251,6 +308,8 @@ public class AchievementsPaper extends BaseEntity
             .append("userId", getUserId())
             .append("paperTitle", getPaperTitle())
             .append("paperCategory", getPaperCategory())
+            .append("paperStatus", getPaperStatus())
+            .append("acceptanceDate", getAcceptanceDate())
             .append("researchDirection", getResearchDirection())
             .append("authorInformation", getAuthorInformation())
             .append("journal", getJournal())
@@ -263,6 +322,8 @@ public class AchievementsPaper extends BaseEntity
             .append("createdAt", getCreatedAt())
             .append("updatedAt", getUpdatedAt())
             .append("deptId", getDeptId())
+            .append("archivalType", getArchivalType())
+            .append("achievementsType", getAchievementsType())
             .toString();
     }
 }

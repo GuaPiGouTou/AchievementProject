@@ -29,15 +29,15 @@ import com.ruoyi.system.service.ISysNoticeService;
 public class SysIndexController
 {
     private static final AchievementTable[] ACHIEVEMENT_TABLES = {
-            new AchievementTable("论文成果", "achievements_paper", "paper_id", "paper_title", "/paper/paper"),
-            new AchievementTable("获奖成果", "achievements_award", "award_id", "award_name", "/award/award"),
-            new AchievementTable("竞赛成果", "achievements_competition", "competition_id", "competition_name", "/competition/competition"),
-            new AchievementTable("专利成果", "achievements_patent", "patent_id", "patent_name", "/patent/patent"),
-            new AchievementTable("科研项目", "achievements_research", "research_id", "project_name", "/research/research"),
-            new AchievementTable("软著成果", "achievements_software", "software_id", "software_name", "/software/software"),
-            new AchievementTable("教材成果", "achievements_textbook", "textbook_id", "textbook_name", "/textbook/textbook"),
-            new AchievementTable("专著成果", "achievements_monograph", "monograph_id", "monograph_title", "/monograph/monograph"),
-            new AchievementTable("成果转化", "achievements_transfer", "transfer_id", "achievement_name", "/transfer/transfer")
+            new AchievementTable("论文成果", "achievements_paper", "paper_id", "paper_title", "/achievement/paper"),
+            new AchievementTable("获奖成果", "achievements_award", "award_id", "award_name", "/achievement/award"),
+            new AchievementTable("竞赛成果", "achievements_competition", "competition_id", "competition_name", "/achievement/competition"),
+            new AchievementTable("专利成果", "achievements_patent", "patent_id", "patent_name", "/achievement/patent"),
+            new AchievementTable("科研项目", "achievements_research", "research_id", "project_name", "/achievement/research"),
+            new AchievementTable("软著成果", "achievements_software", "software_id", "software_name", "/achievement/software"),
+            new AchievementTable("教材成果", "achievements_textbook", "textbook_id", "textbook_name", "/achievement/textbook"),
+            new AchievementTable("专著成果", "achievements_monograph", "monograph_id", "monograph_title", "/achievement/monograph"),
+            new AchievementTable("成果转化", "achievements_transfer", "transfer_id", "achievement_name", "/achievement/transfer")
     };
 
     /** 系统基础配置 */
@@ -237,6 +237,7 @@ public class SysIndexController
                 item.put("module", achievementTable.label);
                 item.put("routePath", achievementTable.routePath);
                 item.put("recordId", row.get("record_id"));
+                item.put("recordIdField", achievementTable.recordIdField);
                 item.put("title", row.get("record_title"));
                 item.put("auditStatus", row.get("audit_status"));
                 item.put("createdAt", row.get("created_at"));
@@ -256,6 +257,7 @@ public class SysIndexController
         private final String label;
         private final String tableName;
         private final String idColumn;
+        private final String recordIdField;
         private final String titleColumn;
         private final String routePath;
 
@@ -264,8 +266,34 @@ public class SysIndexController
             this.label = label;
             this.tableName = tableName;
             this.idColumn = idColumn;
+            this.recordIdField = toCamelCase(idColumn);
             this.titleColumn = titleColumn;
             this.routePath = routePath;
+        }
+
+        private static String toCamelCase(String value)
+        {
+            StringBuilder result = new StringBuilder();
+            boolean upperNext = false;
+            for (int i = 0; i < value.length(); i++)
+            {
+                char ch = value.charAt(i);
+                if (ch == '_')
+                {
+                    upperNext = true;
+                    continue;
+                }
+                if (upperNext)
+                {
+                    result.append(Character.toUpperCase(ch));
+                    upperNext = false;
+                }
+                else
+                {
+                    result.append(ch);
+                }
+            }
+            return result.toString();
         }
     }
 }
